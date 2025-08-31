@@ -38,7 +38,7 @@ A BizHawk Lua script that reads live game data from Pokemon ROMs, providing real
 ## Installation
 
 1. Download and install [BizHawk](https://github.com/TASVideos/BizHawk/releases)
-2. Clone or download this repository
+2. Grab the latest [release](https://github.com/NathanTBeene/pokemon-memory-reader/releases).
 3. Load a supported Pokemon ROM in BizHawk
 4. Open the Lua Console in BizHawk (Tools → Lua Console)
 5. Load `main.lua` in the Lua Console
