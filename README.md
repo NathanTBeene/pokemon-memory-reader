@@ -12,6 +12,9 @@ A BizHawk Lua script that reads live game data from Pokemon ROMs, providing real
 - **HTTP API**: Built-in REST API server for external tool integration
 - **Comprehensive Data**: Full stats including IVs, EVs, moves, abilities, and more
 
+#### Future Features
+- **Battle Tracker**: The ability to track battle information live like the opposing pokemon, their moves, pp, etc. 
+
 ## Supported Games
 
 ### Generation 1
@@ -79,6 +82,20 @@ When the server is running, you can access:
 - `GET http://localhost:8080/party` - Get party data in JSON format
 - `GET http://localhost:8080/status` - Get server and game status
 - `GET http://localhost:8080/` - Get API documentation
+
+### Front End
+For those who are looking for a front end application to use this server, I have a [gitpages](https://nathantbeene.github.io/pokemon-memory-viewer/) open that has my current implementation of the frontend.
+
+![image](assets/example_frontend.png)
+
+##### Features
+- Initial Party tracker.
+- Changes info based on generation.
+- Gets generation-specific sprites.
+- Auto-refresh option.
+
+##### Unimplemented
+- Battle information.
 
 ## Architecture
 
