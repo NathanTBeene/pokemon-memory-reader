@@ -91,6 +91,7 @@ For those who are looking for a front end application to use this server, I have
 ##### Features
 - Initial Party tracker.
 - Changes info based on generation.
+- Export to **showdown** button.
 - Gets generation-specific sprites.
 - Auto-refresh option.
 
