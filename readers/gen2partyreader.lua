@@ -1,5 +1,4 @@
 local PartyReader = require("readers.partyreader")
-local MemoryReader = require("core.memoryreader")
 local gameUtils = require("utils.gameutils")
 local charmaps = require("data.charmaps")
 local constants = require("data.constants")

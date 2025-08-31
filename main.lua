@@ -2,7 +2,6 @@
 -- This script initializes the application and manages the game detection system
 
 -- Load required modules
-local charmaps = require("data.charmaps")
 local gameDetection = require("core.gamedetection")
 local Gen3PartyReader = require("readers.gen3partyreader")
 local Gen2PartyReader = require("readers.gen2partyreader")
@@ -20,30 +19,6 @@ MemoryReader.partyReader = nil
 MemoryReader.server = nil
 MemoryReader.serverEnabled = true -- Can be toggled by user
 
--- Global debug functions for console access
-function debugSpeciesData(slot)
-    debugTools.debugSpeciesData(MemoryReader, slot or 1)
-end
-
-function debugParty()
-    debugTools.debugParty(MemoryReader)
-end
-
-function debugAbility(slot)
-    debugTools.debugAbility(MemoryReader, slot or 1)
-end
-
-function debugAbilityNamesFromROM(startId, endId, address)
-    debugTools.debugAbilityNamesFromROM(startId or 0, endId or 10, address)
-end
-
-function searchAbilityTable()
-    debugTools.searchAbilityTable()
-end
-
-function dumpROMData(address, length)
-    debugTools.dumpROMData(address or 0x8240000, length or 256)
-end
 
 -- Initialize the Memory Reader
 function MemoryReader.initialize()
@@ -255,18 +230,6 @@ function toggleServer()
     MemoryReader.toggleServer()
 end
 
--- Debug functions (cleaner interface)
-function debugAbility(slot)
-    debugTools.debugAbility(MemoryReader, slot)
-end
-
-function debugAbilityNames(startId, endId)
-    debugTools.debugAbilityNames(MemoryReader, startId, endId)
-end
-
-function debugParty()
-    debugTools.debugParty(MemoryReader)
-end
 
 -- Help function to show available commands
 function help()

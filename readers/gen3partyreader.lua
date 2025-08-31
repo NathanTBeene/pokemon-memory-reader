@@ -1,5 +1,4 @@
 local PartyReader = require("readers.partyreader")
-local MemoryReader = require("core.memoryreader")
 local gameUtils = require("utils.gameutils")
 local pokemonData = require("readers.pokemondata")
 local constants = require("data.constants")
@@ -42,12 +41,12 @@ end
 function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
     local pokemonStart = startAddress + 100 * (slot - 1)
     
-    local personality = MemoryReader.readDword(pokemonStart)
+    local personality = gameUtils.readMemoryDword(pokemonStart)
     if personality == 0 then
         return nil
     end
     
-    local otid = MemoryReader.readDword(pokemonStart + 4)
+    local otid = gameUtils.readMemoryDword(pokemonStart + 4)
     local magicword = (personality ~ otid)
     
     local dataOrder = personality % 24
@@ -56,27 +55,27 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
     local effortOffset = (self.dataOrderTable.effort[dataOrder + 1] - 1) * 12
     local miscOffset = (self.dataOrderTable.misc[dataOrder + 1] - 1) * 12
     
-    local growth1 = (MemoryReader.readDword(pokemonStart + 32 + growthOffset) ~ magicword)
-    local growth2 = (MemoryReader.readDword(pokemonStart + 32 + growthOffset + 4) ~ magicword)
-    local growth3 = (MemoryReader.readDword(pokemonStart + 32 + growthOffset + 8) ~ magicword)
-    local attack1 = (MemoryReader.readDword(pokemonStart + 32 + attackOffset) ~ magicword)
-    local attack2 = (MemoryReader.readDword(pokemonStart + 32 + attackOffset + 4) ~ magicword)
-    local attack3 = (MemoryReader.readDword(pokemonStart + 32 + attackOffset + 8) ~ magicword)
-    local effort1 = (MemoryReader.readDword(pokemonStart + 32 + effortOffset) ~ magicword)
-    local effort2 = (MemoryReader.readDword(pokemonStart + 32 + effortOffset + 4) ~ magicword)
-    local effort3 = (MemoryReader.readDword(pokemonStart + 32 + effortOffset + 8) ~ magicword)
-    local misc1 = (MemoryReader.readDword(pokemonStart + 32 + miscOffset) ~ magicword)
-    local misc2 = (MemoryReader.readDword(pokemonStart + 32 + miscOffset + 4) ~ magicword)
-    local misc3 = (MemoryReader.readDword(pokemonStart + 32 + miscOffset + 8) ~ magicword)
+    local growth1 = (gameUtils.readMemoryDword(pokemonStart + 32 + growthOffset) ~ magicword)
+    local growth2 = (gameUtils.readMemoryDword(pokemonStart + 32 + growthOffset + 4) ~ magicword)
+    local growth3 = (gameUtils.readMemoryDword(pokemonStart + 32 + growthOffset + 8) ~ magicword)
+    local attack1 = (gameUtils.readMemoryDword(pokemonStart + 32 + attackOffset) ~ magicword)
+    local attack2 = (gameUtils.readMemoryDword(pokemonStart + 32 + attackOffset + 4) ~ magicword)
+    local attack3 = (gameUtils.readMemoryDword(pokemonStart + 32 + attackOffset + 8) ~ magicword)
+    local effort1 = (gameUtils.readMemoryDword(pokemonStart + 32 + effortOffset) ~ magicword)
+    local effort2 = (gameUtils.readMemoryDword(pokemonStart + 32 + effortOffset + 4) ~ magicword)
+    local effort3 = (gameUtils.readMemoryDword(pokemonStart + 32 + effortOffset + 8) ~ magicword)
+    local misc1 = (gameUtils.readMemoryDword(pokemonStart + 32 + miscOffset) ~ magicword)
+    local misc2 = (gameUtils.readMemoryDword(pokemonStart + 32 + miscOffset + 4) ~ magicword)
+    local misc3 = (gameUtils.readMemoryDword(pokemonStart + 32 + miscOffset + 8) ~ magicword)
     
-    local statusAux = MemoryReader.readDword(pokemonStart + 80)
+    local statusAux = gameUtils.readMemoryDword(pokemonStart + 80)
     local sleepTurns = 0
     local status = 0
     
     -- Read nickname (10 bytes starting at offset 8)
     local nickname = ""
     for i = 0, 9 do
-        local byte = MemoryReader.readByte(pokemonStart + 8 + i)
+        local byte = gameUtils.readMemoryByte(pokemonStart + 8 + i)
         if byte == 0xFF then
             break
         elseif byte ~= 0 then
@@ -179,16 +178,16 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
         cuteness = self:getBits(effort3, 0, 8),
         smartness = self:getBits(effort3, 8, 8),
         toughness = self:getBits(effort3, 16, 8),
-        level = MemoryReader.readByte(pokemonStart + 84),
+        level = gameUtils.readMemoryByte(pokemonStart + 84),
         status = status,
         sleepTurns = sleepTurns,
-        curHP = MemoryReader.readWord(pokemonStart + 86),
-        maxHP = MemoryReader.readWord(pokemonStart + 88),
-        attack = MemoryReader.readWord(pokemonStart + 90),
-        defense = MemoryReader.readWord(pokemonStart + 92),
-        speed = MemoryReader.readWord(pokemonStart + 94),
-        spAttack = MemoryReader.readWord(pokemonStart + 96),
-        spDefense = MemoryReader.readWord(pokemonStart + 98),
+        curHP = gameUtils.readMemoryWord(pokemonStart + 86),
+        maxHP = gameUtils.readMemoryWord(pokemonStart + 88),
+        attack = gameUtils.readMemoryWord(pokemonStart + 90),
+        defense = gameUtils.readMemoryWord(pokemonStart + 92),
+        speed = gameUtils.readMemoryWord(pokemonStart + 94),
+        spAttack = gameUtils.readMemoryWord(pokemonStart + 96),
+        spDefense = gameUtils.readMemoryWord(pokemonStart + 98),
         nature = personality % 25,
         natureName = pokemonData.getNatureName(personality % 25),
         ability = self:getBits(misc2, 31, 1),

@@ -1,4 +1,4 @@
-local MemoryReader = require("core.memoryreader")
+-- Base class for party readers (no direct memory access needed)
 
 local PartyReader = {}
 PartyReader.__index = PartyReader
