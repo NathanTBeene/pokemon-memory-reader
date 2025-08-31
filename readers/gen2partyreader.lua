@@ -101,7 +101,7 @@ function Gen2PartyReader:readPokemon(partyAddr, slot, gameCode, partyNicknamesAd
     local special = memory.read_u16_be(pokemonStart + 0x2C)
     
     -- Get species name  
-    local speciesName = constants.pokemonData.species[speciesId] or "Unknown"
+    local speciesName = constants.pokemonData.species[speciesId + 1] or "Unknown"
     
     -- Get types from species lookup (since ROM addresses aren't easily accessible)
     local type1, type2 = self:getSpeciesTypes(speciesId)
@@ -151,8 +151,8 @@ function Gen2PartyReader:readPokemon(partyAddr, slot, gameCode, partyNicknamesAd
         type2Name = self:getTypeName(type2),
         status = status,
         experience = experience,
-        nature = nature,
-        natureName = natureName,
+        nature = 0,          -- Gen2 doesn't have natures,
+        natureName = "None", -- Gen2 doesn't have natures
         move1 = move1,
         move2 = move2,
         move3 = move3,

@@ -410,18 +410,19 @@ local preloadedGameData = {
             GameCode = 1112560197,
             GameName = "Pokemon FireRed (U)",
             GameNumber = 3,
+            Generation = 3,
             Language = "English",
             VersionColor = "FireRed", 
             VersionGroup = 2,
             VersionName = "Pokémon FireRed v1.0"
         },
         Addresses = {
-            pstats = "2024284",
-            estats = "202402C", 
-            gBattleMons = "2023BE4",
-            gPlayerPartyCount = "2024029",
-            gBaseStats = "8254784",
-            gLevelUpLearnsets = "825D7B4"
+            pstats = "02024284",
+            estats = "0202402C", 
+            gBattleMons = "02023BE4",
+            gPlayerPartyCount = "02024029",
+            gBaseStats = "08254784",
+            gLevelUpLearnsets = "0825D7B4"
         }
     },
     [1163022402] = { -- Pokemon FireRed (detected variant - BPRE)
@@ -429,18 +430,19 @@ local preloadedGameData = {
             GameCode = 1163022402,
             GameName = "Pokemon FireRed (U)",
             GameNumber = 3,
+            Generation = 3,
             Language = "English",
             VersionColor = "FireRed", 
             VersionGroup = 2,
             VersionName = "Pokémon FireRed"
         },
         Addresses = {
-            pstats = "2024284",
-            estats = "202402C", 
-            gBattleMons = "2023BE4",
-            gPlayerPartyCount = "2024029",
-            gBaseStats = "8254784",
-            gLevelUpLearnsets = "825D7B4"
+            pstats = "02024284",
+            estats = "0202402C", 
+            gBattleMons = "02023BE4",
+            gPlayerPartyCount = "02024029",
+            gBaseStats = "08254784",
+            gLevelUpLearnsets = "0825D7B4"
         }
     },
     [1112556869] = { -- Pokemon Emerald
@@ -448,6 +450,7 @@ local preloadedGameData = {
             GameCode = 1112556869,
             GameName = "Pokemon Emerald (U)", 
             GameNumber = 2,
+            Generation = 3,
             Language = "English",
             VersionColor = "Emerald",
             VersionGroup = 1,
@@ -510,15 +513,16 @@ function gameDetection.detectGame()
                     Language = "English",
                     VersionColor = "FireRed",
                     GameNumber = 3,
+                    Generation = 3,
                     VersionGroup = 2
                 },
                 Addresses = {
-                    pstats = "2024284",
-                    estats = "202402C", 
-                    gBattleMons = "2023BE4",
-                    gPlayerPartyCount = "2024029",
-                    gBaseStats = "8254784",
-                    gLevelUpLearnsets = "825D7B4"
+                    pstats = "02024284",
+                    estats = "0202402C", 
+                    gBattleMons = "02023BE4",
+                    gPlayerPartyCount = "02024029",
+                    gBaseStats = "08254784",
+                    gLevelUpLearnsets = "0825D7B4"
                 }
             }
         elseif codeStr == "BPGE" then -- LeafGreen
@@ -530,16 +534,17 @@ function gameDetection.detectGame()
                     Language = "English",
                     VersionColor = "LeafGreen",
                     GameNumber = 3,
+                    Generation = 3,
                     VersionGroup = 2
                 },
                 Addresses = {
                     -- Using FireRed addresses as base - may need adjustment
-                    pstats = "2024284",
-                    estats = "202402C", 
-                    gBattleMons = "2023BE4",
-                    gPlayerPartyCount = "2024029",
-                    gBaseStats = "8254784",
-                    gLevelUpLearnsets = "825D7B4"
+                    pstats = "02024284",
+                    estats = "0202402C", 
+                    gBattleMons = "02023BE4",
+                    gPlayerPartyCount = "02024029",
+                    gBaseStats = "08254784",
+                    gLevelUpLearnsets = "0825D7B4"
                 }
             }
         elseif codeStr == "BPEE" then -- Emerald
@@ -551,6 +556,7 @@ function gameDetection.detectGame()
                     Language = "English", 
                     VersionColor = "Emerald",
                     GameNumber = 2,
+                    Generation = 3,
                     VersionGroup = 1
                 },
                 Addresses = {
@@ -570,12 +576,12 @@ function gameDetection.detectGame()
                     VersionName = "Pokémon Ruby",
                     Language = "English",
                     VersionColor = "Ruby", 
-                    GameNumber = 1,
+                    GameNumber = 3,
+                    Generation = 3,
                     VersionGroup = 1
                 },
                 Addresses = {
-                    -- Using Emerald addresses as base - may need adjustment
-                    pstats = "20244EC",
+                    pstats = "03004360",
                     estats = "2024744",
                     gBattleMons = "2024084", 
                     gPlayerPartyCount = "20244E9",
@@ -591,12 +597,12 @@ function gameDetection.detectGame()
                     VersionName = "Pokémon Sapphire",
                     Language = "English",
                     VersionColor = "Sapphire",
-                    GameNumber = 1, 
+                    GameNumber = 3, 
+                    Generation = 3,
                     VersionGroup = 1
                 },
                 Addresses = {
-                    -- Using Emerald addresses as base - may need adjustment
-                    pstats = "20244EC",
+                    pstats = "03004360",
                     estats = "2024744",
                     gBattleMons = "2024084", 
                     gPlayerPartyCount = "20244E9",

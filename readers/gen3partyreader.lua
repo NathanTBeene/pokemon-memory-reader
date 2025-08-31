@@ -104,7 +104,7 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
     
     -- Get the actual ability ID from species data
     local pokemonID = self:getBits(growth1, 0, 16)
-    local abilitySlot = self:getBits(misc1, 27, 1)
+    local abilitySlot = self:getBits(misc2, 31, 1)
     local speciesData = gameCode and pokemonData.readSpeciesData(pokemonID, gameCode) or nil
     local abilityID = 0
     local abilityName = "Unknown"
@@ -116,12 +116,22 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
             abilityID = speciesData.ability2
         end
         abilityName = pokemonData.getAbilityName(abilityID)
+        
+        -- Debug output for FireRed
+        if gameCode == "BPRE" then
+            print(string.format("DEBUG: Pokemon ID=%d, Slot=%d, Ability1=%d, Ability2=%d, Selected=%d, Name=%s", 
+                pokemonID, abilitySlot, speciesData.ability1 or 0, speciesData.ability2 or 0, abilityID, abilityName))
+        end
     end
     
     -- Get type information from species data
     local type1Name = "Unknown"
-    local type2Name = "Unknown"
+    local type2Name = "Unknown" 
+    local type1ID = 0
+    local type2ID = 0
     if speciesData then
+        type1ID = speciesData.type1
+        type2ID = speciesData.type2
         type1Name = pokemonData.getTypeName(speciesData.type1)
         type2Name = pokemonData.getTypeName(speciesData.type2)
     end
@@ -131,7 +141,7 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
         otid = otid,
         nickname = nickname,
         pokemonID = self:getBits(growth1, 0, 16),
-        speciesName = gameCode and pokemonData.readSpeciesName(self:getBits(growth1, 0, 16), gameCode) or "Unknown",
+        speciesName = self:getSpeciesName(self:getBits(growth1, 0, 16), gameCode),
         heldItem = constants.getItemName(self:getBits(growth1, 16, 16), 3),
         heldItemId = self:getBits(growth1, 16, 16),
         experience = growth2,
@@ -181,11 +191,11 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
         spDefense = MemoryReader.readWord(pokemonStart + 98),
         nature = personality % 25,
         natureName = pokemonData.getNatureName(personality % 25),
-        ability = self:getBits(misc1, 27, 1),
+        ability = self:getBits(misc2, 31, 1),
         abilityID = abilityID,
         abilityName = abilityName,
-        type1 = speciesData and speciesData.type1 or 0,
-        type2 = speciesData and speciesData.type2 or 0,
+        type1 = type1ID,
+        type2 = type2ID,
         type1Name = type1Name,
         type2Name = type2Name,
         hiddenPower = self:calculateHiddenPowerType(misc2),
@@ -225,89 +235,23 @@ function Gen3PartyReader:isShiny(personality, otid)
     return (shinyValue & 0xFFFF) < 8
 end
 
-function Gen3PartyReader:readSpeciesName(speciesId, gameCode)
-    local speciesNameTableAddr = self.speciesNameTableAddresses[gameCode]
-    if not speciesNameTableAddr then
-        return "Unknown"
+function Gen3PartyReader:getSpeciesName(speciesId, gameCode)
+    -- Try ROM lookup first
+    local romName = gameCode and pokemonData.readSpeciesName(speciesId, gameCode)
+    if romName and romName ~= "Unknown" then
+        return romName
     end
     
-    -- Each species name is 11 bytes long (10 chars + terminator)
-    local nameAddr = speciesNameTableAddr + (speciesId * 11)
-    
-    local name = ""
-    for i = 0, 10 do
-        local byte = MemoryReader.readByte(nameAddr + i)
-        if byte == 0xFF or byte == 0 then
-            break
-        end
-        local char = charmaps.GBACharmap[byte] or ""
-        name = name .. char
+    -- Fallback to constants  
+    if speciesId > 0 and speciesId <= #constants.pokemonData.species then
+        return constants.pokemonData.species[speciesId + 1]
     end
     
-    return name ~= "" and name or "Unknown"
+    return "Unknown"
 end
 
-function Gen3PartyReader:readSpeciesData(speciesId, gameCode)
-    local speciesDataTableAddr = self.speciesDataTableAddresses[gameCode]
-    if not speciesDataTableAddr or speciesId == 0 then
-        return nil
-    end
-    
-    -- Each species data entry is 28 bytes
-    local speciesAddr = speciesDataTableAddr + ((speciesId - 1) * 28)
-    
-    return {
-        baseHP = MemoryReader.readByte(speciesAddr + 0),
-        baseAttack = MemoryReader.readByte(speciesAddr + 1),
-        baseDefense = MemoryReader.readByte(speciesAddr + 2),
-        baseSpeed = MemoryReader.readByte(speciesAddr + 3),
-        baseSpAttack = MemoryReader.readByte(speciesAddr + 4),
-        baseSpDefense = MemoryReader.readByte(speciesAddr + 5),
-        type1 = MemoryReader.readByte(speciesAddr + 6),
-        type2 = MemoryReader.readByte(speciesAddr + 7),
-        catchRate = MemoryReader.readByte(speciesAddr + 8),
-        baseExpYield = MemoryReader.readByte(speciesAddr + 9),
-        effortYield = MemoryReader.readWord(speciesAddr + 10),
-        item1 = MemoryReader.readWord(speciesAddr + 12),
-        item2 = MemoryReader.readWord(speciesAddr + 14),
-        gender = MemoryReader.readByte(speciesAddr + 16),
-        eggCycles = MemoryReader.readByte(speciesAddr + 17),
-        baseFriendship = MemoryReader.readByte(speciesAddr + 18),
-        levelUpType = MemoryReader.readByte(speciesAddr + 19),
-        eggGroup1 = MemoryReader.readByte(speciesAddr + 20),
-        eggGroup2 = MemoryReader.readByte(speciesAddr + 21),
-        ability1 = MemoryReader.readByte(speciesAddr + 22),
-        ability2 = MemoryReader.readByte(speciesAddr + 23),
-        safariZoneRate = MemoryReader.readByte(speciesAddr + 24),
-        colorAndFlip = MemoryReader.readByte(speciesAddr + 25)
-    }
-end
 
-function Gen3PartyReader:readAbilityName(abilityId, gameCode)
-    local abilityNameTableAddr = self.abilityNameTableAddresses[gameCode]
-    if not abilityNameTableAddr or abilityId == 0 then
-        return "Unknown"
-    end
-    
-    -- Each ability name might be 13 bytes long (12 chars + terminator), but let's try different lengths
-    local nameLength = 13
-    if gameCode == "BPEE" then
-        nameLength = 13  -- Emerald might be different
-    end
-    local nameAddr = abilityNameTableAddr + (abilityId * nameLength)
-    
-    local name = ""
-    for i = 0, 12 do
-        local byte = MemoryReader.readByte(nameAddr + i)
-        if byte == 0xFF or byte == 0 then
-            break
-        end
-        local char = charmaps.GBACharmap[byte] or ""
-        name = name .. char
-    end
-    
-    return name ~= "" and name or "Unknown"
-end
+
 
 
 function Gen3PartyReader:validatePokemonData(pokemonData)

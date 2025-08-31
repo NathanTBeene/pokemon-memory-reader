@@ -20,6 +20,31 @@ MemoryReader.partyReader = nil
 MemoryReader.server = nil
 MemoryReader.serverEnabled = true -- Can be toggled by user
 
+-- Global debug functions for console access
+function debugSpeciesData(slot)
+    debugTools.debugSpeciesData(MemoryReader, slot or 1)
+end
+
+function debugParty()
+    debugTools.debugParty(MemoryReader)
+end
+
+function debugAbility(slot)
+    debugTools.debugAbility(MemoryReader, slot or 1)
+end
+
+function debugAbilityNamesFromROM(startId, endId, address)
+    debugTools.debugAbilityNamesFromROM(startId or 0, endId or 10, address)
+end
+
+function searchAbilityTable()
+    debugTools.searchAbilityTable()
+end
+
+function dumpROMData(address, length)
+    debugTools.dumpROMData(address or 0x8240000, length or 256)
+end
+
 -- Initialize the Memory Reader
 function MemoryReader.initialize()
     console.log("----- Pokemon Memory Reader -----")
@@ -165,7 +190,7 @@ function showParty()
             console.log("  Friendship: " .. pokemon.friendship)
             
             -- Ability
-            console.log("  Ability: " .. pokemon.abilityName .. " (slot " .. pokemon.ability .. ")")
+            console.log("  Ability: " .. pokemon.abilityName .. " (slot " .. (pokemon.ability + 1) .. ")")
             
             -- Hidden Power
             console.log("  Hidden Power: " .. pokemon.hiddenPowerName .. " (" .. pokemon.hiddenPower .. ")")

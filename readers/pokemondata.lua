@@ -9,6 +9,14 @@ local charmaps = require("data.charmaps")
 
 -- Read species name from ROM
 function pokemonData.readSpeciesName(speciesId, gameCode)
+    -- For Ruby/Sapphire, use constants table instead of ROM reading due to complex National Dex ordering
+    if gameCode == "AXVE" or gameCode == "AXPE" then
+        if speciesId > 0 and speciesId <= #constants.pokemonData.species then
+            return constants.pokemonData.species[speciesId - 24]
+        end
+        return "Unknown"
+    end
+    
     local gameConfig = configLoader.getGameConfig(gameCode)
     if not gameConfig or not gameConfig.addresses.speciesNameTable then
         return "Unknown"
@@ -95,6 +103,14 @@ end
 function pokemonData.getHiddenPowerName(hpTypeId)
     if hpTypeId >= 0 and hpTypeId < #constants.pokemonData.hiddenPowerType then
         return constants.pokemonData.hiddenPowerType[hpTypeId + 1]
+    end
+    return "Unknown"
+end
+
+-- Get move name from constants
+function pokemonData.getMoveName(moveId)
+    if moveId >= 0 and moveId <= #constants.pokemonData.moves then
+        return constants.pokemonData.moves[moveId + 1]
     end
     return "Unknown"
 end

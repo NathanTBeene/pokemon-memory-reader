@@ -2,6 +2,7 @@ local PartyReader = require("readers.partyreader")
 local MemoryReader = require("core.memoryreader")
 local gameUtils = require("utils.gameutils")
 local charmaps = require("data.charmaps")
+local constants = require("data.constants")
 
 local Gen1PartyReader = {}
 Gen1PartyReader.__index = Gen1PartyReader
@@ -33,15 +34,6 @@ local speciesNamesList = {
     "Porygon", "Aerodactyl", "MissingNo.", "Magnemite", "MissingNo.", "MissingNo.", "Charmander",
     "Squirtle", "Charmeleon", "Wartortle", "Charizard", "MissingNo.", "MissingNo.", "MissingNo.",
     "MissingNo.", "Oddish", "Gloom", "Vileplume", "Bellsprout", "Weepinbell", "Victreebel"
-}
-
--- Nature calculation for Gen1 (based on EXP)
-local natureNamesList = {
-    "Hardy", "Lonely", "Brave", "Adamant", "Naughty",
-    "Bold", "Docile", "Relaxed", "Impish", "Lax",
-    "Timid", "Hasty", "Serious", "Jolly", "Naive",
-    "Modest", "Mild", "Quiet", "Bashful", "Rash",
-    "Calm", "Gentle", "Sassy", "Careful", "Quirky"
 }
 
 function Gen1PartyReader:new()
@@ -82,7 +74,7 @@ function Gen1PartyReader:readPokemon(partyAddr, slot, gameCode, partyNicknamesAd
     
     -- Read basic data
     local curHP = memory.read_u16_be(pokemonStart + 0x1)
-    local level = memory.readbyte(pokemonStart + 0x3)
+    local level = memory.readbyte(pokemonStart + 0x21) -- Actual level, not false level at 0x3
     local status = memory.readbyte(pokemonStart + 0x4)
     local type1 = memory.readbyte(pokemonStart + 0x5)
     local type2 = memory.readbyte(pokemonStart + 0x6)
@@ -146,11 +138,7 @@ function Gen1PartyReader:readPokemon(partyAddr, slot, gameCode, partyNicknamesAd
     if nickname == "" then
         nickname = speciesName
     end
-    
-    -- Calculate nature from experience (for compatibility with Gen3+ display)
-    local nature = experience % 25
-    local natureName = natureNamesList[nature + 1] or "Hardy"
-    
+
     -- Check if shiny (Gen1 shiny determination)
     local isShiny = self:isShinyGen1(atkDV, defDV, speDV, spcDV)
     
@@ -172,8 +160,8 @@ function Gen1PartyReader:readPokemon(partyAddr, slot, gameCode, partyNicknamesAd
         type2Name = self:getTypeName(type2),
         status = status,
         experience = experience,
-        nature = nature,
-        natureName = natureName,
+        nature = 0,          -- Gen1 doesn't have natures
+        natureName = "None", -- Gen1 doesn't have natures
         move1 = move1,
         move2 = move2,
         move3 = move3,
@@ -197,7 +185,7 @@ function Gen1PartyReader:readPokemon(partyAddr, slot, gameCode, partyNicknamesAd
         tid = otid,
         sid = 0, -- Gen1 doesn't have SID
         isShiny = isShiny,
-        heldItem = 0, -- Gen1 doesn't have held items
+        heldItem = "None", -- Gen1 doesn't have held items
         friendship = 0, -- Gen1 doesn't have friendship
         ability = 0, -- Gen1 doesn't have abilities
         abilityName = "None",

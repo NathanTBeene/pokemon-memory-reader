@@ -453,16 +453,30 @@ function Server:getPartyData()
     
     -- Convert to API format
     local apiParty = {}
+    local pokemonData = require("readers.pokemondata")
     
     for i = 1, 6 do
         local pokemon = party[i]
         if pokemon and pokemon.pokemonID > 0 then
-            -- Build moves array (only include non-zero moves)
+            -- Build moves arrays (only include non-zero moves)
             local moves = {}
-            if pokemon.move1 and pokemon.move1 > 0 then table.insert(moves, pokemon.move1) end
-            if pokemon.move2 and pokemon.move2 > 0 then table.insert(moves, pokemon.move2) end
-            if pokemon.move3 and pokemon.move3 > 0 then table.insert(moves, pokemon.move3) end
-            if pokemon.move4 and pokemon.move4 > 0 then table.insert(moves, pokemon.move4) end
+            local moveNames = {}
+            if pokemon.move1 and pokemon.move1 > 0 then 
+                table.insert(moves, pokemon.move1)
+                table.insert(moveNames, pokemonData.getMoveName(pokemon.move1))
+            end
+            if pokemon.move2 and pokemon.move2 > 0 then 
+                table.insert(moves, pokemon.move2)
+                table.insert(moveNames, pokemonData.getMoveName(pokemon.move2))
+            end
+            if pokemon.move3 and pokemon.move3 > 0 then 
+                table.insert(moves, pokemon.move3)
+                table.insert(moveNames, pokemonData.getMoveName(pokemon.move3))
+            end
+            if pokemon.move4 and pokemon.move4 > 0 then 
+                table.insert(moves, pokemon.move4)
+                table.insert(moveNames, pokemonData.getMoveName(pokemon.move4))
+            end
             
             -- Build types array
             local types = {pokemon.type1Name}
@@ -495,11 +509,13 @@ function Server:getPartyData()
                     speed = pokemon.evSpeed
                 },
                 moves = moves,
+                moveNames = moveNames,
                 heldItem = pokemon.heldItem,
                 heldItemId = pokemon.heldItemId,
                 status = self:getStatusName(pokemon.status),
                 friendship = pokemon.friendship,
                 abilityIndex = pokemon.ability,
+                abilityId = pokemon.abilityID,
                 ability = pokemon.abilityName,
                 hiddenPower = pokemon.hiddenPowerName,
                 isShiny = pokemon.isShiny or false,
