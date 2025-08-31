@@ -259,7 +259,7 @@ function Server:handleRootRequest(client)
         <tr>
             <td><code>speciesId</code></td>
             <td>number</td>
-            <td>Pokemon species ID (Pokedex number)</td>
+            <td>Pokemon species ID (Internal Pokedex number)</td>
             <td>1</td>
         </tr>
         <tr>
@@ -301,19 +301,25 @@ function Server:handleRootRequest(client)
         <tr>
             <td><code>moves</code></td>
             <td>array</td>
-            <td>Array of move IDs (not move names)</td>
+            <td>Array of move IDs (<a href="https://bulbapedia.bulbagarden.net/wiki/List_of_moves" target="_blank">Source</a>)</td>
             <td>[33, 45, 73, 22]</td>
+        </tr>
+        <tr>
+            <td><code>moveNames</code></td>
+            <td>array</td>
+            <td>Array of move Names based on ID</td>
+            <td>["Tackle", "Growl"]</td>
         </tr>
         <tr>
             <td><code>heldItem</code></td>
             <td>string</td>
-            <td>Name of held item</td>
+            <td>Name of held item. "None" for a blank item.</td>
             <td>"Rindo Berry"</td>
         </tr>
         <tr>
             <td><code>heldItemId</code></td>
             <td>number</td>
-            <td>Numerical ID of held item</td>
+            <td>Numerical ID of held item. (<a href="https://bulbapedia.bulbagarden.net/wiki/List_of_items" target="_blank">Source</a>)</td>
             <td>187</td>
         </tr>
         <tr>
@@ -333,6 +339,12 @@ function Server:handleRootRequest(client)
             <td>number</td>
             <td>Which ability slot the Pokemon has (0 or 1)</td>
             <td>0</td>
+        </tr>
+        <tr>
+            <td><code>abilityId</code></td>
+            <td>number</td>
+            <td>The numerical ID of the ability. List can be found <a href="https://bulbapedia.bulbagarden.net/wiki/Ability" target="_blank">here</a>.</td>
+            <td>65 (Overgrow)</td>
         </tr>
         <tr>
             <td><code>ability</code></td>
@@ -421,7 +433,7 @@ function Server:handleRootRequest(client)
     <h2>Important Notes:</h2>
     <ul>
         <li>Empty party slots are not included in the /party response</li>
-        <li>Move IDs correspond to internal game values, not move names</li>
+        <li>Move IDs correspond to internal game values - move names are also provided in moveNames field</li>
         <li>IVs range from 0-31, EVs range from 0-252</li>
         <li>Status "Normal" indicates no status condition</li>
         <li>If no nickname is set, the nickname field will contain the species name</li>
