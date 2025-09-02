@@ -3,79 +3,111 @@
 
 local pokemonData = {}
 local gameUtils = require("utils.gameutils")
-local configLoader = require("utils.configloader")
 local constants = require("data.constants")
 local charmaps = require("data.charmaps")
+local GamesDB = require("data.gamesdb")
 
 -- Read species name from ROM
 function pokemonData.readSpeciesName(speciesId, gameCode)
-    -- For Ruby/Sapphire, use constants table instead of ROM reading due to complex National Dex ordering
-    if gameCode == "AXVE" or gameCode == "AXPE" then
+    -- Get game data from database
+    local gameData = GamesDB.getGameByCode(gameCode)
+    if not gameData then
+        return "Unknown"
+    end
+
+    -- This should be used for romhacks.
+    if gameData.gameInfo.isRomhack then
         if speciesId > 0 and speciesId <= #constants.pokemonData.species then
-            return constants.pokemonData.species[speciesId - 24]
+            return constants.pokemonData.species[speciesId + 1]
         end
         return "Unknown"
     end
-    
-    local gameConfig = configLoader.getGameConfig(gameCode)
-    if not gameConfig or not gameConfig.addresses.speciesNameTable then
-        return "Unknown"
+
+    -- Normal gen 3 games have an odd offset for the species ID's
+    -- Anything after the first two gens is offset by 24.
+    if speciesId > 0 and speciesId <= #constants.pokemonData.species then
+        -- If ID is greater than 177, we need to account for the offset.
+        if speciesId > 177 then
+            return constants.pokemonData.species[speciesId - 24]
+        end
+
+        return constants.pokemonData.species[speciesId + 1]
     end
     
-    local dataStructure = configLoader.getDataStructure(gameConfig.generation)
-    if not dataStructure then
-        return "Unknown"
-    end
-    
-    local tableAddr = gameConfig.addresses.speciesNameTable
-    local nameAddr = tableAddr + (speciesId * dataStructure.speciesNameLength)
-    
-    return gameUtils.readROMText(nameAddr, dataStructure.speciesNameLength, charmaps.GBACharmap) or "Unknown"
+    return "Unknown"
 end
 
 -- Read species base stats and abilities from ROM
 function pokemonData.readSpeciesData(speciesId, gameCode)
-    local gameConfig = configLoader.getGameConfig(gameCode)
-    if not gameConfig or not gameConfig.addresses.speciesDataTable then
+    -- Get game data from database
+    local gameData = GamesDB.getGameByCode(gameCode)
+    if not gameData then
+        console.log("Unknown game code: " .. gameCode)
+        return nil
+    end
+
+    -- Get species data table address
+    local speciesDataAddr = gameData.addresses.speciesDataTable
+    if not speciesDataAddr then
+        console.log("Unknown species data address for game code: " .. gameCode)
         return nil
     end
     
-    local dataStructure = configLoader.getDataStructure(gameConfig.generation)
-    if not dataStructure then
-        return nil
-    end
-    
-    local tableAddr = gameConfig.addresses.speciesDataTable
-    local speciesAddr = tableAddr + ((speciesId - 1) * dataStructure.speciesDataSize)
+    -- Convert hex string to number and calculate species offset
+    local tableAddr = gameUtils.hexToNumber(speciesDataAddr)
+    local speciesDataSize = 28  -- Standard GBA species data size
+    local speciesAddr = tableAddr + ((speciesId) * speciesDataSize)
     
     return {
-        baseHP = gameUtils.readROMByte(speciesAddr + 0),
-        baseAttack = gameUtils.readROMByte(speciesAddr + 1),
-        baseDefense = gameUtils.readROMByte(speciesAddr + 2),
-        baseSpeed = gameUtils.readROMByte(speciesAddr + 3),
-        baseSpAttack = gameUtils.readROMByte(speciesAddr + 4),
-        baseSpDefense = gameUtils.readROMByte(speciesAddr + 5),
-        type1 = gameUtils.readROMByte(speciesAddr + 6),
-        type2 = gameUtils.readROMByte(speciesAddr + 7),
-        catchRate = gameUtils.readROMByte(speciesAddr + 8),
-        baseExpYield = gameUtils.readROMByte(speciesAddr + 9),
-        effortYield = gameUtils.readROMWord(speciesAddr + 10),
-        item1 = gameUtils.readROMWord(speciesAddr + 12),
-        item2 = gameUtils.readROMWord(speciesAddr + 14),
-        gender = gameUtils.readROMByte(speciesAddr + 16),
-        eggCycles = gameUtils.readROMByte(speciesAddr + 17),
-        baseFriendship = gameUtils.readROMByte(speciesAddr + 18),
-        levelUpType = gameUtils.readROMByte(speciesAddr + 19),
-        eggGroup1 = gameUtils.readROMByte(speciesAddr + 20),
-        eggGroup2 = gameUtils.readROMByte(speciesAddr + 21),
-        ability1 = gameUtils.readROMByte(speciesAddr + 22),
-        ability2 = gameUtils.readROMByte(speciesAddr + 23),
-        safariZoneRate = gameUtils.readROMByte(speciesAddr + 24),
-        colorAndFlip = gameUtils.readROMByte(speciesAddr + 25)
+        baseHP = gameUtils.readROM8(speciesAddr + 0),
+        baseAttack = gameUtils.readROM8(speciesAddr + 1),
+        baseDefense = gameUtils.readROM8(speciesAddr + 2),
+        baseSpeed = gameUtils.readROM8(speciesAddr + 3),
+        baseSpAttack = gameUtils.readROM8(speciesAddr + 4),
+        baseSpDefense = gameUtils.readROM8(speciesAddr + 5),
+
+        -- If singular type, both types will be the same value.
+        type1 = gameUtils.readROM8(speciesAddr + 6),
+        type2 = gameUtils.readROM8(speciesAddr + 7),
+        catchRate = gameUtils.readROM8(speciesAddr + 8),
+        baseExpYield = gameUtils.readROM8(speciesAddr + 9),
+
+        -- Effort Values is two bytes. Each stat is given
+        -- two bits to determine the yield, and the rest
+        -- are empty.
+        effortYield = gameUtils.readROM16(speciesAddr + 10),
+
+        -- The item ID here is a 50% chance for the pokemon
+        -- to be holding this item.
+        item1 = gameUtils.readROM16(speciesAddr + 12),
+
+        -- Item 2 is a 5% chance. If both are the same, then
+        -- the pokemon will ALWAYS hold that item.
+        item2 = gameUtils.readROM16(speciesAddr + 14),
+
+        -- The chance a pokemon will be male or female.
+        -- This is compared with the lowest byte of the
+        -- personality value to determine the nature.
+        -- 0 = Always Male
+        -- 1-253 = Mixed
+        -- 254 = Always Female
+        -- 255 = Genderless
+        gender = gameUtils.readROM8(speciesAddr + 16),
+        eggCycles = gameUtils.readROM8(speciesAddr + 17),
+        baseFriendship = gameUtils.readROM8(speciesAddr + 18),
+        levelUpType = gameUtils.readROM8(speciesAddr + 19),
+        eggGroup1 = gameUtils.readROM8(speciesAddr + 20),
+        eggGroup2 = gameUtils.readROM8(speciesAddr + 21),
+
+        -- The ability IDs of the two slots.
+        ability1 = gameUtils.readROM8(speciesAddr + 22),
+        ability2 = gameUtils.readROM8(speciesAddr + 23),
+        safariZoneRate = gameUtils.readROM8(speciesAddr + 24),
+        colorAndFlip = gameUtils.readROM8(speciesAddr + 25)
     }
 end
 
--- Get ability name from constants (using lookup instead of ROM reading)
+-- Get ability name from constants
 function pokemonData.getAbilityName(abilityId)
     if abilityId >= 0 and abilityId < #constants.pokemonData.ability then
         return constants.pokemonData.ability[abilityId + 1]

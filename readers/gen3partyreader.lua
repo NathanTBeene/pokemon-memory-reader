@@ -25,7 +25,7 @@ end
 function Gen3PartyReader:readParty(addresses, gameCode)
     local party = {}
     for i = 1, 6 do
-        party[i] = self:readPokemon(addresses.playerStats, i, gameCode)
+        party[i] = self:readPokemon(addresses.partyAddr, i, gameCode)
     end
     return party
 end
@@ -41,53 +41,62 @@ end
 function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
     local pokemonStart = startAddress + 100 * (slot - 1)
     
-    local personality = gameUtils.readMemoryDword(pokemonStart)
+    -- Personality Value is 4 bytes at offset 0x00
+    local personality = gameUtils.read32(pokemonStart)
+    -- If we can't find a personality value, then there isn't a pokemon.
     if personality == 0 then
         return nil
     end
     
-    local otid = gameUtils.readMemoryDword(pokemonStart + 4)
+    -- Original Trainer ID is 4 bytes at offset 0x04
+    local otid = gameUtils.read32(pokemonStart + 4)
+    -- Magic Word is the XOR of Personality and Original Trainer ID
+    -- This is used for decryption of data substructure.
     local magicword = (personality ~ otid)
     
+    -- Determine data order based on personality value
     local dataOrder = personality % 24
     local growthOffset = (self.dataOrderTable.growth[dataOrder + 1] - 1) * 12
     local attackOffset = (self.dataOrderTable.attack[dataOrder + 1] - 1) * 12
     local effortOffset = (self.dataOrderTable.effort[dataOrder + 1] - 1) * 12
     local miscOffset = (self.dataOrderTable.misc[dataOrder + 1] - 1) * 12
-    
-    local growth1 = (gameUtils.readMemoryDword(pokemonStart + 32 + growthOffset) ~ magicword)
-    local growth2 = (gameUtils.readMemoryDword(pokemonStart + 32 + growthOffset + 4) ~ magicword)
-    local growth3 = (gameUtils.readMemoryDword(pokemonStart + 32 + growthOffset + 8) ~ magicword)
-    local attack1 = (gameUtils.readMemoryDword(pokemonStart + 32 + attackOffset) ~ magicword)
-    local attack2 = (gameUtils.readMemoryDword(pokemonStart + 32 + attackOffset + 4) ~ magicword)
-    local attack3 = (gameUtils.readMemoryDword(pokemonStart + 32 + attackOffset + 8) ~ magicword)
-    local effort1 = (gameUtils.readMemoryDword(pokemonStart + 32 + effortOffset) ~ magicword)
-    local effort2 = (gameUtils.readMemoryDword(pokemonStart + 32 + effortOffset + 4) ~ magicword)
-    local effort3 = (gameUtils.readMemoryDword(pokemonStart + 32 + effortOffset + 8) ~ magicword)
-    local misc1 = (gameUtils.readMemoryDword(pokemonStart + 32 + miscOffset) ~ magicword)
-    local misc2 = (gameUtils.readMemoryDword(pokemonStart + 32 + miscOffset + 4) ~ magicword)
-    local misc3 = (gameUtils.readMemoryDword(pokemonStart + 32 + miscOffset + 8) ~ magicword)
-    
-    local statusAux = gameUtils.readMemoryDword(pokemonStart + 80)
-    local sleepTurns = 0
-    local status = 0
-    
+
+    -- Data substructure is a 48 byte encrypted data section at offset 0x20
+    -- Each portion of this needs to be decrypted using the magic word.
+    -- The portions are decrypted 32 bits at a time.
+    -- Then they can be combined to form the final values.
+    local growth1 = (gameUtils.read32(pokemonStart + 32 + growthOffset) ~ magicword)
+    local growth2 = (gameUtils.read32(pokemonStart + 32 + growthOffset + 4) ~ magicword)
+    local growth3 = (gameUtils.read32(pokemonStart + 32 + growthOffset + 8) ~ magicword)
+    local attack1 = (gameUtils.read32(pokemonStart + 32 + attackOffset) ~ magicword)
+    local attack2 = (gameUtils.read32(pokemonStart + 32 + attackOffset + 4) ~ magicword)
+    local attack3 = (gameUtils.read32(pokemonStart + 32 + attackOffset + 8) ~ magicword)
+    local effort1 = (gameUtils.read32(pokemonStart + 32 + effortOffset) ~ magicword)
+    local effort2 = (gameUtils.read32(pokemonStart + 32 + effortOffset + 4) ~ magicword)
+    local effort3 = (gameUtils.read32(pokemonStart + 32 + effortOffset + 8) ~ magicword)
+    local misc1 = (gameUtils.read32(pokemonStart + 32 + miscOffset) ~ magicword)
+    local misc2 = (gameUtils.read32(pokemonStart + 32 + miscOffset + 4) ~ magicword)
+    local misc3 = (gameUtils.read32(pokemonStart + 32 + miscOffset + 8) ~ magicword)
+
+    -- Debug for radical red species
+    -- Stores directly at offset 32, unencrypted 16 bit little endian
+    local speciesDebug = gameUtils.read8(pokemonStart + 32) + (gameUtils.read8(pokemonStart + 33) * 256)
+    console.log("DEBUG: Raw Species Data: " .. string.format("%04X", speciesDebug))
+
     -- Read nickname (10 bytes starting at offset 8)
-    local nickname = ""
-    for i = 0, 9 do
-        local byte = gameUtils.readMemoryByte(pokemonStart + 8 + i)
-        if byte == 0xFF then
-            break
-        elseif byte ~= 0 then
-            local char = charmaps.GBACharmap[byte] or ""
-            nickname = nickname .. char
-        end
-    end
-    
-    if statusAux == 0 then
+    local bytes = gameUtils.readBytes(pokemonStart + 8, 10)
+    local nickname = charmaps.decryptText(bytes, "GBA")
+
+    -- Read status condition (1 byte at offset 0x50)
+    -- 0 = None, 1 = Sleep, 2 = Bad Sleep, 3 = Poison,
+    -- 4 = Burn, 5 = Freeze, 6 = Paralyze, 7 = Bad Poison
+    local statusAux = gameUtils.read32(pokemonStart + 80)
+    local status = 0
+    local sleepTurns = 0
+
+    if statusAux <= 0 then
         status = 0
     elseif statusAux < 8 then
-        sleepTurns = statusAux
         status = 1
     elseif statusAux == 8 then
         status = 2
@@ -100,11 +109,17 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
     elseif statusAux == 128 then
         status = 6
     end
-    
-    -- Get the actual ability ID from species data
-    local pokemonID = self:getBits(growth1, 0, 16)
+
+    -- Species ID is 2 bytes at offset 0 of the growth1 substructure.
+    local speciesID = self:getBits(growth1, 0, 16)
+    -- Held Item ID is 2 bytes at offset 16 of the growth1 substructure.
+    local heldItemID = self:getBits(growth1, 16, 16)
+
+    -- Attempt to search for the species data based on the id.
+    local speciesData = gameCode and pokemonData.readSpeciesData(speciesID, gameCode) or nil
+
+    -- Ability Slot index is 1 bit at offset 31 of the misc2 substructure.
     local abilitySlot = self:getBits(misc2, 31, 1)
-    local speciesData = gameCode and pokemonData.readSpeciesData(pokemonID, gameCode) or nil
     local abilityID = 0
     local abilityName = "Unknown"
     
@@ -116,11 +131,8 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
         end
         abilityName = pokemonData.getAbilityName(abilityID)
         
-        -- Debug output for FireRed
-        if gameCode == "BPRE" then
-            print(string.format("DEBUG: Pokemon ID=%d, Slot=%d, Ability1=%d, Ability2=%d, Selected=%d, Name=%s", 
-                pokemonID, abilitySlot, speciesData.ability1 or 0, speciesData.ability2 or 0, abilityID, abilityName))
-        end
+        print(string.format("DEBUG: Pokemon ID=%d, Slot=%d, Ability1=%d, Ability2=%d, Selected=%d, Name=%s", 
+                speciesID, abilitySlot, speciesData.ability1 or 0, speciesData.ability2 or 0, abilityID, abilityName))
     end
     
     -- Get type information from species data
@@ -139,11 +151,13 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
         personality = personality,
         otid = otid,
         nickname = nickname,
-        pokemonID = self:getBits(growth1, 0, 16),
-        speciesName = self:getSpeciesName(self:getBits(growth1, 0, 16), gameCode),
-        heldItem = constants.getItemName(self:getBits(growth1, 16, 16), 3),
-        heldItemId = self:getBits(growth1, 16, 16),
+        speciesID = speciesID,
+        speciesName = self:getSpeciesName(speciesID, gameCode),
+        heldItem = constants.getItemName(heldItemID, 3),
+        heldItemId = heldItemID,
         experience = growth2,
+        -- PP bonuses byte has two bits per move, noting
+        -- how many extra PP each move has.
         ppBonuses = self:getBits(growth3, 0, 8),
         friendship = self:getBits(growth3, 8, 8),
         pokerus = self:getBits(misc1, 0, 8),
@@ -178,16 +192,16 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
         cuteness = self:getBits(effort3, 0, 8),
         smartness = self:getBits(effort3, 8, 8),
         toughness = self:getBits(effort3, 16, 8),
-        level = gameUtils.readMemoryByte(pokemonStart + 84),
+        level = gameUtils.read8(pokemonStart + 84),
         status = status,
         sleepTurns = sleepTurns,
-        curHP = gameUtils.readMemoryWord(pokemonStart + 86),
-        maxHP = gameUtils.readMemoryWord(pokemonStart + 88),
-        attack = gameUtils.readMemoryWord(pokemonStart + 90),
-        defense = gameUtils.readMemoryWord(pokemonStart + 92),
-        speed = gameUtils.readMemoryWord(pokemonStart + 94),
-        spAttack = gameUtils.readMemoryWord(pokemonStart + 96),
-        spDefense = gameUtils.readMemoryWord(pokemonStart + 98),
+        curHP = gameUtils.read16(pokemonStart + 86),
+        maxHP = gameUtils.read16(pokemonStart + 88),
+        attack = gameUtils.read16(pokemonStart + 90),
+        defense = gameUtils.read16(pokemonStart + 92),
+        speed = gameUtils.read16(pokemonStart + 94),
+        spAttack = gameUtils.read16(pokemonStart + 96),
+        spDefense = gameUtils.read16(pokemonStart + 98),
         nature = personality % 25,
         natureName = pokemonData.getNatureName(personality % 25),
         ability = self:getBits(misc2, 31, 1),
@@ -247,22 +261,6 @@ function Gen3PartyReader:getSpeciesName(speciesId, gameCode)
     end
     
     return "Unknown"
-end
-
-
-
-
-
-function Gen3PartyReader:validatePokemonData(pokemonData)
-    if not PartyReader.validatePokemonData(self, pokemonData) then
-        return false
-    end
-    
-    if pokemonData.level and (pokemonData.level < 1 or pokemonData.level > 100) then
-        return false
-    end
-    
-    return true
 end
 
 return Gen3PartyReader

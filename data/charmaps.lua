@@ -39,7 +39,27 @@ local GBACharmap = { [0]=
 	":", "Ä", "Ö", "Ü", "ä", "ö", "ü", "↑", "↓", "←", "", "", "", "", "", ""
 }
 
+function decryptText(data, map)
+	local charmap = map == "GBA" and GBACharmap or GBCharmap
+	local decrypted = ""
+
+	for i = 1, #data do
+		local byte = data[i]  -- Access table element directly, not string byte
+		if byte == 0xFF then  -- GBA string terminator
+			break
+		elseif byte ~= 0 then
+			decrypted = decrypted .. (charmap[byte] or "?")
+		end
+	end
+
+	-- Remove trailing spaces
+	decrypted = decrypted:gsub("%s*$", "")
+
+	return decrypted
+end
+
 return {
 	GBCharmap = GBCharmap,
-	GBACharmap = GBACharmap
+	GBACharmap = GBACharmap,
+	decryptText = decryptText
 }

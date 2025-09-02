@@ -29,37 +29,26 @@ function MemoryReader.initialize()
     local detectedGame = gameDetection.detectGame()
     
     if detectedGame and detectedGame.GameInfo then
-        -- Show game code detected
-        local gameCode = gameUtils.gameCodeToString(detectedGame.GameInfo.GameCode)
-        console.log("Game code detected: " .. gameCode)
-        console.log("Config loaded...")
         
-        -- Get game name from our config
-        local configLoader = require("utils.configloader")
-        local gameConfig = configLoader.getGameConfig(gameCode)
-        local gameName = gameConfig and gameConfig.name or detectedGame.GameInfo.GameName or "Unknown Game"
+        -- Get game name from detected game info
+        local gameName = detectedGame.GameInfo.gameName or "Unknown Game"
         console.log("Game found: " .. gameName)
         
         MemoryReader.currentGame = detectedGame
         MemoryReader.gameAddresses = detectedGame.Addresses or {}
         MemoryReader.isInitialized = true
         
-        -- Initialize party reader based on game generation
-        if detectedGame.GameInfo.VersionColor == "Ruby" or 
-           detectedGame.GameInfo.VersionColor == "Sapphire" or
-           detectedGame.GameInfo.VersionColor == "Emerald" or
-           detectedGame.GameInfo.VersionColor == "FireRed" or
-           detectedGame.GameInfo.VersionColor == "LeafGreen" then
+        -- Initialize party reader based on game generation (simplified)
+        local generation = detectedGame.GameInfo.generation
+        if generation == 3 then
             MemoryReader.partyReader = Gen3PartyReader:new()
-        elseif detectedGame.GameInfo.VersionColor == "Gold" or
-               detectedGame.GameInfo.VersionColor == "Silver" or
-               detectedGame.GameInfo.VersionColor == "Crystal" then
+        elseif generation == 2 then
             MemoryReader.partyReader = Gen2PartyReader:new()
-        elseif detectedGame.GameInfo.VersionColor == "Red" or
-               detectedGame.GameInfo.VersionColor == "Blue" or
-               detectedGame.GameInfo.VersionColor == "Green" or
-               detectedGame.GameInfo.VersionColor == "Yellow" then
+        elseif generation == 1 then
             MemoryReader.partyReader = Gen1PartyReader:new()
+        else
+            console.log("Unsupported generation: " .. tostring(generation))
+            return false
         end
         
         -- Start HTTP server
@@ -86,9 +75,6 @@ function MemoryReader.update()
     if MemoryReader.server then
         MemoryReader.server:update()
     end
-    
-    -- Add your memory reading logic here
-    -- For now, just maintain the detection
 end
 
 -- Get party data based on game generation
@@ -104,20 +90,20 @@ function MemoryReader.getPartyData()
     end
     
     -- Read party based on game generation
-    local gameCode = gameUtils.gameCodeToString(MemoryReader.currentGame.GameInfo.GameCode)
+    local gameCode = MemoryReader.currentGame.GameInfo.gameCode
     local party
     
-    if MemoryReader.currentGame.GameInfo.Generation == 1 or MemoryReader.currentGame.GameInfo.Generation == 2 then
-        -- Gen1 and Gen2 use similar address structure
+    if MemoryReader.currentGame.GameInfo.generation == 1 or MemoryReader.currentGame.GameInfo.generation == 2 then
+        -- Gen1 and Gen2 use integer addresses directly
         party = MemoryReader.partyReader:readParty(MemoryReader.gameAddresses, gameCode)
     else
-        -- Gen3 uses pstats address
-        if not MemoryReader.gameAddresses.pstats then
+        -- Gen3 uses partyAddr (string hex format)
+        if not MemoryReader.gameAddresses.partyAddr then
             console.log("Player party address not available!")
             return nil
         end
-        local playerStatsAddr = gameUtils.hexToNumber(MemoryReader.gameAddresses.pstats)
-        party = MemoryReader.partyReader:readParty({playerStats = playerStatsAddr}, gameCode)
+        local partyAddr = gameUtils.hexToNumber(MemoryReader.gameAddresses.partyAddr)
+        party = MemoryReader.partyReader:readParty({partyAddr = partyAddr}, gameCode)
     end
     
     return party

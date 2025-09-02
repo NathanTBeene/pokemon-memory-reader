@@ -7,7 +7,7 @@ function PokemonFormatter.formatPartyData(party)
 
   for i = 1, 6 do
     local pokemon = party[i]
-    if pokemon and pokemon.pokemonID > 0 then
+    if pokemon and pokemon.speciesID > 0 then
       table.insert(output, PokemonFormatter.formatPokemonSlot(i, pokemon))
     else
       table.insert(output, "Slot " .. i .. ": Empty")
@@ -22,7 +22,7 @@ function PokemonFormatter.formatPokemonSlot(slot, pokemon)
   local lines = {}
   table.insert(lines, "Slot " .. slot .. ":")
   table.insert(lines, "  Nickname: " .. (pokemon.nickname ~= "" and pokemon.nickname or pokemon.speciesName))
-  table.insert(lines, "  Species: " .. pokemon.speciesName .. " (" .. pokemon.pokemonID .. ")")
+  table.insert(lines, "  Species: " .. pokemon.speciesName .. " (" .. pokemon.speciesID .. ")")
   table.insert(lines, "  Type: " .. pokemon.type1Name .. (pokemon.type1Name ~= pokemon.type2Name and "/" .. pokemon.type2Name or ""))
   table.insert(lines, "  Level: " .. pokemon.level)
   table.insert(lines, "  Nature: " .. pokemon.natureName .. " (" .. pokemon.nature .. ")")

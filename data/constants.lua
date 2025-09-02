@@ -26,7 +26,7 @@ local pokemonData = {
 	},
 	type = {
 		"Normal", "Fighting", "Flying", "Poison", "Ground", "Rock",
-		"Bug", "Ghost", "Steel", "???", "Fire", "Water",
+		"Bug", "Ghost", "Steel", "Fairy", "Fire", "Water",
 		"Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark"
 	},
 	hiddenPowerType = {
@@ -396,5 +396,5 @@ end
 
 return {
 	pokemonData = pokemonData,
-	getItemName = getItemName
+	getItemName = getItemName,
 }

@@ -3,12 +3,27 @@
 
 local gameUtils = {}
 
+-- Returns the system id of the currently loaded core.
+-- GB, GBC, GBA, NDS, etc.
+function gameUtils.getSystem()
+    return emu.getsystemid()
+end
+
+-- BizHawk provides ROM hash through gameinfo
+function gameUtils.getROMHash()
+    return gameinfo.getromhash()
+end
+
 -- Convert numeric game code to string
 function gameUtils.gameCodeToString(gameCodeNum)
     if not gameCodeNum then
         return nil
     end
-    
+
+    if type(gameCodeNum) == "string" then
+        return gameCodeNum
+    end
+
     return string.char(
         gameCodeNum % 256,
         (gameCodeNum >> 8) % 256,
@@ -26,15 +41,15 @@ function gameUtils.hexToNumber(hexStr)
 end
 
 -- Safe ROM memory read with address masking
-function gameUtils.readROMByte(address)
+function gameUtils.readROM8(address)
     return memory.read_u8(address & 0xFFFFFF, "ROM")
 end
 
-function gameUtils.readROMWord(address)
+function gameUtils.readROM16(address)
     return memory.read_u16_le(address & 0xFFFFFF, "ROM")
 end
 
-function gameUtils.readROMDword(address)
+function gameUtils.readROM32(address)
     return memory.read_u32_le(address & 0xFFFFFF, "ROM")
 end
 
@@ -82,16 +97,41 @@ function gameUtils.readMemory(addr, size)
     end
 end
 
-function gameUtils.readMemoryDword(addr)
+function gameUtils.read32(addr)
     return gameUtils.readMemory(addr, 4)
 end
 
-function gameUtils.readMemoryWord(addr)
+function gameUtils.read16(addr)
     return gameUtils.readMemory(addr, 2)
 end
 
-function gameUtils.readMemoryByte(addr)
+function gameUtils.read8(addr)
     return gameUtils.readMemory(addr, 1)
+end
+
+function gameUtils.readBytes(startAddr, size)
+    local bytes = {}
+    for i = 0, size - 1 do
+        table.insert(bytes, gameUtils.read8(startAddr + i))
+    end
+    return bytes
+end
+
+function gameUtils.readByteRange(startAddr, endAddr)
+    local bytes = {}
+    for i = startAddr, endAddr do
+        table.insert(bytes, gameUtils.read8(i))
+    end
+    return bytes
+end
+
+function gameUtils.hasValue(table, value)
+    for _, v in ipairs(table) do
+        if v == value then
+            return true
+        end
+    end
+    return false
 end
 
 return gameUtils

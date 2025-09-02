@@ -68,7 +68,7 @@ function Gen1PartyReader:readPokemon(partyAddr, slot, gameCode, partyNicknamesAd
     -- Read species ID
     local speciesId = memory.readbyte(pokemonStart)
     if speciesId == 0 then
-        return {pokemonID = 0}
+        return {speciesID = 0}
     end
     
     -- Read basic data
@@ -142,7 +142,7 @@ function Gen1PartyReader:readPokemon(partyAddr, slot, gameCode, partyNicknamesAd
     local isShiny = self:isShinyGen1(atkDV, defDV, speDV, spcDV)
     
     return {
-        pokemonID = speciesId,
+        speciesID = speciesId,
         speciesName = speciesName,
         nickname = nickname,
         level = level,
