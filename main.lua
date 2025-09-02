@@ -11,7 +11,7 @@ local debugTools = require("debug.debugtools")
 local Server = require("network.server")
 
 -- Global variables
-local MemoryReader = {}
+MemoryReader = {}
 MemoryReader.currentGame = nil
 MemoryReader.gameAddresses = nil
 MemoryReader.isInitialized = false
@@ -91,20 +91,17 @@ function MemoryReader.update()
     -- For now, just maintain the detection
 end
 
-
--- Show party information function
-function showParty()
+-- Get party data based on game generation
+function MemoryReader.getPartyData()
     if not MemoryReader.isInitialized then
         console.log("Memory Reader not initialized! Please restart the script.")
-        return
+        return nil
     end
     
     if not MemoryReader.partyReader then
         console.log("Party reader not available for this game!")
-        return
+        return nil
     end
-    
-    console.log("=== PARTY INFORMATION ===")
     
     -- Read party based on game generation
     local gameCode = gameUtils.gameCodeToString(MemoryReader.currentGame.GameInfo.GameCode)
@@ -117,67 +114,16 @@ function showParty()
         -- Gen3 uses pstats address
         if not MemoryReader.gameAddresses.pstats then
             console.log("Player party address not available!")
-            return
+            return nil
         end
         local playerStatsAddr = gameUtils.hexToNumber(MemoryReader.gameAddresses.pstats)
         party = MemoryReader.partyReader:readParty({playerStats = playerStatsAddr}, gameCode)
     end
     
-    for i = 1, 6 do
-        local pokemon = party[i]
-        if pokemon and pokemon.pokemonID > 0 then
-            console.log("Slot " .. i .. ":")
-            console.log("  Nickname: " .. (pokemon.nickname ~= "" and pokemon.nickname or pokemon.speciesName))
-            console.log("  Species: " .. pokemon.speciesName .. " (" .. pokemon.pokemonID .. ")")
-            console.log("  Type: " .. pokemon.type1Name .. (pokemon.type1Name ~= pokemon.type2Name and "/" .. pokemon.type2Name or ""))
-            console.log("  Level: " .. pokemon.level)
-            console.log("  Nature: " .. pokemon.natureName .. " (" .. pokemon.nature .. ")")
-            console.log("  HP: " .. pokemon.curHP .. "/" .. pokemon.maxHP)
-            
-            -- EVs
-            console.log("  EVs: HP:" .. pokemon.evHP .. " ATK:" .. pokemon.evAttack .. " DEF:" .. pokemon.evDefense .. 
-                       " SPA:" .. pokemon.evSpAttack .. " SPD:" .. pokemon.evSpDefense .. " SPE:" .. pokemon.evSpeed)
-            
-            -- IVs
-            console.log("  IVs: HP:" .. pokemon.ivHP .. " ATK:" .. pokemon.ivAttack .. " DEF:" .. pokemon.ivDefense .. 
-                       " SPA:" .. pokemon.ivSpAttack .. " SPD:" .. pokemon.ivSpDefense .. " SPE:" .. pokemon.ivSpeed)
-            
-            -- Moves array
-            local moves = {}
-            if pokemon.move1 > 0 then table.insert(moves, pokemon.move1) end
-            if pokemon.move2 > 0 then table.insert(moves, pokemon.move2) end
-            if pokemon.move3 > 0 then table.insert(moves, pokemon.move3) end
-            if pokemon.move4 > 0 then table.insert(moves, pokemon.move4) end
-            console.log("  Moves: [" .. table.concat(moves, ", ") .. "]")
-            
-            -- Status
-            if pokemon.status > 0 then
-                local statusNames = {"Sleep", "Poison", "Burn", "Freeze", "Paralysis", "Bad Poison"}
-                console.log("  Status: " .. statusNames[pokemon.status])
-            else
-                console.log("  Status: Normal")
-            end
-            
-            -- Held Item
-            console.log("  Held Item: " .. pokemon.heldItem .. " (ID: " .. (pokemon.heldItemId or 0) .. ")")
-            
-            -- Friendship
-            console.log("  Friendship: " .. pokemon.friendship)
-            
-            -- Ability
-            console.log("  Ability: " .. pokemon.abilityName .. " (slot " .. (pokemon.ability + 1) .. ")")
-            
-            -- Hidden Power
-            console.log("  Hidden Power: " .. pokemon.hiddenPowerName .. " (" .. pokemon.hiddenPower .. ")")
-            
-            console.log("")
-        else
-            console.log("Slot " .. i .. ": Empty")
-        end
-    end
-    
-    console.log("=== END PARTY INFO ===")
+    return party
 end
+
+
 
 -- Server management functions
 function MemoryReader.startServer()
@@ -214,44 +160,6 @@ function MemoryReader.toggleServer()
     end
 end
 
--- User command functions for server control
-function startServer()
-    MemoryReader.serverEnabled = true
-    MemoryReader.startServer()
-end
-
-function stopServer()
-    MemoryReader.serverEnabled = false
-    MemoryReader.stopServer()
-end
-
-function toggleServer()
-    MemoryReader.serverEnabled = not MemoryReader.serverEnabled
-    MemoryReader.toggleServer()
-end
-
-
--- Help function to show available commands
-function help()
-    console.log("=== Pokemon Memory Reader Commands ===")
-    console.log("showParty() - Display current party information")
-    console.log("")
-    console.log("Server Commands:")
-    console.log("  startServer() - Start HTTP API server")
-    console.log("  stopServer() - Stop HTTP API server") 
-    console.log("  toggleServer() - Toggle server on/off")
-    console.log("")
-    console.log("Debug Commands:")
-    console.log("  debugParty() - Debug party data")
-    console.log("  debugAbility(slot) - Debug ability for Pokemon slot")
-    console.log("  debugAbilityNames(start, end) - Debug ability names")
-    console.log("")
-    console.log("API Endpoints (when server running):")
-    console.log("  GET http://localhost:8080/party - Party data in JSON")
-    console.log("  GET http://localhost:8080/status - Server status")
-    console.log("  GET http://localhost:8080/ - API documentation")
-    console.log("=====================================")
-end
 
 -- Shutdown cleanup
 function MemoryReader.shutdown()
@@ -264,6 +172,17 @@ function MemoryReader.shutdown()
     
     MemoryReader.isInitialized = false
 end
+
+-- Register user commands
+local UserCommands = require("commands.usercommands")
+
+-- Register global command functions
+showParty = UserCommands.showParty
+startServer = UserCommands.startServer
+stopServer = UserCommands.stopServer
+toggleServer = UserCommands.toggleServer
+help = UserCommands.help
+debugParty = UserCommands.debugParty
 
 -- Initialize on script start
 if MemoryReader.initialize() then
