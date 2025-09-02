@@ -152,7 +152,8 @@ GamesDB.games = {
             partyAddr = "03004360",
             enemyPartyAddr = "2024744",
             gBattleMons = "2024084", 
-            speciesDataTable = "81FEC34",
+            speciesDataTable = "081FEC34",
+            speciesNameTable = "081F716C"
         }
     },
     
@@ -171,7 +172,8 @@ GamesDB.games = {
             partyAddr = "03004360",
             enemyPartyAddr = "2024744",
             gBattleMons = "2024084", 
-            speciesDataTable = "81FEBA8",
+            speciesDataTable = "081FEBA8",
+            speciesNameTable = "081F70FC"
         }
     },
     
@@ -191,6 +193,7 @@ GamesDB.games = {
             enemyPartyAddr = "2024744",
             gBattleMons = "2024084", 
             speciesDataTable = "83203CC",
+            speciesNameTable = "083185C8"
         }
     },
     
@@ -210,6 +213,7 @@ GamesDB.games = {
             enemyPartyAddr = "0202402C", 
             gBattleMons = "02023BE4",
             speciesDataTable = "082547A0",
+            speciesNameTable = "08245EE0"
         }
     },
     
@@ -229,6 +233,7 @@ GamesDB.games = {
             enemyPartyAddr = "0202402C",
             gBattleMons = "02023BE4",
             speciesDataTable = "0825477C",
+            speciesNameTable = "08245EBC"
         }
     },
 

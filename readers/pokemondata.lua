@@ -15,6 +15,15 @@ function pokemonData.readSpeciesName(speciesId, gameCode)
         return "Unknown"
     end
 
+    local speciesNameTableAddr = gameData.addresses.speciesNameTable
+
+    if speciesNameTableAddr then
+        local nameAddr = gameUtils.hexToNumber(speciesNameTableAddr) + (speciesId * 11)
+        local nameBytes = gameUtils.readBytes(nameAddr, 10)
+        local name = charmaps.decryptText(nameBytes, "GBA")
+        return name
+    end
+
     -- This should be used for romhacks.
     if gameData.gameInfo.isRomhack then
         if speciesId > 0 and speciesId <= #constants.pokemonData.species then
