@@ -35,6 +35,9 @@ A BizHawk Lua script that reads live game data from Pokemon ROMs, providing real
 - Pokemon FireRed
 - Pokemon LeafGreen
 
+### Romhacks
+- Radical Red
+
 ## Installation
 
 1. Download and install [BizHawk](https://github.com/TASVideos/BizHawk/releases)
@@ -47,7 +50,7 @@ A BizHawk Lua script that reads live game data from Pokemon ROMs, providing real
 
 ### Basic Commands
 
-After loading the script, use these commands in the Lua Console:
+After loading the script, you can use these commands in the Lua Console:
 
 ```lua
 -- Show current party information
