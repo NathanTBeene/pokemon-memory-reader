@@ -179,6 +179,19 @@ end
 
 -- Get move name from constants
 function pokemonData.getMoveName(moveId)
+    local hash = gameUtils.getROMHash()
+    local gameData = GamesDB.getGameByHash(hash)
+    local movesTableAddr = gameData.gameInfo.moveNamesTable
+    
+
+    -- If we have a valid moves table address
+    -- Moves are 13 bytes each
+    if gameData and movesTableAddr then
+        local moveNameAddr = movesTableAddr + (moveId * 13)
+        local nameBytes = gameUtils.readBytesROM(moveNameAddr, 12)
+        return charmaps.decryptText(nameBytes)
+    end
+
     if moveId >= 0 and moveId <= #constants.pokemonData.moves then
         return constants.pokemonData.moves[moveId + 1]
     end

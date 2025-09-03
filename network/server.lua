@@ -189,9 +189,9 @@ function Server:handleStatusRequest(client)
         },
         game = {
             initialized = self.memoryReader.isInitialized,
-            name = self.memoryReader.currentGame and self.memoryReader.currentGame.GameInfo.GameName or "None",
-            generation = self.memoryReader.currentGame and self.memoryReader.currentGame.GameInfo.Generation or 0,
-            version = self.memoryReader.currentGame and self.memoryReader.currentGame.GameInfo.VersionColor or "None"
+            name = self.memoryReader.currentGame and self.memoryReader.currentGame.gameInfo.gameName or "None",
+            generation = self.memoryReader.currentGame and self.memoryReader.currentGame.gameInfo.generation or 0,
+            version = self.memoryReader.currentGame and self.memoryReader.currentGame.gameInfo.versionColor or "None"
         }
     }
     
@@ -447,20 +447,20 @@ end
 function Server:getPartyData()
     -- Read party based on game generation
     local gameCode = self.memoryReader.currentGame and 
-        require("utils.gameutils").gameCodeToString(self.memoryReader.currentGame.GameInfo.GameCode) or ""
+        require("utils.gameutils").gameCodeToString(self.memoryReader.currentGame.gameInfo.gameCode) or ""
     local party
     
-    if self.memoryReader.currentGame.GameInfo.Generation == 1 or self.memoryReader.currentGame.GameInfo.Generation == 2 then
+    if self.memoryReader.currentGame.gameInfo.generation == 1 or self.memoryReader.currentGame.gameInfo.generation == 2 then
         -- Gen1 and Gen2 use similar address structure
-        party = self.memoryReader.partyReader:readParty(self.memoryReader.gameAddresses, gameCode)
+        party = self.memoryReader.partyReader:readParty(self.memoryReader.currentGame.addresses, gameCode)
     else
-        -- Gen3 uses pstats address
-        if not self.memoryReader.gameAddresses.pstats then
+        -- Gen3 and CFRU use partyAddr address
+        if not self.memoryReader.currentGame.addresses.partyAddr then
             return {error = "Player party address not available"}
         end
         local gameUtils = require("utils.gameutils")
-        local playerStatsAddr = gameUtils.hexToNumber(self.memoryReader.gameAddresses.pstats)
-        party = self.memoryReader.partyReader:readParty({playerStats = playerStatsAddr}, gameCode)
+        local partyAddr = gameUtils.hexToNumber(self.memoryReader.currentGame.addresses.partyAddr)
+        party = self.memoryReader.partyReader:readParty({partyAddr = partyAddr}, gameCode)
     end
     
     -- Convert to API format
@@ -469,7 +469,7 @@ function Server:getPartyData()
     
     for i = 1, 6 do
         local pokemon = party[i]
-        if pokemon and pokemon.pokemonID > 0 then
+        if pokemon and pokemon.speciesID > 0 then
             -- Build moves arrays (only include non-zero moves)
             local moves = {}
             local moveNames = {}
@@ -499,7 +499,7 @@ function Server:getPartyData()
             local apiPokemon = {
                 nickname = pokemon.nickname or pokemon.speciesName,
                 species = pokemon.speciesName,
-                speciesId = pokemon.pokemonID,
+                speciesId = pokemon.speciesID,
                 level = pokemon.level,
                 nature = pokemon.natureName,
                 currentHP = pokemon.curHP,

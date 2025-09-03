@@ -18,8 +18,8 @@ function debugTools.debugAbility(memoryReader, slot)
         return
     end
     
-    local playerStatsAddr = gameUtils.hexToNumber(memoryReader.gameAddresses.pstats)
-    local gameCode = gameUtils.gameCodeToString(memoryReader.currentGame.GameInfo.GameCode)
+    local playerStatsAddr = gameUtils.hexToNumber(memoryReader.currentGame.addresses.partyAddr)
+    local gameCode = gameUtils.gameCodeToString(memoryReader.currentGame.gameInfo.gameCode)
     
     local party = memoryReader.partyReader:readParty({playerStats = playerStatsAddr}, gameCode)
     local pokemon = party[slot]
@@ -63,8 +63,8 @@ function debugTools.debugParty(memoryReader)
         return
     end
     
-    local playerStatsAddr = gameUtils.hexToNumber(memoryReader.gameAddresses.pstats)
-    local gameCode = gameUtils.gameCodeToString(memoryReader.currentGame.GameInfo.GameCode)
+    local playerStatsAddr = gameUtils.hexToNumber(memoryReader.currentGame.addresses.partyAddr)
+    local gameCode = gameUtils.gameCodeToString(memoryReader.currentGame.gameInfo.gameCode)
     local party = memoryReader.partyReader:readParty({playerStats = playerStatsAddr}, gameCode)
     
     console.log("=== DETAILED PARTY DEBUG ===")
@@ -105,8 +105,8 @@ function debugTools.debugSpeciesData(memoryReader, slot)
         return
     end
     
-    local playerStatsAddr = gameUtils.hexToNumber(memoryReader.gameAddresses.pstats)
-    local gameCode = gameUtils.gameCodeToString(memoryReader.currentGame.GameInfo.GameCode)
+    local playerStatsAddr = gameUtils.hexToNumber(memoryReader.currentGame.addresses.partyAddr)
+    local gameCode = gameUtils.gameCodeToString(memoryReader.currentGame.gameInfo.gameCode)
     local party = memoryReader.partyReader:readParty({playerStats = playerStatsAddr}, gameCode)
     local pokemon = party[slot]
     

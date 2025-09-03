@@ -271,6 +271,7 @@ GamesDB.games = {
             gBattleMons = "02023BE4",
             speciesDataTable = "0817B9908",
             speciesNameTable = "0814042D7",
+            moveNamesTable = "0810EEEDC"
         }
     },
 }

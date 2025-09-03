@@ -21,11 +21,11 @@ function CFRUPartyReader:new()
 end
 
 function CFRUPartyReader:readParty(addresses, gameCode)
-  local party = {}
-  for i = 1, 6 do
-    party[i] = self:readPokemon(addresses.partyAddr, i, gameCode)
-  end
-  return party
+    local party = {}
+    for i = 1, 6 do
+        party[i] = self:readPokemon(addresses.partyAddr, i, gameCode)
+    end
+    return party
 end
 
 function CFRUPartyReader:readPokemon(startAddress, slot, gameCode)
@@ -80,7 +80,6 @@ function CFRUPartyReader:readPokemon(startAddress, slot, gameCode)
 
     -- Attempt to search for the species data based on the id.
     local speciesData = self:getSpeciesData(speciesID) or nil
-    console.log("Species Data: ", gameUtils.printTable(speciesData))
 
     -- misc 2 contains IVS, Egg, and Ability Slot
     -- 4 bytes at offset 72
@@ -266,7 +265,6 @@ function CFRUPartyReader:getSpeciesData(speciesID)
 
   -- Species data is 28 bytes long
   local speciesAddr = number + ((speciesID - 1) * 28)
-  console.log("Species Address: ", string.format("0x%X", speciesAddr))
 
   local speciesData = gameUtils.readBytesCFRU(speciesAddr, 28)
 

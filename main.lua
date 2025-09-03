@@ -29,18 +29,17 @@ function MemoryReader.initialize()
     -- Detect the currently loaded game
     local detectedGame = gameDetection.detectGame()
     
-    if detectedGame and detectedGame.GameInfo then
+    if detectedGame and detectedGame.gameInfo then
         
         -- Get game name from detected game info
-        local gameName = detectedGame.GameInfo.gameName or "Unknown Game"
+        local gameName = detectedGame.gameInfo.gameName or "Unknown Game"
         console.log("Game found: " .. gameName)
         
         MemoryReader.currentGame = detectedGame
-        MemoryReader.gameAddresses = detectedGame.Addresses or {}
         MemoryReader.isInitialized = true
         
         -- Initialize party reader based on game generation (simplified)
-        local generation = detectedGame.GameInfo.generation
+        local generation = detectedGame.gameInfo.generation
         if generation == "CFRU" then
             MemoryReader.partyReader = CFRUPartyReader:new()
         elseif generation == 3 then
@@ -93,19 +92,19 @@ function MemoryReader.getPartyData()
     end
     
     -- Read party based on game generation
-    local gameCode = MemoryReader.currentGame.GameInfo.gameCode
+    local gameCode = MemoryReader.currentGame.gameInfo.gameCode
     local party
     
-    if MemoryReader.currentGame.GameInfo.generation == 1 or MemoryReader.currentGame.GameInfo.generation == 2 then
+    if MemoryReader.currentGame.gameInfo.generation == 1 or MemoryReader.currentGame.gameInfo.generation == 2 then
         -- Gen1 and Gen2 use integer addresses directly
-        party = MemoryReader.partyReader:readParty(MemoryReader.gameAddresses, gameCode)
+        party = MemoryReader.partyReader:readParty(MemoryReader.currentGame.addresses, gameCode)
     else
         -- Gen3 uses partyAddr (string hex format)
-        if not MemoryReader.gameAddresses.partyAddr then
+        if not MemoryReader.currentGame.addresses.partyAddr then
             console.log("Player party address not available!")
             return nil
         end
-        local partyAddr = gameUtils.hexToNumber(MemoryReader.gameAddresses.partyAddr)
+        local partyAddr = gameUtils.hexToNumber(MemoryReader.currentGame.addresses.partyAddr)
         party = MemoryReader.partyReader:readParty({partyAddr = partyAddr}, gameCode)
     end
     

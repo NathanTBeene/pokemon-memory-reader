@@ -26,11 +26,8 @@ function gameDetection.detectGame()
     -- Look up game in database by hash
     local gameData = GamesDB.getGameByHash(romHash)
     if gameData then
-        -- Convert database format to expected format
-        return {
-            GameInfo = gameData.gameInfo,
-            Addresses = gameData.addresses
-        }
+        -- Return database format directly
+        return gameData
     end
 
     console.log("Unknown " .. systemID .. " game detected with hash: " .. romHash)
@@ -43,10 +40,7 @@ function gameDetection.detectGame()
         if gameData then
             console.log("Game code matches: " .. gameData.gameInfo.gameName)
             console.log("If this is incorrect, then you might be playing a modified version of the game. Please open a ticket on the github to have your game supported.")
-            return {
-                GameInfo = gameData.gameInfo,
-                Addresses = gameData.addresses
-            }
+            return gameData
         end
 
         console.log("Game code not found. You might be playing a modified version of the game. Please open a ticket on the github to have your game supported.")
