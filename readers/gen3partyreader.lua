@@ -81,7 +81,6 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
     -- Debug for radical red species
     -- Stores directly at offset 32, unencrypted 16 bit little endian
     local speciesDebug = gameUtils.read8(pokemonStart + 32) + (gameUtils.read8(pokemonStart + 33) * 256)
-    console.log("DEBUG: Raw Species Data: " .. string.format("%04X", speciesDebug))
 
     -- Read nickname (10 bytes starting at offset 8)
     local bytes = gameUtils.readBytes(pokemonStart + 8, 10)
@@ -130,9 +129,6 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
             abilityID = speciesData.ability2
         end
         abilityName = pokemonData.getAbilityName(abilityID)
-        
-        print(string.format("DEBUG: Pokemon ID=%d, Slot=%d, Ability1=%d, Ability2=%d, Selected=%d, Name=%s", 
-                speciesID, abilitySlot, speciesData.ability1 or 0, speciesData.ability2 or 0, abilityID, abilityName))
     end
     
     -- Get type information from species data
@@ -203,7 +199,7 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
         spAttack = gameUtils.read16(pokemonStart + 96),
         spDefense = gameUtils.read16(pokemonStart + 98),
         nature = personality % 25,
-        natureName = pokemonData.getNatureName(personality % 25),
+        natureName = pokemonData.readNatureName(personality % 25, gameCode),
         ability = self:getBits(misc2, 31, 1),
         abilityID = abilityID,
         abilityName = abilityName,

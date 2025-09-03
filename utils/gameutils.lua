@@ -73,7 +73,7 @@ function gameUtils.readROMText(address, maxLength, charMap)
 end
 
 -- Memory reading functions (consolidated from core.memoryreader)
-function gameUtils.readMemory(addr, size)
+function gameUtils.readMemory(addr, size, memOverride)
     local mem = ""
     local memdomain = (addr >> 24)
     if memdomain == 0 then
@@ -87,13 +87,13 @@ function gameUtils.readMemory(addr, size)
     end
     addr = (addr & 0xFFFFFF)
     if size == 1 then
-        return memory.read_u8(addr, mem)
+        return memory.read_u8(addr, memOverride or mem)
     elseif size == 2 then
-        return memory.read_u16_le(addr, mem)
+        return memory.read_u16_le(addr, memOverride or mem)
     elseif size == 3 then
-        return memory.read_u24_le(addr, mem)
+        return memory.read_u24_le(addr, memOverride or mem)
     else
-        return memory.read_u32_le(addr, mem)
+        return memory.read_u32_le(addr, memOverride or mem)
     end
 end
 
@@ -101,18 +101,50 @@ function gameUtils.read32(addr)
     return gameUtils.readMemory(addr, 4)
 end
 
+function gameUtils.read32ROM(addr)
+    return gameUtils.readMemory(addr, 4, "ROM")
+end
+
 function gameUtils.read16(addr)
     return gameUtils.readMemory(addr, 2)
+end
+
+function gameUtils.read16ROM(addr)
+    return gameUtils.readMemory(addr, 2, "ROM")
 end
 
 function gameUtils.read8(addr)
     return gameUtils.readMemory(addr, 1)
 end
 
+function gameUtils.read8ROM(addr)
+    return gameUtils.readMemory(addr, 1, "ROM")
+end
+
 function gameUtils.readBytes(startAddr, size)
     local bytes = {}
     for i = 0, size - 1 do
         table.insert(bytes, gameUtils.read8(startAddr + i))
+    end
+    return bytes
+end
+
+function gameUtils.readBytesROM(startAddr, size)
+    local addr = startAddr & 0xFFFFFF
+    console.log(string.format("Reading %d bytes from ROM address: 0x%X", size, addr))
+    local bytes = {}
+    for i = 0, size - 1 do
+        table.insert(bytes, memory.read_u8((addr + i) & 0xFFFFFF, "ROM"))
+    end
+    return bytes
+end
+
+function gameUtils.readBytesCFRU(startAddr, size)
+    local addr = startAddr & 0xFFFFFFF
+    console.log(string.format("Reading %d bytes from ROM address: 0x%X", size, addr))
+    local bytes = {}
+    for i = 0, size - 1 do
+        table.insert(bytes, memory.read_u8((addr + i) & 0xFFFFFFF, "ROM"))
     end
     return bytes
 end
@@ -132,6 +164,47 @@ function gameUtils.hasValue(table, value)
         end
     end
     return false
+end
+
+function gameUtils.followPointer(startingPointerAddr, bytes)
+    local addr = gameUtils.read32(startingPointerAddr)
+    if not addr then
+        return nil
+    end
+
+    local data = {}
+    for i = 0, bytes - 1 do
+        table.insert(data, gameUtils.read8(addr + i))
+    end
+    return data
+end
+
+function gameUtils.printTable(table)
+    for k, v in pairs(table) do
+        console.log(string.format("%s: %s", k, v))
+    end
+end
+
+function gameUtils.printConcatTable(table1)
+    local result = ""
+    for i, v in ipairs(table1) do
+        result = result .. v
+        if i < #table1 then
+            result = result .. ", "
+        end
+    end
+    console.log("Concatenated Table: " .. result)
+end
+
+function gameUtils.printHexTable(table1)
+    local result = ""
+    for i, v in ipairs(table1) do
+        result = result .. string.format("%X", v)
+        if i < #table1 then
+            result = result .. ", "
+        end
+    end
+    console.log("Hex Table: " .. result)
 end
 
 return gameUtils

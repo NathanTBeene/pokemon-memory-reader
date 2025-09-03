@@ -19,7 +19,7 @@ function pokemonData.readSpeciesName(speciesId, gameCode)
 
     if speciesNameTableAddr then
         local nameAddr = gameUtils.hexToNumber(speciesNameTableAddr) + (speciesId * 11)
-        local nameBytes = gameUtils.readBytes(nameAddr, 10)
+        local nameBytes = gameUtils.readBytesROM(nameAddr, 10)
         local name = charmaps.decryptText(nameBytes, "GBA")
         return name
     end
@@ -46,10 +46,39 @@ function pokemonData.readSpeciesName(speciesId, gameCode)
     return "Unknown"
 end
 
+function pokemonData.readNatureName(natureID, gameCode)
+    console.log("reading nature name")
+    if not natureID then
+        return "Unknown"
+    end
+
+    -- get game from code
+    local gameData = GamesDB.getGameByCode(gameCode)
+    if not gameData then
+        return "Unknown"
+    end
+
+    local naturePointersAddr = gameData.addresses.naturePointersAddr
+    if not naturePointersAddr then
+        return constants.pokemonData.nature[natureID + 1]
+    end
+
+    local pointerAddr = gameUtils.hexToNumber(naturePointersAddr) + (natureID * 4)
+    local natureAddr = gameUtils.read32ROM(pointerAddr)
+    if not natureAddr then
+        return "Unknown"
+    end
+
+    local nameBytes = gameUtils.readBytesROM(natureAddr, 8)
+    local name = charmaps.decryptText(nameBytes, "GBA")
+    return name
+end
+
 -- Read species base stats and abilities from ROM
 function pokemonData.readSpeciesData(speciesId, gameCode)
     -- Get game data from database
-    local gameData = GamesDB.getGameByCode(gameCode)
+    local hash = gameUtils.getROMHash(gameCode)
+    local gameData = GamesDB.getGameByHash(hash)
     if not gameData then
         console.log("Unknown game code: " .. gameCode)
         return nil
@@ -68,31 +97,31 @@ function pokemonData.readSpeciesData(speciesId, gameCode)
     local speciesAddr = tableAddr + ((speciesId) * speciesDataSize)
     
     return {
-        baseHP = gameUtils.readROM8(speciesAddr + 0),
-        baseAttack = gameUtils.readROM8(speciesAddr + 1),
-        baseDefense = gameUtils.readROM8(speciesAddr + 2),
-        baseSpeed = gameUtils.readROM8(speciesAddr + 3),
-        baseSpAttack = gameUtils.readROM8(speciesAddr + 4),
-        baseSpDefense = gameUtils.readROM8(speciesAddr + 5),
+        baseHP = gameUtils.read8ROM(speciesAddr + 0),
+        baseAttack = gameUtils.read8ROM(speciesAddr + 1),
+        baseDefense = gameUtils.read8ROM(speciesAddr + 2),
+        baseSpeed = gameUtils.read8ROM(speciesAddr + 3),
+        baseSpAttack = gameUtils.read8ROM(speciesAddr + 4),
+        baseSpDefense = gameUtils.read8ROM(speciesAddr + 5),
 
         -- If singular type, both types will be the same value.
-        type1 = gameUtils.readROM8(speciesAddr + 6),
-        type2 = gameUtils.readROM8(speciesAddr + 7),
-        catchRate = gameUtils.readROM8(speciesAddr + 8),
-        baseExpYield = gameUtils.readROM8(speciesAddr + 9),
+        type1 = gameUtils.read8ROM(speciesAddr + 6),
+        type2 = gameUtils.read8ROM(speciesAddr + 7),
+        catchRate = gameUtils.read8ROM(speciesAddr + 8),
+        baseExpYield = gameUtils.read8ROM(speciesAddr + 9),
 
         -- Effort Values is two bytes. Each stat is given
         -- two bits to determine the yield, and the rest
         -- are empty.
-        effortYield = gameUtils.readROM16(speciesAddr + 10),
+        effortYield = gameUtils.read16ROM(speciesAddr + 10),
 
         -- The item ID here is a 50% chance for the pokemon
         -- to be holding this item.
-        item1 = gameUtils.readROM16(speciesAddr + 12),
+        item1 = gameUtils.read16ROM(speciesAddr + 12),
 
         -- Item 2 is a 5% chance. If both are the same, then
         -- the pokemon will ALWAYS hold that item.
-        item2 = gameUtils.readROM16(speciesAddr + 14),
+        item2 = gameUtils.read16ROM(speciesAddr + 14),
 
         -- The chance a pokemon will be male or female.
         -- This is compared with the lowest byte of the
@@ -101,18 +130,18 @@ function pokemonData.readSpeciesData(speciesId, gameCode)
         -- 1-253 = Mixed
         -- 254 = Always Female
         -- 255 = Genderless
-        gender = gameUtils.readROM8(speciesAddr + 16),
-        eggCycles = gameUtils.readROM8(speciesAddr + 17),
-        baseFriendship = gameUtils.readROM8(speciesAddr + 18),
-        levelUpType = gameUtils.readROM8(speciesAddr + 19),
-        eggGroup1 = gameUtils.readROM8(speciesAddr + 20),
-        eggGroup2 = gameUtils.readROM8(speciesAddr + 21),
+        gender = gameUtils.read8ROM(speciesAddr + 16),
+        eggCycles = gameUtils.read8ROM(speciesAddr + 17),
+        baseFriendship = gameUtils.read8ROM(speciesAddr + 18),
+        levelUpType = gameUtils.read8ROM(speciesAddr + 19),
+        eggGroup1 = gameUtils.read8ROM(speciesAddr + 20),
+        eggGroup2 = gameUtils.read8ROM(speciesAddr + 21),
 
         -- The ability IDs of the two slots.
-        ability1 = gameUtils.readROM8(speciesAddr + 22),
-        ability2 = gameUtils.readROM8(speciesAddr + 23),
-        safariZoneRate = gameUtils.readROM8(speciesAddr + 24),
-        colorAndFlip = gameUtils.readROM8(speciesAddr + 25)
+        ability1 = gameUtils.read8ROM(speciesAddr + 22),
+        ability2 = gameUtils.read8ROM(speciesAddr + 23),
+        safariZoneRate = gameUtils.read8ROM(speciesAddr + 24),
+        colorAndFlip = gameUtils.read8ROM(speciesAddr + 25)
     }
 end
 

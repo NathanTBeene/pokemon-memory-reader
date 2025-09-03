@@ -39,8 +39,19 @@ local GBACharmap = { [0]=
 	":", "Ä", "Ö", "Ü", "ä", "ö", "ü", "↑", "↓", "←", "", "", "", "", "", ""
 }
 
+function getCharmap(map)
+	if map == "GBA" then
+		return GBACharmap
+	elseif map == "GB" then
+		return GBCharmap
+	else
+		--default to GBA
+		return GBACharmap
+	end
+end
+
 function decryptText(data, map)
-	local charmap = map == "GBA" and GBACharmap or GBCharmap
+	local charmap = getCharmap(map)
 	local decrypted = ""
 
 	for i = 1, #data do

@@ -149,11 +149,14 @@ GamesDB.games = {
             isRomhack = false
         },
         addresses = {
-            partyAddr = "03004360",
-            enemyPartyAddr = "2024744",
-            gBattleMons = "2024084", 
+            -- First 2 numbers determine domain
+            -- 02 = EWRAM, 08 = ROM
+            partyAddr = "02004360",
+            enemyPartyAddr = "02024744",
+            gBattleMons = "02024084",
             speciesDataTable = "081FEC34",
-            speciesNameTable = "081F716C"
+            speciesNameTable = "081F716C",
+            naturePointersAddr = "083C1004"
         }
     },
     
@@ -169,11 +172,14 @@ GamesDB.games = {
             isRomhack = false
         },
         addresses = {
-            partyAddr = "03004360",
-            enemyPartyAddr = "2024744",
-            gBattleMons = "2024084", 
+            -- First 2 numbers determine domain
+            -- 02 = EWRAM, 08 = ROM
+            partyAddr = "02004360",
+            enemyPartyAddr = "02024744",
+            gBattleMons = "02024084",
             speciesDataTable = "081FEBA8",
-            speciesNameTable = "081F70FC"
+            speciesNameTable = "081F70FC",
+            naturePointersAddr = "083C105C"
         }
     },
     
@@ -189,11 +195,14 @@ GamesDB.games = {
             isRomhack = false
         },
         addresses = {
-            partyAddr = "20244EC",
-            enemyPartyAddr = "2024744",
-            gBattleMons = "2024084", 
-            speciesDataTable = "83203CC",
-            speciesNameTable = "083185C8"
+            -- First 2 numbers determine domain
+            -- 02 = EWRAM, 08 = ROM
+            partyAddr = "020244EC",
+            enemyPartyAddr = "02024744",
+            gBattleMons = "02024084", 
+            speciesDataTable = "083203CC",
+            speciesNameTable = "083185C8",
+            naturePointersAddr = "0861CB50"
         }
     },
     
@@ -209,11 +218,14 @@ GamesDB.games = {
             isRomhack = false
         },
         addresses = {
+            -- First 2 numbers determine domain
+            -- 02 = EWRAM, 08 = ROM
             partyAddr = "02024284",
             enemyPartyAddr = "0202402C", 
             gBattleMons = "02023BE4",
             speciesDataTable = "082547A0",
-            speciesNameTable = "08245EE0"
+            speciesNameTable = "08245EE0",
+            naturePointersAddr = "08463E60"
         }
     },
     
@@ -229,11 +241,14 @@ GamesDB.games = {
             isRomhack = false
         },
         addresses = {
+            -- First 2 numbers determine domain
+            -- 02 = EWRAM, 08 = ROM
             partyAddr = "02024284",
             enemyPartyAddr = "0202402C",
             gBattleMons = "02023BE4",
             speciesDataTable = "0825477C",
-            speciesNameTable = "08245EBC"
+            speciesNameTable = "08245EBC",
+            naturePointersAddr = "08463880"
         }
     },
 
@@ -244,16 +259,18 @@ GamesDB.games = {
             gameName = "Pokemon Radical Red",
             versionName = "Pokemon Radical Red",
             versionColor = "RadicalRed",
-            generation = 3,
+            generation = "CFRU",
             platform = "GBA",
             isRomhack = true
         },
         addresses = {
+            -- First 2 numbers determine domain
+            -- 02 = EWRAM, 08 = ROM
             partyAddr = "02024284",
             enemyPartyAddr = "0202402C", 
             gBattleMons = "02023BE4",
-            speciesDataTable = "082547A0",
-            speciesNameTable = "814042CC",
+            speciesDataTable = "0817B9908",
+            speciesNameTable = "0814042D7",
         }
     },
 }

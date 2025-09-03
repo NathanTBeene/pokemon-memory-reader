@@ -3,6 +3,7 @@
 
 -- Load required modules
 local gameDetection = require("core.gamedetection")
+local CFRUPartyReader = require("readers.cfrupartyreader")
 local Gen3PartyReader = require("readers.gen3partyreader")
 local Gen2PartyReader = require("readers.gen2partyreader")
 local Gen1PartyReader = require("readers.gen1partyreader")
@@ -40,7 +41,9 @@ function MemoryReader.initialize()
         
         -- Initialize party reader based on game generation (simplified)
         local generation = detectedGame.GameInfo.generation
-        if generation == 3 then
+        if generation == "CFRU" then
+            MemoryReader.partyReader = CFRUPartyReader:new()
+        elseif generation == 3 then
             MemoryReader.partyReader = Gen3PartyReader:new()
         elseif generation == 2 then
             MemoryReader.partyReader = Gen2PartyReader:new()
