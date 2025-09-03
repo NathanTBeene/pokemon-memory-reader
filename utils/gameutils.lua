@@ -131,7 +131,6 @@ end
 
 function gameUtils.readBytesROM(startAddr, size)
     local addr = startAddr & 0xFFFFFF
-    console.log(string.format("Reading %d bytes from ROM address: 0x%X", size, addr))
     local bytes = {}
     for i = 0, size - 1 do
         table.insert(bytes, memory.read_u8((addr + i) & 0xFFFFFF, "ROM"))
@@ -141,7 +140,6 @@ end
 
 function gameUtils.readBytesCFRU(startAddr, size)
     local addr = startAddr & 0xFFFFFFF
-    console.log(string.format("Reading %d bytes from ROM address: 0x%X", size, addr))
     local bytes = {}
     for i = 0, size - 1 do
         table.insert(bytes, memory.read_u8((addr + i) & 0xFFFFFFF, "ROM"))

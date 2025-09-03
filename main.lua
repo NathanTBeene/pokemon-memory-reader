@@ -60,9 +60,9 @@ function MemoryReader.initialize()
         
         return true
     else
+        local supportedGames = GamesDB.getSupportedGamesList()
         console.log("No supported Pokemon game detected!")
-        console.log("Supported games: Red, Blue, Green, Yellow, Gold, Silver, Crystal, Ruby, Sapphire, Emerald, FireRed, LeafGreen")
-        
+        console.log("Supported games: " .. table.concat(supportedGames, ", "))
         return false
     end
 end
