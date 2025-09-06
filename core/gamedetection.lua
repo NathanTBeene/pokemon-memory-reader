@@ -26,6 +26,10 @@ function gameDetection.detectGame()
     -- Look up game in database by hash
     local gameData = gameUtils.getGameData()
 
+    if gameData then
+        return gameData
+    end
+
     console.log("Unknown " .. systemID .. " game detected with hash: " .. romHash)
     console.log("Attempting to identify the game through game code...")
 
