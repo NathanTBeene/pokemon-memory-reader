@@ -1,4 +1,4 @@
-local PartyReader = require("readers.partyreader")
+local PartyReader = require("readers.party.partyreader")
 local gameUtils = require("utils.gameutils")
 local pokemonData = require("readers.pokemondata")
 local constants = require("data.constants")
@@ -115,7 +115,7 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
     local heldItemID = self:getBits(growth1, 16, 16)
 
     -- Attempt to search for the species data based on the id.
-    local speciesData = gameCode and pokemonData.readSpeciesData(speciesID, gameCode) or nil
+    local speciesData = gameCode and pokemonData.readSpeciesData(speciesID) or nil
 
     -- Ability Slot index is 1 bit at offset 31 of the misc2 substructure.
     local abilitySlot = self:getBits(misc2, 31, 1)
@@ -199,7 +199,7 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
         spAttack = gameUtils.read16(pokemonStart + 96),
         spDefense = gameUtils.read16(pokemonStart + 98),
         nature = personality % 25,
-        natureName = pokemonData.readNatureName(personality % 25, gameCode),
+        natureName = pokemonData.readNatureName(personality % 25),
         ability = self:getBits(misc2, 31, 1),
         abilityID = abilityID,
         abilityName = abilityName,
@@ -246,7 +246,7 @@ end
 
 function Gen3PartyReader:getSpeciesName(speciesId, gameCode)
     -- Try ROM lookup first
-    local romName = gameCode and pokemonData.readSpeciesName(speciesId, gameCode)
+    local romName = gameCode and pokemonData.readSpeciesName(speciesId)
     if romName and romName ~= "Unknown" then
         return romName
     end

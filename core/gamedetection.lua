@@ -24,11 +24,7 @@ function gameDetection.detectGame()
     end
     
     -- Look up game in database by hash
-    local gameData = GamesDB.getGameByHash(romHash)
-    if gameData then
-        -- Return database format directly
-        return gameData
-    end
+    local gameData = gameUtils.getGameData()
 
     console.log("Unknown " .. systemID .. " game detected with hash: " .. romHash)
     console.log("Attempting to identify the game through game code...")
@@ -36,7 +32,7 @@ function gameDetection.detectGame()
     local gameCode = gameDetection.findGameCode()
     if gameCode then
         console.log("Game code found: " .. gameCode)
-        gameData = GamesDB.getGameByCode(gameCode)
+        gameData = gameUtils.getGameDataByCode(gameCode) or gameData
         if gameData then
             console.log("Game code matches: " .. gameData.gameInfo.gameName)
             console.log("If this is incorrect, then you might be playing a modified version of the game. Please open a ticket on the github to have your game supported.")
@@ -49,22 +45,22 @@ function gameDetection.detectGame()
     return nil
 end
 
+-- Function to read game code from a default memory address.
+-- Typically doesn't need to be used.
 function gameDetection.findGameCode()
     local code = memory.read_u16_le(0x00013C)
-
     if not code then
         return nil
     end
-
     return gameUtils.gameCodeToString(code)
 end
 
--- Function to get supported games list
+-- Get supported games list
 function gameDetection.getSupportedGames()
     return GamesDB.getSupportedGamesList()
 end
 
--- Function to validate if current game is supported
+-- Validate if current game is supported
 function gameDetection.isGameSupported()
     local romHash = gameUtils.getROMHash()
     if not romHash then

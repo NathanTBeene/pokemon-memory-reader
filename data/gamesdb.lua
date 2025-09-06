@@ -156,6 +156,7 @@ GamesDB.games = {
             gBattleMons = "02024084",
             speciesDataTable = "081FEC34",
             speciesNameTable = "081F716C",
+            itemNameTable =     "083C5564",
             naturePointersAddr = "083C1004"
         }
     },
@@ -179,6 +180,7 @@ GamesDB.games = {
             gBattleMons = "02024084",
             speciesDataTable = "081FEBA8",
             speciesNameTable = "081F70FC",
+            itemNameTable =     "083C55BC",
             naturePointersAddr = "083C105C"
         }
     },
@@ -196,13 +198,35 @@ GamesDB.games = {
         },
         addresses = {
             -- First 2 numbers determine domain
-            -- 02 = EWRAM, 08 = ROM
-            partyAddr = "020244EC",
-            enemyPartyAddr = "02024744",
-            gBattleMons = "02024084", 
-            speciesDataTable = "083203CC",
-            speciesNameTable = "083185C8",
-            naturePointersAddr = "0861CB50"
+            -- 02 = EWRAM, 03 = IWRAM, 08 = ROM
+            partyAddr =             "020244EC",
+            enemyPartyAddr =        "02024744",
+            gBattleMons =           "02024084", 
+            speciesDataTable =      "083203CC",
+            speciesNameTable =      "083185C8",
+            itemNameTable =         "085839A0",
+            naturePointersAddr =    "0861CB50",
+        },
+        trainerPointers = {
+            saveBlock1 = "03005D8C",
+            saveBlock2 = "03005D90",
+        },
+        trainerOffsets = {
+            -- Info
+            name = 0x00,
+            gender = 0x08,
+            trainerID = 0x0A,
+            encryptionKey = 0xAC,
+            -- Currency
+            money = 0x490,
+            coins = 0x494,
+            -- Bags
+            pcItems = 0x498,
+            itemsPocket = 0x560,
+            keyItemsPocket = 0x5D8,
+            ballsPocket = 0x650,
+            tmhmPocket = 0x690,
+            berriesPocket = 0x790
         }
     },
     
@@ -225,6 +249,7 @@ GamesDB.games = {
             gBattleMons = "02023BE4",
             speciesDataTable = "082547A0",
             speciesNameTable = "08245EE0",
+            itemNameTable = "083DB028",
             naturePointersAddr = "08463E60"
         }
     },
@@ -248,6 +273,7 @@ GamesDB.games = {
             gBattleMons = "02023BE4",
             speciesDataTable = "0825477C",
             speciesNameTable = "08245EBC",
+            itemNameTable = "083DAE64",
             naturePointersAddr = "08463880"
         }
     },

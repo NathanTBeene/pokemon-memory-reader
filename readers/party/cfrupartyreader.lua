@@ -1,4 +1,4 @@
-local PartyReader = require("readers.partyreader")
+local PartyReader = require("readers.party.partyreader")
 local charmaps = require("data.charmaps")
 local gameUtils = require("utils.gameutils")
 local gamesdb = require("data.gamesdb")
@@ -199,7 +199,7 @@ function CFRUPartyReader:readPokemon(startAddress, slot, gameCode)
         spAttack = gameUtils.read16(pokemonStart + 96),
         spDefense = gameUtils.read16(pokemonStart + 98),
         nature = personality % 25,
-        natureName = pokemonData.getNatureName(personality % 25, gameCode),
+        natureName = pokemonData.readNatureName(personality % 25),
         type1 = type1ID,
         type2 = type2ID,
         type1Name = type1Name,

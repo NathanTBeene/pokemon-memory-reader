@@ -2,7 +2,12 @@
 local UserCommands = {}
 local formatter = require("utils.pokemonformatter")
 local debugTools = require("debug.debugtools")
+local GamesDB = require("data.gamesdb")
+local gameUtils = require("utils.gameutils")
 
+-- MARK: Basic Utility
+
+-- Ensures the global MemoryReader has been properly initialized.
 local function ensureInitialized()
   if not MemoryReader.isInitialized then
     console.log("MemoryReader is not initialized, please restart the application.")
@@ -11,6 +16,7 @@ local function ensureInitialized()
   return true
 end
 
+-- Prints the available commands forr the user.
 function UserCommands.help()
   console.log("=== Pokemon Memory Reader Commands ===")
   console.log("showParty() - Displays the current party information.")
@@ -26,6 +32,9 @@ function UserCommands.help()
   console.log("=====================================")
 end
 
+-- MARK: Party
+
+-- Retrieves and prints the current party data.
 function UserCommands.showParty()
   if not ensureInitialized() then return end
 
@@ -34,6 +43,8 @@ function UserCommands.showParty()
     console.log(formatter.formatPartyData(party))
   end
 end
+
+-- MARK: Server
 
 function UserCommands.startServer()
   MemoryReader.serverEnabled = true
@@ -50,10 +61,55 @@ function UserCommands.toggleServer()
   MemoryReader.toggleServer()
 end
 
+-- MARK: Player
+
+-- Prints the Trainer information to console.
+function UserCommands.showTrainer()
+  if not ensureInitialized() then return end
+  MemoryReader.playerReader:printTrainerInfo()
+end
+
+-- Prints the Bag contents to console.
+function UserCommands.printBag()
+  if not ensureInitialized() then return end
+  MemoryReader.playerReader:printBag()
+end
+
+-- Sets the player's money to the specified amount.
+function UserCommands.setMoney(amount)
+  if not ensureInitialized() then return end
+  MemoryReader.playerReader:setMoney(amount)
+end
+
+-- Adds an item to the player's bag in the first available slot.
+-- If slot is specified, adds to that slot instead or warns if
+-- the slot is occupied.
+function UserCommands.addItemPocket(id, quantity, slotOverride)
+  if not ensureInitialized() then return end
+  MemoryReader.playerReader:addItemPocket(id, quantity, slotOverride)
+end
+
+-- MARK: Debug
+
+-- Prints raw party data for debugging purposes.
 function UserCommands.debugParty()
   if not ensureInitialized() then return end
 
-  debugTools.debugParty(MemoryReader)
+  debugTools.debugParty()
+end
+
+-- Dumps a section of the ROM to a file for debugging purposes.
+function UserCommands.dumpROM(address, length)
+  if not ensureInitialized() then return end
+
+  debugTools.dumpROMData(address, length)
+end
+
+-- Encodes a Pokemon's Misc2 data and prints the result.
+function UserCommands.encodeMisc2(hp, atk, def, spd, spatk, spdef, isEgg, ability)
+  if not ensureInitialized() then return end
+
+  debugTools.encodeMisc2(hp, atk, def, spd, spatk, spdef, isEgg, ability)
 end
 
 return UserCommands

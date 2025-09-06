@@ -1,24 +1,26 @@
 -- Pokemon Memory Reader - Main Script
 -- This script initializes the application and manages the game detection system
-
--- Load required modules
-local gameDetection = require("core.gamedetection")
-local CFRUPartyReader = require("readers.cfrupartyreader")
-local Gen3PartyReader = require("readers.gen3partyreader")
-local Gen2PartyReader = require("readers.gen2partyreader")
-local Gen1PartyReader = require("readers.gen1partyreader")
-local gameUtils = require("utils.gameutils")
-local debugTools = require("debug.debugtools")
-local Server = require("network.server")
-
 -- Global variables
 MemoryReader = {}
 MemoryReader.currentGame = nil
 MemoryReader.gameAddresses = nil
 MemoryReader.isInitialized = false
 MemoryReader.partyReader = nil
+MemoryReader.playerReader = nil
 MemoryReader.server = nil
 MemoryReader.serverEnabled = true -- Can be toggled by user
+
+-- Load required modules
+local gameDetection = require("core.gamedetection")
+local CFRUPartyReader = require("readers.party.cfrupartyreader")
+local Gen3PartyReader = require("readers.party.gen3partyreader")
+local Gen2PartyReader = require("readers.party.gen2partyreader")
+local Gen1PartyReader = require("readers.party.gen1partyreader")
+local Gen3PlayerReader = require("readers.player.gen3playerreader")
+local gameUtils = require("utils.gameutils")
+local debugTools = require("debug.debugtools")
+local Server = require("network.server")
+local gamesDB = require("data.gamesdb")
 
 
 -- Initialize the Memory Reader
@@ -30,7 +32,6 @@ function MemoryReader.initialize()
     local detectedGame = gameDetection.detectGame()
     
     if detectedGame and detectedGame.gameInfo then
-        
         -- Get game name from detected game info
         local gameName = detectedGame.gameInfo.gameName or "Unknown Game"
         console.log("Game found: " .. gameName)
@@ -38,12 +39,13 @@ function MemoryReader.initialize()
         MemoryReader.currentGame = detectedGame
         MemoryReader.isInitialized = true
         
-        -- Initialize party reader based on game generation (simplified)
+        -- Initialize party reader based on game generation
         local generation = detectedGame.gameInfo.generation
         if generation == "CFRU" then
             MemoryReader.partyReader = CFRUPartyReader:new()
         elseif generation == 3 then
             MemoryReader.partyReader = Gen3PartyReader:new()
+            MemoryReader.playerReader = Gen3PlayerReader:new()
         elseif generation == 2 then
             MemoryReader.partyReader = Gen2PartyReader:new()
         elseif generation == 1 then
@@ -60,7 +62,7 @@ function MemoryReader.initialize()
         
         return true
     else
-        local supportedGames = GamesDB.getSupportedGamesList()
+        local supportedGames = gameDetection.getSupportedGames()
         console.log("No supported Pokemon game detected!")
         console.log("Supported games: " .. table.concat(supportedGames, ", "))
         return false
@@ -111,8 +113,6 @@ function MemoryReader.getPartyData()
     return party
 end
 
-
-
 -- Server management functions
 function MemoryReader.startServer()
     if MemoryReader.server then
@@ -148,7 +148,6 @@ function MemoryReader.toggleServer()
     end
 end
 
-
 -- Shutdown cleanup
 function MemoryReader.shutdown()
     console.log("Pokemon Memory Reader shutting down...")
@@ -163,14 +162,11 @@ end
 
 -- Register user commands
 local UserCommands = require("commands.usercommands")
-
--- Register global command functions
-showParty = UserCommands.showParty
-startServer = UserCommands.startServer
-stopServer = UserCommands.stopServer
-toggleServer = UserCommands.toggleServer
-help = UserCommands.help
-debugParty = UserCommands.debugParty
+for name, func in pairs(UserCommands) do
+    if type(func) == "function" then
+        _G[name] = func
+    end
+end
 
 -- Initialize on script start
 if MemoryReader.initialize() then
