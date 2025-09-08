@@ -199,6 +199,17 @@ function gameUtils.clamp(value, min, max)
     end
 end
 
+function gameUtils.bcdToDecimal(bcdBytes)
+    local decimal = 0
+    for i = 1, #bcdBytes do
+        local byte = bcdBytes[i]
+        local highNibble = (byte >> 4) & 0x0F
+        local lowNibble = byte & 0x0F
+        decimal = decimal * 100 + highNibble * 10 + lowNibble
+    end
+    return decimal
+end
+
 -- MARK: Print
 
 function gameUtils.printTable(table, format)

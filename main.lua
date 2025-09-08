@@ -13,10 +13,17 @@ MemoryReader.serverEnabled = true -- Can be toggled by user
 -- Load required modules
 local gameDetection = require("core.gamedetection")
 local CFRUPartyReader = require("readers.party.cfrupartyreader")
+
+-- Generation Party Readers
 local Gen3PartyReader = require("readers.party.gen3partyreader")
 local Gen2PartyReader = require("readers.party.gen2partyreader")
 local Gen1PartyReader = require("readers.party.gen1partyreader")
+
+-- Generation Player Readers
 local Gen3PlayerReader = require("readers.player.gen3playerreader")
+local Gen2PlayerReader = require("readers.player.gen2playerreader")
+local Gen1PlayerReader = require("readers.player.gen1playerreader")
+
 local gameUtils = require("utils.gameutils")
 local debugTools = require("debug.debugtools")
 local Server = require("network.server")
@@ -39,8 +46,10 @@ function MemoryReader.initialize()
         MemoryReader.currentGame = detectedGame
         MemoryReader.isInitialized = true
         
-        -- Initialize party reader based on game generation
+        -- Initialize Readers based on generation
         local generation = detectedGame.gameInfo.generation
+
+        -- CFRU is Generally for Gen3 Rom Hacks
         if generation == "CFRU" then
             MemoryReader.partyReader = CFRUPartyReader:new()
         elseif generation == 3 then
@@ -48,8 +57,10 @@ function MemoryReader.initialize()
             MemoryReader.playerReader = Gen3PlayerReader:new()
         elseif generation == 2 then
             MemoryReader.partyReader = Gen2PartyReader:new()
+            MemoryReader.playerReader = Gen2PlayerReader:new()
         elseif generation == 1 then
             MemoryReader.partyReader = Gen1PartyReader:new()
+            MemoryReader.playerReader = Gen1PlayerReader:new()
         else
             console.log("Unsupported generation: " .. tostring(generation))
             return false

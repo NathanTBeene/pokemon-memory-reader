@@ -25,6 +25,16 @@ GamesDB.games = {
             wildDVsAddr = 0xCFF1,
             fishedSpeciesAddr = 0xD059,
             tidAddr = 0xD359
+        },
+        trainerOffsets = {
+            name = 0xD158, -- 11 bytes,
+            badges = 0xD356, -- 1 byte, 1 bit per badge
+            money = 0xD347, -- 3 bytes, BCD encoded
+            coins = 0xD5A4, -- 2 bytes, binary encoded
+            bagCount = 0xD31D, -- 1 byte,
+            bagItems = 0xD31E, -- 2 bytes per item, up to 40 items
+            pcCount = 0xD53A, -- 1 byte,
+            pcItems = 0xD53B  -- 2 bytes per item, up to 50 items
         }
     },
     
@@ -46,6 +56,16 @@ GamesDB.games = {
             wildDVsAddr = 0xCFF1,
             fishedSpeciesAddr = 0xD059,
             tidAddr = 0xD359
+        },
+        trainerOffsets = {
+            name = 0xD158, -- 11 bytes,
+            badges = 0xD356, -- 1 byte, 1 bit per badge
+            money = 0xD347, -- 3 bytes, BCD encoded
+            coins = 0xD5A4, -- 2 bytes, binary encoded
+            bagCount = 0xD31D, -- 1 byte,
+            bagItems = 0xD31E, -- 2 bytes per item, up to 40 items
+            pcCount = 0xD53A, -- 1 byte,
+            pcItems = 0xD53B  -- 2 bytes per item, up to 50 items
         }
     },
     
@@ -67,6 +87,16 @@ GamesDB.games = {
             wildDVsAddr = 0xCFF0,
             fishedSpeciesAddr = 0xD058,
             tidAddr = 0xD358
+        },
+        trainerOffsets = {
+            name = 0xD157, -- 11 bytes,
+            badges = 0xD355, -- 1 byte, 1 bit per badge
+            money = 0xD346, -- 3 bytes, BCD encoded
+            coins = 0xD5A3, -- 2 bytes, binary encoded
+            bagCount = 0xD31C, -- 1 byte,
+            bagItems = 0xD31D, -- 2 bytes per item, up to 40 items
+            pcCount = 0xD539, -- 1 byte,
+            pcItems = 0xD53A  -- 2 bytes per item, up to 50 items
         }
     },
     
