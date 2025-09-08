@@ -13,6 +13,14 @@ function PlayerReader:new()
     return obj
 end
 
+function PlayerReader:updateTrainerInfo()
+    error("updateTrainerInfo must be implemented by subclass")
+end
+
+function PlayerReader:readBag()
+    error("readBag must be implemented by subclass")
+end
+
 function PlayerReader:getSaveSections()
     error("getSaveSections must be implemented by subclass")
 end

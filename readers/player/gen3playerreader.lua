@@ -1,7 +1,7 @@
 local PlayerReader = require("readers.player.playerreader")
 local gameUtils = require("utils.gameutils")
 local charmaps = require("data.charmaps")
-local pokemonData = require("data.pokemondb")
+local pokemonData = require("readers.pokemondata")
 
 local Gen3PlayerReader = {}
 Gen3PlayerReader.__index = Gen3PlayerReader
@@ -31,12 +31,21 @@ function Gen3PlayerReader:updateTrainerInfo()
   local trainerPointers = gameData.trainerPointers
   local trainerOffsets = gameData.trainerOffsets
 
-  local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock1))
-  local saveBlock2Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock2))
+  local saveBlock1Addr = gameUtils.hexToNumber(trainerPointers.saveBlock1)
+  local saveBlock2Addr = gameUtils.hexToNumber(trainerPointers.saveBlock2)
 
-  -- Money and Coins come encrypted
-  local moneyEncrypted = gameUtils.read32(saveBlock1Addr + trainerOffsets.money, domain)
-  local coinsEncrypted = gameUtils.read16(saveBlock1Addr + trainerOffsets.coins, domain)
+
+  -- For Emerald, save block data require pointers to find the position.
+  if gameData.trainerPointers.isPointer then
+    saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock1))
+    saveBlock2Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock2))
+  end
+
+
+  -- Money and Coins come encrypted for Emerald.
+  -- For Ruby/Sapphire, they are stored in plain binary.
+  local money = gameUtils.read32(saveBlock1Addr + trainerOffsets.money, domain)
+  local coins = gameUtils.read16(saveBlock1Addr + trainerOffsets.coins, domain)
 
   -- Save Block 2
   
@@ -54,12 +63,18 @@ function Gen3PlayerReader:updateTrainerInfo()
   local publicID = trainerID & 0xFFFF
   local secretID = (trainerID >> 16) & 0xFFFF
 
-  local encryptionKey = gameUtils.read32(saveBlock2Addr + trainerOffsets.encryptionKey, domain)
+  local encryptionKey = nil -- Default to nil if not present
 
-  -- Money is the XOR of the encrypted money and the encryption key
-  local money = moneyEncrypted ~ encryptionKey
-  -- Coins is the XOR of the encrypted coins and the lower 16 bits of the encryption key
-  local coins = coinsEncrypted ~ (encryptionKey & 0xFFFF)
+    -- Some games have an encryption key used for encrypting money and items
+    -- Emerald, Firered, Leafgreen
+  if gameData.trainerOffsets.encryptionKey then
+      encryptionKey = gameUtils.read32(saveBlock2Addr + trainerOffsets.encryptionKey, domain)
+      -- Money is the XOR of the encrypted money and the encryption key
+      money = money ~ encryptionKey
+      -- Coins is the XOR of the encrypted coins and the lower 16 bits of the encryption key
+      coins = coins ~ (encryptionKey & 0xFFFF)
+  end
+
 
   self.trainerInfo = {
       name = name,
@@ -71,7 +86,7 @@ function Gen3PlayerReader:updateTrainerInfo()
           public = publicID,
           secret = secretID
       },
-      encryptionKey = encryptionKey
+      encryptionKey = encryptionKey or nil
   }
 end
 
@@ -89,23 +104,14 @@ function Gen3PlayerReader:readBag()
     local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1))
     local trainerOffsets = gameData.trainerOffsets
 
-    -- Bag Contents
-    --  Items Pocket (30 Items, 4 bytes each)
-    --  Key Items Pocket (30 Items, 4 bytes each)
-    --  Pokeballs Pocket (16 Items, 4 bytes each)
-    --  TMs/HMs Pocket (64 Items, 4 bytes each)
-    --  Berries Pocket (46 Items, 4 bytes each)
-    --  PC Item Storage (50 items, 4 bytes each)
 
     -- Items are stored as pairs of (ItemID, Quantity 1-999)
-
     local quantityKey = self.trainerInfo.encryptionKey & 0xFFFF
 
     -- Items Pocket
-
     bag.items = {}
     local itemsStart = saveBlock1Addr + trainerOffsets.itemsPocket
-    for i = 0, 29 do
+    for i = 0, gameData.pocketSize.itemsPocket - 1 do
         local itemID = gameUtils.read16(itemsStart + i * 4, domain)
         local quantity = gameUtils.read16(itemsStart + i * 4 + 2, domain) ~ quantityKey
         local name = pokemonData.getItemName(itemID)
@@ -117,7 +123,7 @@ function Gen3PlayerReader:readBag()
     -- Key Items Pocket
     bag.keyItems = {}
     local keyItemsStart = saveBlock1Addr + trainerOffsets.keyItemsPocket
-    for i = 0, 29 do
+    for i = 0, gameData.pocketSize.keyItemsPocket - 1 do
         local itemID = gameUtils.read16(keyItemsStart + i * 4, domain)
         local quantity = gameUtils.read16(keyItemsStart + i * 4 + 2, domain) ~ quantityKey
         local name = pokemonData.getItemName(itemID)
@@ -129,7 +135,7 @@ function Gen3PlayerReader:readBag()
     -- Pokeballs Pocket
     bag.pokeballs = {}
     local pokeballsStart = saveBlock1Addr + trainerOffsets.ballsPocket
-    for i = 0, 15 do
+    for i = 0, gameData.pocketSize.ballsPocket - 1 do
         local itemID = gameUtils.read16(pokeballsStart + i * 4, domain)
         local quantity = gameUtils.read16(pokeballsStart + i * 4 + 2, domain) ~ quantityKey
         local name = pokemonData.getItemName(itemID)
@@ -141,7 +147,7 @@ function Gen3PlayerReader:readBag()
     -- TMs/HMs Pocket
     bag.tms = {}
     local tmsStart = saveBlock1Addr + trainerOffsets.tmhmPocket
-    for i = 0, 63 do
+    for i = 0, gameData.pocketSize.tmhmPocket - 1 do
         local itemID = gameUtils.read16(tmsStart + i * 4, domain)
         local quantity = gameUtils.read16(tmsStart + i * 4 + 2, domain) ~ quantityKey
         local name = pokemonData.getItemName(itemID)
@@ -153,7 +159,7 @@ function Gen3PlayerReader:readBag()
     -- Berries Pocket
     bag.berries = {}
     local berriesStart = saveBlock1Addr + trainerOffsets.berriesPocket
-    for i = 0, 45 do
+    for i = 0, gameData.pocketSize.berriesPocket - 1 do
         local itemID = gameUtils.read16(berriesStart + i * 4, domain)
         local quantity = gameUtils.read16(berriesStart + i * 4 + 2, domain) ~ quantityKey
         local name = pokemonData.getItemName(itemID)
@@ -186,16 +192,18 @@ function Gen3PlayerReader:setMoney(amount)
 
     local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock1))
 
-    local encryptionKey = self.trainerInfo.encryptionKey
-
+    
     -- Encrypt the new money amount using the encryption key
-    local encryptedMoney = money ~ encryptionKey
+    if gameData.trainerOffsets.encryptionKey then
+        local encryptionKey = self.trainerInfo.encryptionKey
+        money = money ~ encryptionKey
+    end
 
     -- Write the encrypted money back to memory
     console.log("Writing encrypted money to address: " .. string.format("0x%X", saveBlock1Addr + trainerOffsets.money))
-    gameUtils.write32(saveBlock1Addr + trainerOffsets.money, encryptedMoney, domain)
+    gameUtils.write32(saveBlock1Addr + trainerOffsets.money, money, domain)
 
-    console.log("Set money to " .. amount .. " (encrypted: " .. string.format("0x%X", encryptedMoney) .. ")")
+    console.log("Set money to " .. amount .. " (encrypted: " .. string.format("0x%X", money) .. ")")
 
     -- Update internal state
     self.trainerInfo.money = amount

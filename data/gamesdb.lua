@@ -215,6 +215,35 @@ GamesDB.games = {
             speciesNameTable = "081F716C",
             itemNameTable =     "083C5564",
             naturePointersAddr = "083C1004"
+        },
+        trainerPointers = {
+            isPointer = false,
+            saveBlock1 = "02025734",
+            saveBlock2 = "02024EA4",
+        },
+        pocketSize = {
+            pcCount = 50,
+            itemsPocket = 20,
+            keyItemsPocket = 20,
+            ballsPocket = 16,
+            tmhmPocket = 64,
+            berriesPocket = 46
+        },
+        trainerOffsets = {
+            -- Info
+            trainerID = 0x0A,
+            name = 0x00,
+            gender = 0x08,
+            -- Currency
+            money = 0x490,
+            coins = 0x494,
+            -- Bags
+            pcItems = 0x498,
+            itemsPocket = 0x560,
+            keyItemsPocket = 0x5D8,
+            ballsPocket = 0x650,
+            tmhmPocket = 0x690,
+            berriesPocket = 0x790
         }
     },
     
@@ -239,6 +268,35 @@ GamesDB.games = {
             speciesNameTable = "081F70FC",
             itemNameTable =     "083C55BC",
             naturePointersAddr = "083C105C"
+        },
+        trainerPointers = {
+            isPointer = false,
+            saveBlock1 = "02025734",
+            saveBlock2 = "02024EA4",
+        },
+        pocketSize = {
+            pcCount = 50,
+            itemsPocket = 20,
+            keyItemsPocket = 20,
+            ballsPocket = 16,
+            tmhmPocket = 64,
+            berriesPocket = 46
+        },
+        trainerOffsets = {
+            -- Info
+            trainerID = 0x0A,
+            name = 0x00,
+            gender = 0x08,
+            -- Currency
+            money = 0x490,
+            coins = 0x494,
+            -- Bags
+            pcItems = 0x498,
+            itemsPocket = 0x560,
+            keyItemsPocket = 0x5D8,
+            ballsPocket = 0x650,
+            tmhmPocket = 0x690,
+            berriesPocket = 0x790
         }
     },
     
@@ -265,8 +323,17 @@ GamesDB.games = {
             naturePointersAddr =    "0861CB50",
         },
         trainerPointers = {
+            isPointer = true,
             saveBlock1 = "03005D8C",
             saveBlock2 = "03005D90",
+        },
+        pocketSize = {
+            pcCount = 50,
+            itemsPocket = 20,
+            keyItemsPocket = 30,
+            ballsPocket = 16,
+            tmhmPocket = 64,
+            berriesPocket = 46
         },
         trainerOffsets = {
             -- Info
@@ -308,6 +375,36 @@ GamesDB.games = {
             speciesNameTable = "08245EE0",
             itemNameTable = "083DB028",
             naturePointersAddr = "08463E60"
+        },
+        trainerPointers = {
+            isPointer = true,
+            saveBlock1 = "03005008",
+            saveBlock2 = "0300500C",
+        },
+        pocketSize = {
+            pcCount = 30,
+            itemsPocket = 42,
+            keyItemsPocket = 30,
+            ballsPocket = 13,
+            tmhmPocket = 58,
+            berriesPocket = 43
+        },
+        trainerOffsets = {
+            -- Info
+            name = 0x00,
+            gender = 0x08,
+            trainerID = 0x0A,
+            encryptionKey = 0xF20,
+            -- Currency
+            money = 0x290,
+            coins = 0x294,
+            -- Bags
+            pcItems = 0x298,
+            itemsPocket = 0x310,
+            keyItemsPocket = 0x3B8,
+            ballsPocket = 0x430,
+            tmhmPocket = 0x464,
+            berriesPocket = 0x54C
         }
     },
     
@@ -332,6 +429,36 @@ GamesDB.games = {
             speciesNameTable = "08245EBC",
             itemNameTable = "083DAE64",
             naturePointersAddr = "08463880"
+        },
+        trainerPointers = {
+            isPointer = true,
+            saveBlock1 = "03005008",
+            saveBlock2 = "0300500C",
+        },
+        pocketSize = {
+            pcCount = 30,
+            itemsPocket = 42,
+            keyItemsPocket = 30,
+            ballsPocket = 13,
+            tmhmPocket = 58,
+            berriesPocket = 43
+        },
+        trainerOffsets = {
+            -- Info
+            name = 0x00,
+            gender = 0x08,
+            trainerID = 0x0A,
+            encryptionKey = 0xF20,
+            -- Currency
+            money = 0x290,
+            coins = 0x294,
+            -- Bags
+            pcItems = 0x298,
+            itemsPocket = 0x310,
+            keyItemsPocket = 0x3B8,
+            ballsPocket = 0x430,
+            tmhmPocket = 0x464,
+            berriesPocket = 0x54C
         }
     },
 
@@ -354,7 +481,39 @@ GamesDB.games = {
             gBattleMons = "02023BE4",
             speciesDataTable = "0817B9908",
             speciesNameTable = "0814042D7",
-            moveNamesTable = "0810EEEDC"
+            moveNamesTable = "0810EEEDC",
+            pockets = { -- CFRU Items are 4 bytes each, 2 for ID and 2 for quantity
+                itemsPocket = "0203BB20",
+                keyItemsPocket = "0203C228",
+                ballsPocket = "0203C354",
+                tmhmPocket = "0203C41C",
+                berriesPocket = "0203C61C"
+            }
+        },
+        trainerPointers = {
+            isPointer = false,
+            saveBlock1 = "0202552C",
+            saveBlock2 = "02024588",
+        },
+        pocketSize = {
+            pcCount = 30,
+            itemsPocket = 42,
+            keyItemsPocket = 30,
+            ballsPocket = 13,
+            tmhmPocket = 58,
+            berriesPocket = 43
+        },
+        trainerOffsets = {
+            -- Info
+            name = 0x00,
+            gender = 0x08,
+            trainerID = 0x0A,
+            encryptionKey = 0xF20,
+            -- Currency
+            money = 0x290,
+            coins = 0x294,
+            -- Bags
+            pcItems = 0x298,
         }
     },
 }
