@@ -9,7 +9,7 @@ local charmaps = require("data.charmaps")
 -- Read species name from ROM
 function pokemonData.readSpeciesName(speciesId)
     -- Get game data
-    local gameData = gameUtils.getGameData()
+    local gameData = MemoryReader.currentGame
     if not gameData then
         return "Unknown"
     end
@@ -53,7 +53,7 @@ function pokemonData.readNatureName(natureID)
         return "Unknown"
     end
 
-    local gameData = gameUtils.getGameData()
+    local gameData = MemoryReader.currentGame
     if not gameData then
         return "Unknown"
     end
@@ -79,7 +79,7 @@ end
 -- Read species base stats and abilities from ROM
 function pokemonData.readSpeciesData(speciesId)
     -- Get game data from database
-    local gameData = gameUtils.getGameData()
+    local gameData = MemoryReader.currentGame
     if not gameData then
         console.log("Game data not found for current ROM!")
         return nil
@@ -150,7 +150,7 @@ end
 
 -- Read ability name from ROM and fallback to constants.
 function pokemonData.getAbilityName(abilityId)
-    local gameData = gameUtils.getGameData()
+    local gameData = MemoryReader.currentGame
     if not gameData then
         console.log("Game data not found for current ROM!")
         return "Unknown"
@@ -188,7 +188,7 @@ end
 
 -- Get move name from constants
 function pokemonData.getMoveName(moveId)
-    local gameData = gameUtils.getGameData()
+    local gameData = MemoryReader.currentGame
     if not gameData then
         console.log("Game data not found for current ROM!")
         return "Unknown"
@@ -208,6 +208,77 @@ function pokemonData.getMoveName(moveId)
         return constants.pokemonData.moves[moveId + 1]
     end
     return "Unknown"
+end
+
+function pokemonData.getItemName(itemID)
+    if not MemoryReader.isInitialized or not MemoryReader.currentGame or itemID <= 0 then
+        return "Unknown"
+    end
+
+    local gameData = MemoryReader.currentGame
+    if not gameData then
+        console.log("Game data not found for current ROM!")
+        return "Unknown"
+    end
+
+    -- If we have the itemNameTable then we get the name from the ROM.
+    if gameData.addresses.itemNameTable then
+        return pokemonData.getItemFromROM(itemID, gameData) or "Unknown"
+    end
+
+    -- Fallback to constants if no ROM table is available.
+    local generation = gameData.gameInfo.generation
+    if generation == 1 then
+        if itemID > 0 and itemID <= #constants.pokemonData.itemsGen1 then
+            return constants.pokemonData.itemsGen1[itemID]
+        end
+    elseif generation == 2 then
+        if itemID > 0 and itemID <= #constants.pokemonData.itemsGen2 then
+            return constants.pokemonData.itemsGen2[itemID]
+        end
+    else
+        if itemID > 0 and itemID <= #constants.pokemonData.itemsGen3 then
+            return constants.pokemonData.itemsGen3[itemID]
+        end
+    end
+
+end
+
+-- Item
+function pokemonData.getItemFromROM(itemID, gameData)
+    local tableAddr = gameData.addresses.itemNameTable
+    local generation = gameData.gameInfo.generation
+
+    -- Generation 1 names are variable length with a null terminator.
+    if generation == 1 then
+        local currentAddr = tableAddr
+        local currentID = 1
+
+        -- Special Case: ID = 0 is "No Item"
+        if itemID == 0 then
+            return {}
+        end
+
+        while currentID <= itemID do
+            local nameBytes = {}
+            local byteValue = 0
+
+            -- Read bytes until we hit a null terminator (0x00) or string terminator (0x50)
+            repeat
+                byteValue = gameUtils.read8(currentAddr, "ROM")
+                currentAddr = currentAddr + 1
+                
+                table.insert(nameBytes, byteValue)
+            until byteValue == 0x00 or byteValue == 0x50
+
+            if currentID == itemID then
+                table.remove(nameBytes)  -- Remove the terminator
+                return charmaps.decryptText(nameBytes, "GB")
+            end
+
+            currentID = currentID + 1
+        end
+    end
 end
 
 return pokemonData

@@ -23,8 +23,8 @@ GamesDB.games = {
             partySlotsCounterAddr = 0xD163,
             partyNicknamesAddr = 0xD2B5,
             wildDVsAddr = 0xCFF1,
-            fishedSpeciesAddr = 0xD059,
-            tidAddr = 0xD359
+            trainerID = 0xD359,
+            itemNameTable = 0x472B
         },
         trainerOffsets = {
             name = 0xD158, -- 11 bytes,
@@ -54,8 +54,8 @@ GamesDB.games = {
             partySlotsCounterAddr = 0xD163,
             partyNicknamesAddr = 0xD2B5,
             wildDVsAddr = 0xCFF1,
-            fishedSpeciesAddr = 0xD059,
-            tidAddr = 0xD359
+            trainerID = 0xD359,
+            itemNameTable = 0x472B
         },
         trainerOffsets = {
             name = 0xD158, -- 11 bytes,
@@ -85,8 +85,8 @@ GamesDB.games = {
             partySlotsCounterAddr = 0xD162,
             partyNicknamesAddr = 0xD2B4,
             wildDVsAddr = 0xCFF0,
-            fishedSpeciesAddr = 0xD058,
-            tidAddr = 0xD358
+            trainerID = 0xD358,
+            itemNameTable = 0x45B9
         },
         trainerOffsets = {
             name = 0xD157, -- 11 bytes,
@@ -119,7 +119,16 @@ GamesDB.games = {
             partyNicknamesAddr = 0xDB8C,
             partyOTAddr = 0xDB4A,
             wildDVsAddr = 0xC6F0,
-            tidAddr = 0xDA2A
+            trainerID = 0xDA2A
+        },
+        trainerOffsets = {
+            trainerID = 0xD1A1, -- 2 bytes
+            name = 0xD1A3, -- 10 bytes
+            money = 0xD573, -- 3 bytes
+            momMoney = 0xD576, -- 3 bytes 
+            coins = 0xD57A, -- 2 bytes binary
+            johtoBadges = 0xD57C, -- 1 byte, 1 bit per badge
+            kantoBadges = 0xD57D, -- 1 byte, 1 bit per badge
         }
     },
     
@@ -140,7 +149,16 @@ GamesDB.games = {
             partyNicknamesAddr = 0xDB8C,
             partyOTAddr = 0xDB4A,
             wildDVsAddr = 0xC6F0,
-            tidAddr = 0xDA2A
+            trainerID = 0xDA2A
+        },
+        trainerOffsets = {
+            trainerID = 0xD1A1, -- 2 bytes
+            name = 0xD1A3, -- 10 bytes
+            money = 0xD573, -- 3 bytes
+            momMoney = 0xD576, -- 3 bytes
+            coins = 0xD57A, -- 2 bytes binary
+            johtoBadges = 0xD57C, -- 1 byte, 1 bit per badge
+            kantoBadges = 0xD57D, -- 1 byte, 1 bit per badge
         }
     },
     
@@ -161,7 +179,16 @@ GamesDB.games = {
             partyNicknamesAddr = 0xDE41,
             partyOTAddr = 0xDDFF,
             wildDVsAddr = 0xC6F0,
-            tidAddr = 0xDCDF
+            trainerID = 0xDCDF
+        },
+        trainerOffsets = {
+            trainerID = 0xD47B, -- 2 bytes
+            name = 0xD47D, -- 10 bytes
+            money = 0xD84F, -- 3 bytes
+            momMoney = 0xD852, -- 3 bytes
+            coins = 0xD855, -- 2 bytes binary
+            johtoBadges = 0xD857, -- 1 byte, 1 bit per badge
+            kantoBadges = 0xD858, -- 1 byte, 1 bit per badge
         }
     },
     

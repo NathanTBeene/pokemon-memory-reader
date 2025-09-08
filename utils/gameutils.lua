@@ -130,6 +130,23 @@ function gameUtils.readBytesCFRU(startAddr, size)
     return bytes
 end
 
+-- Reads from a starting address until it finds a null terminator or reaches maxLength.
+-- @return Tuple(byte array, length)
+function gameUtils.readVariableLength(startAddr, maxLength, memOverride)
+    local currentAddr = startAddr
+    local bytes = {}
+    for i = 0, maxLength - 1 do
+        currentAddr = startAddr + i
+        local byte = gameUtils.read8(currentAddr, memOverride)
+        if byte == 0x50 then  -- End of string marker in Pokemon games
+            break
+        end
+        table.insert(bytes, byte)
+    end
+    return {bytes, #bytes}
+end
+
+
 -- MARK: Write
 function gameUtils.writeMemory(startAddr, value, size, memOverride)
     local mem = ""
@@ -208,6 +225,14 @@ function gameUtils.bcdToDecimal(bcdBytes)
         decimal = decimal * 100 + highNibble * 10 + lowNibble
     end
     return decimal
+end
+
+function gameUtils.bytesToNumber(byteArray)
+    local number = 0
+    for i = 1, #byteArray do
+        number = (number << 8) | byteArray[i]
+    end
+    return number
 end
 
 -- MARK: Print

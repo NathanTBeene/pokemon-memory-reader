@@ -1,5 +1,6 @@
 local PlayerReader = require("readers.player.playerreader")
 local gameUtils = require("utils.gameutils")
+local pokemonData = require("readers.pokemondata")
 
 local Gen1PlayerReader = {}
 Gen1PlayerReader.__index = Gen1PlayerReader
@@ -17,7 +18,7 @@ function Gen1PlayerReader:updateTrainerInfo()
     return
   end
 
-  local gameData = gameUtils.getGameData()
+  local gameData = MemoryReader.currentGame
   if not gameData or not gameData.trainerOffsets then
     console.log("No game data or trainer offsets found")
     return
@@ -54,14 +55,51 @@ function Gen1PlayerReader:updateTrainerInfo()
   -- Coins is 2 bytes, binary encoded
   local coinsAddr = gameData.trainerOffsets.coins
   local coins = gameUtils.read16(coinsAddr, domain)
-  coins = coins or 0
 
   self.trainerInfo = {
     name = name,
     badges = badgeList,
     money = money,
-    coins = coins,
+    coins = coins or 0,
   }
+
+end
+
+function Gen1PlayerReader:readBag()
+  self:updateTrainerInfo()
+  local gameData = MemoryReader.currentGame
+
+  if not self.trainerInfo then
+    console.log("No trainer info available, cannot read bag")
+    return
+  elseif not gameData or not gameData.trainerOffsets then
+    console.log("No game data or trainer offsets found")
+    return
+  end
+
+  local domain = "System Bus"
+
+  -- Bag count is 1 byte
+  local bagCount = gameUtils.read8(gameData.trainerOffsets.bagCount, domain)
+  local bag = {}
+
+  -- Bag is max 40 items, each being 2 bytes (item ID and quantity)
+  local bagStartAddr = gameData.trainerOffsets.bagItems
+  for i = 0, bagCount - 1 do
+    local itemAddr = bagStartAddr + (i * 2)
+    local itemData = gameUtils.readBytes(itemAddr, 2, domain)
+    local item = {
+      id = itemData[1],
+      quantity = itemData[2],
+      name = pokemonData.getItemName(itemData[1])
+    }
+    if item.id == 0 then
+      break
+    end
+    table.insert(bag, item)
+  end
+
+  self.bag = bag
 
 end
 
@@ -82,6 +120,19 @@ function Gen1PlayerReader:printTrainerInfo()
     end
   else
     console.log("No trainer info available")
+  end
+end
+
+function Gen1PlayerReader:printBag()
+  self:readBag()
+
+  if self.bag then
+    console.log("Bag Contents:")
+    for _, item in ipairs(self.bag) do
+      console.log("Item ID: " .. item.id .. ", Quantity: " .. item.quantity .. ", Name: " .. item.name)
+    end
+  else
+    console.log("No bag info available")
   end
 end
 

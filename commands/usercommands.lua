@@ -32,6 +32,24 @@ function UserCommands.help()
   console.log("=====================================")
 end
 
+function UserCommands.getGameInfo()
+  if not ensureInitialized() then return end
+  if not MemoryReader.currentGame then
+    console.log("No game loaded.")
+    return
+  end
+
+  local gameInfo = MemoryReader.currentGame.gameInfo
+  console.log("Current Game Information:")
+  console.log("Name: " .. (gameInfo.gameName or "Unknown"))
+  console.log("Code: " .. (string.format("%04X", gameInfo.gameCode) or "Unknown"))
+  console.log("Platform: " .. (gameInfo.platform or "Unknown"))
+  console.log("Version: " .. (gameInfo.versionColor or "Unknown"))
+  console.log("Generation: " .. (gameInfo.generation or "Unknown"))
+  console.log("Is Hack: " .. tostring(gameInfo.isHack or false))
+
+end
+
 -- MARK: Party
 
 -- Retrieves and prints the current party data.
