@@ -20,15 +20,15 @@ function CFRUPartyReader:new()
     return obj
 end
 
-function CFRUPartyReader:readParty(addresses, gameCode)
+function CFRUPartyReader:readParty(addresses)
     local party = {}
     for i = 1, 6 do
-        party[i] = self:readPokemon(addresses.partyAddr, i, gameCode)
+        party[i] = self:readPokemon(addresses.partyAddr, i)
     end
     return party
 end
 
-function CFRUPartyReader:readPokemon(startAddress, slot, gameCode)
+function CFRUPartyReader:readPokemon(startAddress, slot)
     local pokemonStart = startAddress + 100 * (slot - 1)
     
     -- Personality Value is 4 bytes at offset 0x00
@@ -242,7 +242,7 @@ function CFRUPartyReader:isShiny(personality, otid)
 end
 
 function CFRUPartyReader:getSpeciesName(id)
-  local gameData = gamesdb.getGameByHash(gameUtils.getROMHash())
+  local gameData = MemoryReader.currentGame
 
   local speciesNameTableAddr = gameData.addresses.speciesNameTable
 
@@ -257,7 +257,7 @@ end
 
 
 function CFRUPartyReader:getSpeciesData(speciesID)
-  local gameData = gamesdb.getGameByHash(gameUtils.getROMHash())
+  local gameData = MemoryReader.currentGame
 
   local speciesDataTableAddr = gameData.addresses.speciesDataTable
 

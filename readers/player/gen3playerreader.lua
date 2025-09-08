@@ -1,9 +1,7 @@
 local PlayerReader = require("readers.player.playerreader")
-local debugTools = require("debug.debugtools")
 local gameUtils = require("utils.gameutils")
 local charmaps = require("data.charmaps")
-local gamesDB = require("data.gamesdb")
-local constants = require("data.constants")
+local pokemonData = require("data.pokemondb")
 
 local Gen3PlayerReader = {}
 Gen3PlayerReader.__index = Gen3PlayerReader
@@ -21,7 +19,7 @@ function Gen3PlayerReader:updateTrainerInfo()
       return false
   end
 
-  local gameData = gamesDB.getGameByHash(gameUtils.getROMHash())
+  local gameData = MemoryReader.currentGame
 
   if not gameData or not gameData.trainerPointers then
       console.log("No trainer pointer data available for this game.")
@@ -85,7 +83,7 @@ function Gen3PlayerReader:readBag()
         return false
     end
 
-    local gameData = gamesDB.getGameByHash(gameUtils.getROMHash())
+    local gameData = MemoryReader.currentGame
     local domain = "EWRAM"
     local bag = {}
     local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1))
@@ -110,7 +108,7 @@ function Gen3PlayerReader:readBag()
     for i = 0, 29 do
         local itemID = gameUtils.read16(itemsStart + i * 4, domain)
         local quantity = gameUtils.read16(itemsStart + i * 4 + 2, domain) ~ quantityKey
-        local name = gameUtils.getItemName(itemID)
+        local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
             table.insert(bag.items, {id = itemID, quantity = quantity, name = name})
         end
@@ -122,7 +120,7 @@ function Gen3PlayerReader:readBag()
     for i = 0, 29 do
         local itemID = gameUtils.read16(keyItemsStart + i * 4, domain)
         local quantity = gameUtils.read16(keyItemsStart + i * 4 + 2, domain) ~ quantityKey
-        local name = gameUtils.getItemName(itemID)
+        local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
             table.insert(bag.keyItems, {id = itemID, quantity = quantity, name = name})
         end
@@ -134,7 +132,7 @@ function Gen3PlayerReader:readBag()
     for i = 0, 15 do
         local itemID = gameUtils.read16(pokeballsStart + i * 4, domain)
         local quantity = gameUtils.read16(pokeballsStart + i * 4 + 2, domain) ~ quantityKey
-        local name = gameUtils.getItemName(itemID)
+        local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
             table.insert(bag.pokeballs, {id = itemID, quantity = quantity, name = name})
         end
@@ -146,7 +144,7 @@ function Gen3PlayerReader:readBag()
     for i = 0, 63 do
         local itemID = gameUtils.read16(tmsStart + i * 4, domain)
         local quantity = gameUtils.read16(tmsStart + i * 4 + 2, domain) ~ quantityKey
-        local name = gameUtils.getItemName(itemID)
+        local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
             table.insert(bag.tms, {id = itemID, quantity = quantity, name = name})
         end
@@ -158,7 +156,7 @@ function Gen3PlayerReader:readBag()
     for i = 0, 45 do
         local itemID = gameUtils.read16(berriesStart + i * 4, domain)
         local quantity = gameUtils.read16(berriesStart + i * 4 + 2, domain) ~ quantityKey
-        local name = gameUtils.getItemName(itemID)
+        local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
             table.insert(bag.berries, {id = itemID, quantity = quantity, name = name})
         end
@@ -180,7 +178,7 @@ function Gen3PlayerReader:setMoney(amount)
 
     local money = gameUtils.clamp(amount, 0, 999999)  -- Clamp money to valid range
 
-    local gameData = gamesDB.getGameByHash(gameUtils.getROMHash())
+    local gameData = MemoryReader.currentGame
     local domain = "EWRAM"
 
     local trainerPointers = gameData.trainerPointers
@@ -216,7 +214,7 @@ function Gen3PlayerReader:addItemPocket(id, quantity, slotOverride)
 
     quantity = gameUtils.clamp(quantity, 1, 99)
 
-    local gameData = gamesDB.getGameByHash(gameUtils.getROMHash())
+    local gameData = MemoryReader.currentGame
     local domain = "EWRAM"
     local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1))
     local trainerOffsets = gameData.trainerOffsets

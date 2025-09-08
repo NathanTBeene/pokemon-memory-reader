@@ -22,24 +22,26 @@ function Gen3PartyReader:new()
     return obj
 end
 
-function Gen3PartyReader:readParty(addresses, gameCode)
+function Gen3PartyReader:readParty(addresses)
     local party = {}
     for i = 1, 6 do
-        party[i] = self:readPokemon(addresses.partyAddr, i, gameCode)
+        party[i] = self:readPokemon(addresses.partyAddr, i)
     end
     return party
 end
 
-function Gen3PartyReader:readEnemyParty(addresses, gameCode)
+function Gen3PartyReader:readEnemyParty(addresses)
     local party = {}
     for i = 1, 6 do
-        party[i] = self:readPokemon(addresses.enemyStats, i, gameCode)
+        party[i] = self:readPokemon(addresses.enemyStats, i)
     end
     return party
 end
 
-function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
+function Gen3PartyReader:readPokemon(startAddress, slot)
     local pokemonStart = startAddress + 100 * (slot - 1)
+
+    local gameData = MemoryReader.currentGame
     
     -- Personality Value is 4 bytes at offset 0x00
     local personality = gameUtils.read32(pokemonStart)
@@ -115,7 +117,7 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
     local heldItemID = self:getBits(growth1, 16, 16)
 
     -- Attempt to search for the species data based on the id.
-    local speciesData = gameCode and pokemonData.readSpeciesData(speciesID) or nil
+    local speciesData = gameData and pokemonData.readSpeciesData(speciesID) or nil
 
     -- Ability Slot index is 1 bit at offset 31 of the misc2 substructure.
     local abilitySlot = self:getBits(misc2, 31, 1)
@@ -148,7 +150,7 @@ function Gen3PartyReader:readPokemon(startAddress, slot, gameCode)
         otid = otid,
         nickname = nickname,
         speciesID = speciesID,
-        speciesName = self:getSpeciesName(speciesID, gameCode),
+        speciesName = self:getSpeciesName(speciesID),
         heldItem = constants.getItemName(heldItemID, 3),
         heldItemId = heldItemID,
         experience = growth2,
@@ -244,9 +246,9 @@ function Gen3PartyReader:isShiny(personality, otid)
     return (shinyValue & 0xFFFF) < 8
 end
 
-function Gen3PartyReader:getSpeciesName(speciesId, gameCode)
+function Gen3PartyReader:getSpeciesName(speciesId)
     -- Try ROM lookup first
-    local romName = gameCode and pokemonData.readSpeciesName(speciesId)
+    local romName = pokemonData.readSpeciesName(speciesId)
     if romName and romName ~= "Unknown" then
         return romName
     end

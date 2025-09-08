@@ -41,7 +41,7 @@ function Gen1PartyReader:new()
     return obj
 end
 
-function Gen1PartyReader:readParty(addresses, gameCode)
+function Gen1PartyReader:readParty(addresses)
     if not addresses.partyAddr or not addresses.partySlotsCounterAddr then
         return {}
     end
@@ -55,13 +55,13 @@ function Gen1PartyReader:readParty(addresses, gameCode)
     local party = {}
     
     for i = 0, math.min(partySlotsCounter, 5) do
-        party[i + 1] = self:readPokemon(partyAddr, i, gameCode, partyNicknamesAddr)
+        party[i + 1] = self:readPokemon(partyAddr, i, partyNicknamesAddr)
     end
     
     return party
 end
 
-function Gen1PartyReader:readPokemon(partyAddr, slot, gameCode, partyNicknamesAddr)
+function Gen1PartyReader:readPokemon(partyAddr, slot, partyNicknamesAddr)
     -- Gen1 party structure: each Pokemon is 0x2C (44) bytes
     local pokemonStart = partyAddr + (slot * 0x2C)
     

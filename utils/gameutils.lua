@@ -258,25 +258,4 @@ function gameUtils.printHexTable(table1)
     console.log("Hex Table: " .. result)
 end
 
--- MARK: Temp
--- Functions that are temporary and will be moved later
-
-function gameUtils.getItemName(itemID)
-    if not itemID or itemID == 0 then
-        return "???"
-    end
-
-    local gameData = gamesDB.getGameByHash(gameUtils.getROMHash())
-    if not gameData or not gameData.addresses.itemNameTable then
-        return "???"
-    end
-
-    local itemNameTableAddr = gameUtils.hexToNumber(gameData.addresses.itemNameTable)
-
-    local itemAddr = itemNameTableAddr + (itemID) * 44  -- Each item is 44 bytes
-
-    local name = gameUtils.readBytes(itemAddr, 14, "ROM")
-    return charmaps.decryptText(name) or "???"
-end
-
 return gameUtils
