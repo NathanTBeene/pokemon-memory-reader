@@ -145,7 +145,7 @@ function Gen3PlayerReader:readBag()
     end
 
     -- TMs/HMs Pocket
-    bag.tms = {}
+    bag.tmhms = {}
     local tmsStart = saveBlock1Addr + trainerOffsets.tmhmPocket
     for i = 0, gameData.pocketSize.tmhmPocket - 1 do
         local itemID = gameUtils.read16(tmsStart + i * 4, domain)
@@ -277,33 +277,33 @@ function Gen3PlayerReader:printTrainerInfo()
     end
 end
 
-function Gen3PlayerReader:printBag()
-  self:readBag()
-  local bag = self.bag
-  if bag then
-    console.log("Bag Contents:")
-    console.log("Items:")
-    for _, item in ipairs(bag.items) do
-      console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
-    end
-    console.log("Key Items:")
-    for _, item in ipairs(bag.keyItems) do
-      console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
-    end
-    console.log("Pokeballs:")
-    for _, item in ipairs(bag.pokeballs) do
-      console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
-    end
-    console.log("TMs/HMs:")
-    for _, item in ipairs(bag.tms) do
-      console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
-    end
-    console.log("Berries:")
-    for _, item in ipairs(bag.berries) do
-      console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
-    end
-  end
-end
+-- function Gen3PlayerReader:printBag()
+--   self:readBag()
+--   local bag = self.bag
+--   if bag then
+--     console.log("Bag Contents:")
+--     console.log("Items:")
+--     for _, item in ipairs(bag.items) do
+--       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
+--     end
+--     console.log("Key Items:")
+--     for _, item in ipairs(bag.keyItems) do
+--       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
+--     end
+--     console.log("Pokeballs:")
+--     for _, item in ipairs(bag.pokeballs) do
+--       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
+--     end
+--     console.log("TMs/HMs:")
+--     for _, item in ipairs(bag.tms) do
+--       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
+--     end
+--     console.log("Berries:")
+--     for _, item in ipairs(bag.berries) do
+--       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
+--     end
+--   end
+-- end
 
 function Gen3PlayerReader:getItemAt(address)
     return {

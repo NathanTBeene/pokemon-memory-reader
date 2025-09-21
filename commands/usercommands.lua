@@ -1,9 +1,8 @@
 
 local UserCommands = {}
-local formatter = require("utils.pokemonformatter")
+local formatter = require("formatting.formatter")
 local debugTools = require("debug.debugtools")
 local GamesDB = require("data.gamesdb")
-local gameUtils = require("utils.gameutils")
 
 -- MARK: Basic Utility
 
@@ -84,7 +83,13 @@ end
 -- Prints the Trainer information to console.
 function UserCommands.showTrainer()
   if not ensureInitialized() then return end
-  MemoryReader.playerReader:printTrainerInfo()
+  local playerReader = MemoryReader.playerReader
+  playerReader:updateTrainerInfo()
+  playerReader:readBag()
+
+  local trainerInfo = playerReader.trainerInfo
+  local bag = playerReader.bag
+  console.log(formatter.formatPlayerData(trainerInfo, bag))
 end
 
 -- Prints the Bag contents to console.
@@ -128,6 +133,15 @@ function UserCommands.encodeMisc2(hp, atk, def, spd, spatk, spdef, isEgg, abilit
   if not ensureInitialized() then return end
 
   debugTools.encodeMisc2(hp, atk, def, spd, spatk, spdef, isEgg, ability)
+end
+
+function UserCommands.formatPartyJSON()
+  if not ensureInitialized() then return end
+
+  local party = MemoryReader.getPartyData()
+  if party then
+    console.log(formatter.formatPartyJSON(party))
+  end
 end
 
 return UserCommands

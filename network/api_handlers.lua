@@ -54,6 +54,30 @@ function ApiHandlers.handleRootRequest(client, port, host)
     httpUtils.sendResponse(client, 200, "OK", "text/html", html)
 end
 
+function ApiHandlers.handlePlayerRequest(client, memoryReader)
+    if not memoryReader.isInitialized then
+        httpUtils.sendResponse(client, 503, "Service Unavailable", "application/json", 
+            json.encode({error = "Memory reader not initialized", message = "No Pokemon game detected"}))
+        return
+    end
+    
+    if not memoryReader.playerReader then
+        httpUtils.sendResponse(client, 503, "Service Unavailable", "application/json",
+            json.encode({error = "Player reader not available", message = "Game not supported"}))
+        return
+    end
+    
+    -- Update trainer info to get latest data
+    memoryReader.playerReader:updateTrainerInfo()
+    
+    -- Get trainer info
+    local trainerInfo = memoryReader.playerReader.trainerInfo
+    
+    -- Send JSON response
+    local jsonData = json.encode(trainerInfo, {indent = true})
+    httpUtils.sendResponse(client, 200, "OK", "application/json", jsonData)
+end
+
 function ApiHandlers.handleSetMoneyRequest(client, memoryReader, body)
     if not memoryReader.isInitialized then
         httpUtils.sendResponse(client, 503, "Service Unavailable", "application/json", 

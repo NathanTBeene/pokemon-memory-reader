@@ -36,14 +36,14 @@ function Gen1PlayerReader:updateTrainerInfo()
   local badges = gameUtils.read8(badgesAddr, domain)
 
   local badgeList = {
-    {name = "Boulder Badge", earned = (badges & 0x01) ~= 0},
-    {name = "Cascade Badge", earned = (badges & 0x02) ~= 0},
-    {name = "Thunder Badge", earned = (badges & 0x04) ~= 0},
-    {name = "Rainbow Badge", earned = (badges & 0x08) ~= 0},
-    {name = "Soul Badge", earned = (badges & 0x10) ~= 0},
-    {name = "Marsh Badge", earned = (badges & 0x20) ~= 0},
-    {name = "Volcano Badge", earned = (badges & 0x40) ~= 0},
-    {name = "Earth Badge", earned = (badges & 0x80) ~= 0}
+    {badgeNum = 1, name = "Boulder Badge", earned = (badges & 0x01) ~= 0},
+    {badgeNum = 2, name = "Cascade Badge", earned = (badges & 0x02) ~= 0},
+    {badgeNum = 3, name = "Thunder Badge", earned = (badges & 0x04) ~= 0},
+    {badgeNum = 4, name = "Rainbow Badge", earned = (badges & 0x08) ~= 0},
+    {badgeNum = 5, name = "Soul Badge", earned = (badges & 0x10) ~= 0},
+    {badgeNum = 6, name = "Marsh Badge", earned = (badges & 0x20) ~= 0},
+    {badgeNum = 7, name = "Volcano Badge", earned = (badges & 0x40) ~= 0},
+    {badgeNum = 8, name = "Earth Badge", earned = (badges & 0x80) ~= 0}
   }
 
   -- Money is 3 bytes, BCD encoded
@@ -99,7 +99,7 @@ function Gen1PlayerReader:readBag()
     table.insert(bag, item)
   end
 
-  self.bag = bag
+  self.bag.items = bag
 
 end
 
@@ -123,17 +123,17 @@ function Gen1PlayerReader:printTrainerInfo()
   end
 end
 
-function Gen1PlayerReader:printBag()
-  self:readBag()
+-- function Gen1PlayerReader:printBag()
+--   self:readBag()
 
-  if self.bag then
-    console.log("Bag Contents:")
-    for _, item in ipairs(self.bag) do
-      console.log("Item ID: " .. item.id .. ", Quantity: " .. item.quantity .. ", Name: " .. item.name)
-    end
-  else
-    console.log("No bag info available")
-  end
-end
+--   if self.bag then
+--     console.log("Bag Contents:")
+--     for _, item in ipairs(self.bag) do
+--       console.log("Item ID: " .. item.id .. ", Quantity: " .. item.quantity .. ", Name: " .. item.name)
+--     end
+--   else
+--     console.log("No bag info available")
+--   end
+-- end
 
 return Gen1PlayerReader
