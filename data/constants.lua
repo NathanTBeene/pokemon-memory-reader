@@ -217,7 +217,7 @@ local pokemonData = {
 		"Water Sport", "Calm Mind", "Leaf Blade", "Dragon Dance", "Rock Blast",
 		"Shock Wave", "Water Pulse", "Doom Desire", "Psycho Boost"
 	},
-	items_gen1 = {
+	itemsGen1 = {
 		"Master Ball", "Ultra Ball", "Great Ball", "Poké Ball", "Town Map",
 		"Bicycle", "?????", "Safari Ball", "Pokédex", "Moon Stone",
 		"Antidote", "Burn Heal", "Ice Heal", "Awakening", "Paralyze Heal",
@@ -249,7 +249,7 @@ local pokemonData = {
 		[246-83] = "TM46", [247-83] = "TM47", [248-83] = "TM48", [249-83] = "TM49", [250-83] = "TM50",
 		[251-83] = "TM51", [252-83] = "TM52", [253-83] = "TM53", [254-83] = "TM54", [255-83] = "TM55"
 	},
-	items_gen2 = {
+	itemsGen2 = {
 		"?", "Master Ball", "Ultra Ball", "BrightPowder", "Great Ball",
 		"Poké Ball", "Teru-sama", "Bicycle", "Moon Stone", "Antidote",
 		"Burn Heal", "Ice Heal", "Awakening", "Paralyze Heal", "Full Restore",
@@ -303,7 +303,7 @@ local pokemonData = {
 		"HM08", "HM09", "HM10", "HM11", "HM12",
 		"Cancel"
 	},
-	items_gen3 = {
+	itemsGen3 = {
 		"Nothing", "Master Ball", "Ultra Ball", "Great Ball", "Poké Ball",
 		"Safari Ball", "Net Ball", "Dive Ball", "Nest Ball", "Repeat Ball",
 		"Timer Ball", "Luxury Ball", "Premier Ball", "Potion", "Antidote",

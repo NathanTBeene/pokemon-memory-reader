@@ -7,7 +7,7 @@ GamesDB.games = {
     
     -- ===== GENERATION 1 GAMES =====
     
-    -- Pokemon Red (USA)
+    -- MARK: Red (USA)
     ["EA9BCAE617FDF159B045185467AE58B2E4A48B9A"] = {
         gameInfo = {
             gameCode = 0x5245,
@@ -38,7 +38,8 @@ GamesDB.games = {
         }
     },
     
-    -- Pokemon Blue (USA)
+
+    --MARK: Blue (USA)
     ["D7037C83E1AE5B39BDE3C30787637BA1D4C48CE2"] = {
         gameInfo = {
             gameCode = 0x424C,
@@ -69,7 +70,7 @@ GamesDB.games = {
         }
     },
     
-    -- Pokemon Yellow (USA)
+    --MARK: Yellow (USA)
     ["CC7D03262EBFAF2F06772C1A480C7D9D5F4A38E1"] = {
         gameInfo = {
             gameCode = 0x5945,
@@ -101,8 +102,8 @@ GamesDB.games = {
     },
     
     -- ===== GENERATION 2 GAMES =====
-    
-    -- Pokemon Gold (USA)
+
+    -- MARK: Gold (USA)
     ["D8B8A3600A465308C9953DFA04F0081C05BDCB94"] = {
         gameInfo = {
             gameCode = 0x474C,
@@ -131,8 +132,8 @@ GamesDB.games = {
             kantoBadges = 0xD57D, -- 1 byte, 1 bit per badge
         }
     },
-    
-    -- Pokemon Silver (USA)
+
+    -- MARK: Silver (USA)
     ["49B163F7E57702BC939D642A18F591DE55D92DAE"] = {
         gameInfo = {
             gameCode = 0x534C,
@@ -161,8 +162,8 @@ GamesDB.games = {
             kantoBadges = 0xD57D, -- 1 byte, 1 bit per badge
         }
     },
-    
-    -- Pokemon Crystal (USA)
+
+    -- MARK: Crystal (USA)
     ["F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133"] = {
         gameInfo = {
             gameCode = 0x414C,
@@ -193,8 +194,8 @@ GamesDB.games = {
     },
     
     -- ===== GENERATION 3 GAMES =====
-    
-    -- Pokemon Ruby (USA)
+
+    -- MARK: Ruby (USA)
     ["F28B6FFC97847E94A6C21A63CACF633EE5C8DF1E"] = {
         gameInfo = {
             gameCode = "AXVE",
@@ -240,14 +241,14 @@ GamesDB.games = {
             -- Bags
             pcItems = 0x498,
             itemsPocket = 0x560,
-            keyItemsPocket = 0x5D8,
-            ballsPocket = 0x650,
-            tmhmPocket = 0x690,
-            berriesPocket = 0x790
+            keyItemsPocket = 0x5B0,
+            ballsPocket = 0x600,
+            tmhmPocket = 0x640,
+            berriesPocket = 0x740
         }
     },
-    
-    -- Pokemon Sapphire (USA)
+
+    -- MARK: Sapphire (USA)
     ["3CCBBD45F8553C36463F13B938E833F652B793E4"] = {
         gameInfo = {
             gameCode = "AXPE",
@@ -264,10 +265,10 @@ GamesDB.games = {
             partyAddr = "02004360",
             enemyPartyAddr = "02024744",
             gBattleMons = "02024084",
-            speciesDataTable = "081FEBA8",
-            speciesNameTable = "081F70FC",
-            itemNameTable =     "083C55BC",
-            naturePointersAddr = "083C105C"
+            speciesDataTable = "081FEC34",
+            speciesNameTable = "081F716C",
+            itemNameTable =     "083C5564",
+            naturePointersAddr = "083C1004"
         },
         trainerPointers = {
             isPointer = false,
@@ -293,14 +294,14 @@ GamesDB.games = {
             -- Bags
             pcItems = 0x498,
             itemsPocket = 0x560,
-            keyItemsPocket = 0x5D8,
-            ballsPocket = 0x650,
-            tmhmPocket = 0x690,
-            berriesPocket = 0x790
+            keyItemsPocket = 0x5B0,
+            ballsPocket = 0x600,
+            tmhmPocket = 0x640,
+            berriesPocket = 0x740
         }
     },
-    
-    -- Pokemon Emerald (USA)
+
+    -- MARK: Emerald (USA)
     ["F3AE088181BF583E55DAF962A92BB46F4F1D07B7"] = {
         gameInfo = {
             gameCode = "BPEE",
@@ -319,8 +320,9 @@ GamesDB.games = {
             gBattleMons =           "02024084", 
             speciesDataTable =      "083203CC",
             speciesNameTable =      "083185C8",
-            itemNameTable =         "085839A0",
+            itemTable =             "0858399E",
             naturePointersAddr =    "0861CB50",
+            abilityNameTable =      "0831B6DB"
         },
         trainerPointers = {
             isPointer = true,
@@ -353,8 +355,8 @@ GamesDB.games = {
             berriesPocket = 0x790
         }
     },
-    
-    -- Pokemon FireRed (USA)
+
+    -- MARK: FireRed (USA)
     ["41CB23D8DCCC8EBD7C649CD8FBB58EEACE6E2FDC"] = {
         gameInfo = {
             gameCode = "BPRE",
@@ -407,8 +409,8 @@ GamesDB.games = {
             berriesPocket = 0x54C
         }
     },
-    
-    -- Pokemon LeafGreen (USA)
+
+    -- MARK: LeafGreen (USA)
     ["574FA542FFEBB14BE69902D1D36F1EC0A4AFD71E"] = {
         gameInfo = {
             gameCode = "BPGE",
@@ -462,7 +464,7 @@ GamesDB.games = {
         }
     },
 
-    -- Pokemon Radical Red
+    -- MARK: Radical Red
     ["964F951A0FDAF209E4EA1344883EF0D557BB3A80"] = {
         gameInfo = {
             gameCode = "BPRE",

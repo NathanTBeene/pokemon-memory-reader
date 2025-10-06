@@ -101,19 +101,37 @@ function Gen3PlayerReader:readBag()
     local gameData = MemoryReader.currentGame
     local domain = "EWRAM"
     local bag = {}
-    local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1))
+
+    -- Emerald uses a pointer to find the SaveBlock1 location.
+    -- Ruby/Sapphire, Firered, Leafgreen have fixed locations.
+    local saveBlock1Addr = gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1)
+    if gameData.trainerPointers.isPointer then
+        saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1))
+    end
     local trainerOffsets = gameData.trainerOffsets
 
 
     -- Items are stored as pairs of (ItemID, Quantity 1-999)
-    local quantityKey = self.trainerInfo.encryptionKey & 0xFFFF
+    -- Ruby/Sapphire don't have an encryption key and items are
+    -- stored in plain binary.
+    -- Emerald, Firered, Leafgreen use the encryption key to XOR
+    -- the quantity value.
+    
+    local quantityKey = nil
+    if self.trainerInfo.encryptionKey then
+        quantityKey = self.trainerInfo.encryptionKey & 0xFFFF
+    end
 
     -- Items Pocket
     bag.items = {}
     local itemsStart = saveBlock1Addr + trainerOffsets.itemsPocket
+    console.log("Reading items from address: " .. itemsStart)
     for i = 0, gameData.pocketSize.itemsPocket - 1 do
         local itemID = gameUtils.read16(itemsStart + i * 4, domain)
-        local quantity = gameUtils.read16(itemsStart + i * 4 + 2, domain) ~ quantityKey
+        local quantity = gameUtils.read16(itemsStart + i * 4 + 2, domain)
+        if quantityKey then
+            quantity = quantity ~ quantityKey
+        end
         local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
             table.insert(bag.items, {id = itemID, quantity = quantity, name = name})
@@ -125,7 +143,10 @@ function Gen3PlayerReader:readBag()
     local keyItemsStart = saveBlock1Addr + trainerOffsets.keyItemsPocket
     for i = 0, gameData.pocketSize.keyItemsPocket - 1 do
         local itemID = gameUtils.read16(keyItemsStart + i * 4, domain)
-        local quantity = gameUtils.read16(keyItemsStart + i * 4 + 2, domain) ~ quantityKey
+        local quantity = gameUtils.read16(keyItemsStart + i * 4 + 2, domain)
+        if quantityKey then
+            quantity = quantity ~ quantityKey
+        end
         local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
             table.insert(bag.keyItems, {id = itemID, quantity = quantity, name = name})
@@ -137,7 +158,10 @@ function Gen3PlayerReader:readBag()
     local pokeballsStart = saveBlock1Addr + trainerOffsets.ballsPocket
     for i = 0, gameData.pocketSize.ballsPocket - 1 do
         local itemID = gameUtils.read16(pokeballsStart + i * 4, domain)
-        local quantity = gameUtils.read16(pokeballsStart + i * 4 + 2, domain) ~ quantityKey
+        local quantity = gameUtils.read16(pokeballsStart + i * 4 + 2, domain)
+        if quantityKey then
+            quantity = quantity ~ quantityKey
+        end
         local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
             table.insert(bag.pokeballs, {id = itemID, quantity = quantity, name = name})
@@ -149,10 +173,13 @@ function Gen3PlayerReader:readBag()
     local tmsStart = saveBlock1Addr + trainerOffsets.tmhmPocket
     for i = 0, gameData.pocketSize.tmhmPocket - 1 do
         local itemID = gameUtils.read16(tmsStart + i * 4, domain)
-        local quantity = gameUtils.read16(tmsStart + i * 4 + 2, domain) ~ quantityKey
+        local quantity = gameUtils.read16(tmsStart + i * 4 + 2, domain)
+        if quantityKey then
+            quantity = quantity ~ quantityKey
+        end
         local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
-            table.insert(bag.tms, {id = itemID, quantity = quantity, name = name})
+            table.insert(bag.tmhms, {id = itemID, quantity = quantity, name = name})
         end
     end
 
@@ -161,7 +188,10 @@ function Gen3PlayerReader:readBag()
     local berriesStart = saveBlock1Addr + trainerOffsets.berriesPocket
     for i = 0, gameData.pocketSize.berriesPocket - 1 do
         local itemID = gameUtils.read16(berriesStart + i * 4, domain)
-        local quantity = gameUtils.read16(berriesStart + i * 4 + 2, domain) ~ quantityKey
+        local quantity = gameUtils.read16(berriesStart + i * 4 + 2, domain)
+        if quantityKey then
+            quantity = quantity ~ quantityKey
+        end
         local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
             table.insert(bag.berries, {id = itemID, quantity = quantity, name = name})

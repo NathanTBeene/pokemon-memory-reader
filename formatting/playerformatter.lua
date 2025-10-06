@@ -3,6 +3,16 @@ local json = require("modules.dkjson")
 local PlayerFormatter = {}
 
 function PlayerFormatter.formatPlayerData(trainerInfo, bag)
+  trainerInfo = trainerInfo or {}
+  bag = bag or {}
+
+  -- Ensure fields we index are present to avoid nil-index errors
+  trainerInfo.name = trainerInfo.name or "(unknown)"
+  trainerInfo.gender = trainerInfo.gender
+  trainerInfo.money = trainerInfo.money or 0
+  trainerInfo.coins = trainerInfo.coins or 0
+  trainerInfo.badges = trainerInfo.badges or {}
+
   local output = {}
   table.insert(output, "=== TRAINER INFORMATION ===")
   table.insert(output, "Name: " .. trainerInfo.name)
@@ -22,8 +32,9 @@ function PlayerFormatter.formatPlayerData(trainerInfo, bag)
   end
   table.insert(output, "=== BADGES ===")
   for _, badge in ipairs(trainerInfo.badges) do
-    local status = badge.earned and "Earned" or "Not Earned"
-    table.insert(output, string.format(" - Badge %d: %s", badge.badgeNum, status))
+    local status = (badge and badge.earned) and "Earned" or "Not Earned"
+    local badgeNum = badge and badge.badgeNum or "?"
+    table.insert(output, string.format(" - Badge %s: %s", tostring(badgeNum), status))
   end
 
   table.insert(output, PlayerFormatter.formatBagData(bag))
@@ -32,22 +43,28 @@ function PlayerFormatter.formatPlayerData(trainerInfo, bag)
 end
 
 function PlayerFormatter.formatBagData(bag)
-  local gen = MemoryReader.currentGame.gameInfo.generation
-  local output = {}
+  bag = bag or {}
+  local gen = 0
+  if MemoryReader and MemoryReader.currentGame and MemoryReader.currentGame.gameInfo then
+    gen = tonumber(MemoryReader.currentGame.gameInfo.generation) or 0
+  end
 
+  local output = {}
   table.insert(output, "=== BAG CONTENTS ===")
+
   -- Generation 1 only has items.
   if gen == 1 then
     table.insert(output, "Items:")
-    for _, item in ipairs(bag.items) do
-      table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", item.name, item.id, item.quantity))
+    for _, item in ipairs(bag.items or {}) do
+      table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", item.name or "", item.id or 0, item.quantity or 0))
     end
   else
-    for pocketName, items in pairs(bag) do
+    for pocketName, items in pairs(bag or {}) do
+      items = items or {}
       if #items > 0 then
         table.insert(output, pocketName .. ":")
         for _, item in ipairs(items) do
-          table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", item.name, item.id, item.quantity))
+          table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", item.name or "", item.id or 0, item.quantity or 0))
         end
       end
     end

@@ -26,5 +26,6 @@
     "SQL",
     "tastudio",
     "userdata"
-  ]
+  ],
+  "editor.colorDecorators": false
 }

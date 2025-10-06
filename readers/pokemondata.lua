@@ -223,22 +223,27 @@ function pokemonData.getItemName(itemID)
 
     -- If we have the itemNameTable then we get the name from the ROM.
     if gameData.addresses.itemNameTable then
-        return pokemonData.getItemFromROM(itemID, gameData) or "Unknown"
+        local name = pokemonData.getItemFromROM(itemID, gameData)
+        if name and name ~= "" then
+            return name
+        end
+            console.log("Failed to read item name from ROM.")
     end
 
     -- Fallback to constants if no ROM table is available.
+    -- Offset id by 1 since Lua is 1-indexed.
     local generation = gameData.gameInfo.generation
     if generation == 1 then
         if itemID > 0 and itemID <= #constants.pokemonData.itemsGen1 then
-            return constants.pokemonData.itemsGen1[itemID]
+            return constants.pokemonData.itemsGen1[itemID + 1]
         end
     elseif generation == 2 then
         if itemID > 0 and itemID <= #constants.pokemonData.itemsGen2 then
-            return constants.pokemonData.itemsGen2[itemID]
+            return constants.pokemonData.itemsGen2[itemID + 1]
         end
     else
         if itemID > 0 and itemID <= #constants.pokemonData.itemsGen3 then
-            return constants.pokemonData.itemsGen3[itemID]
+            return constants.pokemonData.itemsGen3[itemID + 1]
         end
     end
 
@@ -248,6 +253,15 @@ end
 function pokemonData.getItemFromROM(itemID, gameData)
     local tableAddr = gameData.addresses.itemNameTable
     local generation = gameData.gameInfo.generation
+
+    if type(tableAddr) == "string" then
+        tableAddr = gameUtils.hexToNumber(tableAddr)
+    end
+
+    if not tableAddr then
+        console.log("No item name table address.")
+        return nil
+    end
 
     -- Generation 1 names are variable length with a null terminator.
     if generation == 1 then
@@ -278,6 +292,13 @@ function pokemonData.getItemFromROM(itemID, gameData)
 
             currentID = currentID + 1
         end
+    end
+    -- Gen 3 items are stored as the entire item structure.
+    -- Each item is 44 bytes in total, and the name is the first 14 bytes.
+    if generation == 3 then
+        local itemAddr = tableAddr + ((itemID) * 44)
+        local nameBytes = gameUtils.readBytes(itemAddr, 14, "ROM")
+        return charmaps.decryptText(nameBytes, "GBA")
     end
 end
 

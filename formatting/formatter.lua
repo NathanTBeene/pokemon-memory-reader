@@ -5,7 +5,7 @@ local pokeFormatter = require("formatting.pokemonformatter")
 local Formatter = {}
 
 -- Pokemon Formatting
-Formatter.formatPokemonData = pokeFormatter.formatPokemonData
+Formatter.formatPartyData = pokeFormatter.formatPartyData
 Formatter.formatPartyJSON = pokeFormatter.formatPartyJSON
 
 -- Player Formatting

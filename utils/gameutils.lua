@@ -50,10 +50,47 @@ end
 
 -- Convert hex string to number
 function gameUtils.hexToNumber(hexStr)
-    if type(hexStr) == "string" then
-        return tonumber(hexStr, 16)
+    if type(hexStr) == "number" then
+        return hexStr & 0xFFFFFFFF
     end
-    return hexStr
+    if type(hexStr) == "string" then
+        -- remove 0x prefix and any non-hex characters (safety from bad DB entries)
+        local s = hexStr:gsub("^0[xX]", ""):gsub("[^%x]", "")
+        if s == "" then return nil end
+        local n = tonumber(s, 16)
+        if not n then return nil end
+        -- ensure n is 32-bit positive integer
+        return n & 0xFFFFFFFF
+    end
+    return nil
+end
+
+-- Return memory domain string and local (masked) address for a full 32-bit address
+-- e.g. 0x02024284 -> returns "EWRAM", 0x024284
+function gameUtils.addrToDomainAndOffset(addr)
+    if type(addr) == "string" then
+        addr = gameUtils.hexToNumber(addr)
+    end
+    if not addr then return nil, nil end
+    -- ensure integer
+    addr = addr & 0xFFFFFFFF
+    local domainByte = (addr >> 24) & 0xFF
+    local mem = nil
+    if domainByte == 0 then
+        mem = "BIOS"
+    elseif domainByte == 2 then
+        mem = "EWRAM"
+    elseif domainByte == 3 then
+        mem = "IWRAM"
+    elseif domainByte == 8 then
+        mem = "ROM"
+    else
+        -- Unknown domain: choose ROM as a safe default for offline tables, but log
+        mem = "ROM"
+        console.log(string.format("Warning: unknown memory domain 0x%02X for address 0x%X", domainByte, addr))
+    end
+    local offset = addr & 0xFFFFFF
+    return mem, offset
 end
 
 -- MARK: Read
@@ -63,26 +100,52 @@ end
 -- Can also take an override.
 -- All memory reads should go through this function.
 function gameUtils.readMemory(addr, size, memOverride)
-    local mem = ""
-    local memdomain = (addr >> 24)
-    if memdomain == 0 then
-        mem = "BIOS"
-    elseif memdomain == 2 then
-        mem = "EWRAM"
-    elseif memdomain == 3 then
-        mem = "IWRAM"
-    elseif memdomain == 8 then
-        mem = "ROM"
+    -- If addr is string like "02024284" convert and determine domain/offset
+    if type(addr) == "string" then
+        local memFromAddr, offsetFromAddr = gameUtils.addrToDomainAndOffset(addr)
+        if memOverride == nil then memOverride = memFromAddr end
+        addr = offsetFromAddr
     end
-    addr = (addr & 0xFFFFFF)
-    if size == 1 then
-        return memory.read_u8(addr, memOverride or mem)
-    elseif size == 2 then
-        return memory.read_u16_le(addr, memOverride or mem)
-    elseif size == 3 then
-        return memory.read_u24_le(addr, memOverride or mem)
+
+    local memdomain = 0
+    if memOverride then
+        -- if caller provided an explicit memOverride, try to map common names to domain byte for logging only
+        -- but memory.* functions expect the domain name string.
     else
-        return memory.read_u32_le(addr, memOverride or mem)
+        -- If numeric addr still has domain byte (shouldn't happen here), detect it
+        if addr > 0xFFFFFF then
+            memdomain = (addr >> 24) & 0xFF
+        else
+            memdomain = 0
+        end
+    end
+
+    local mem = memOverride or ""
+    if mem == "" then
+        if memdomain == 0 then mem = "BIOS"
+        elseif memdomain == 2 then mem = "EWRAM"
+        elseif memdomain == 3 then mem = "IWRAM"
+        elseif memdomain == 8 then mem = "ROM"
+        else mem = "ROM" end
+    end
+
+    -- ensure local address is within 24 bits
+    addr = addr & 0xFFFFFF
+
+    -- Basic safety: prevent obviously out-of-range reads from being attempted
+    -- (will still surface warnings if mem domain size mismatch)
+    if addr > 0xFFFFFF then
+        console.log(string.format("Warning: attempt to read with offset 0x%X which is > 24-bit", addr))
+    end
+
+    if size == 1 then
+        return memory.read_u8(addr, mem)
+    elseif size == 2 then
+        return memory.read_u16_le(addr, mem)
+    elseif size == 3 then
+        return memory.read_u24_le(addr, mem)
+    else
+        return memory.read_u32_le(addr, mem)
     end
 end
 
