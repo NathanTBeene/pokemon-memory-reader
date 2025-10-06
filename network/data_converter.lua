@@ -124,8 +124,9 @@ function DataConverter.getBagData(memoryReader)
         items = {},
         keyItems = {},
         pokeballs = {},
-        tmsHms = {},
-        pcItems = {}
+        tmhms = {},
+        pcItems = {},
+        berries = {}
     }
     for _, item in ipairs(bag.items or {}) do
         if item.id and item.id > 0 then
@@ -155,18 +156,18 @@ function DataConverter.getBagData(memoryReader)
 
     -- TM's and HM's are tms and hms arrays
     local tms = {}
-    for _, tm in ipairs(bag.tmsHms.tms or {}) do
+    for _, tm in ipairs(bag.tmhms.tms or {}) do
         if tm.id and tm.id > 0 then
             table.insert(tms, {id = tm.id, name = tm.name, quantity = tm.quantity})
         end
     end
     local hms = {}
-    for _, hm in ipairs(bag.tmsHms.hms or {}) do
+    for _, hm in ipairs(bag.tmhms.hms or {}) do
         if hm.id and hm.id > 0 then
             table.insert(hms, {id = hm.id, name = hm.name, quantity = hm.quantity})
         end
     end
-    apiBag.tmsHms = {tms = tms, hms = hms}
+    apiBag.tmhms = {tms = tms, hms = hms}
     return apiBag
 end
 

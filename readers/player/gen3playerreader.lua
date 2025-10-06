@@ -203,13 +203,25 @@ function Gen3PlayerReader:readBag()
             quantity = quantity ~ quantityKey
         end
         local name = pokemonData.getItemName(itemID)
-        if itemID ~= 0 then
-            if name.find("TM", 1) then
-                table.insert(bag.tmhms.tms, {id = itemID, quantity = quantity, name = name})
-            elseif name.find("HM", 1) then
-                table.insert(bag.tmhms.hms, {id = itemID, quantity = quantity, name = name})
-            end
+        --Number is last two chars of name
+        local number = name and tonumber(name:match("%d+"))
+        if itemID == 0 then
+            goto continue
         end
+
+        -- Check Name
+        if name and name:match("^TM") then
+            local moveID = pokemonData.getTMMoveID(number)
+            console.log("TM Move ID: " .. tostring(moveID) .. " for TM" .. tostring(number))
+            local moveName = pokemonData.getMoveName(moveID)
+            console.log("TM Move Name: " .. tostring(moveName))
+            table.insert(bag.tmhms.tms, {id = itemID, quantity = quantity, name = string.format("%s: %s", name, moveName or "Unknown Move")})
+        elseif name and name:match("^HM") then
+            local moveID = pokemonData.getTMMoveID(number + 50)
+            local moveName = pokemonData.getMoveName(moveID)
+            table.insert(bag.tmhms.hms, {id = itemID, quantity = quantity, name = string.format("%s: %s", name, moveName or "Unknown Move")})
+        end
+        ::continue::
     end
 
     -- Berries Pocket

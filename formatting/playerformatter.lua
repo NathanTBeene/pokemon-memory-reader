@@ -66,10 +66,10 @@ function PlayerFormatter.formatBagData(bag)
       end
     end
     table.insert(output, "TMs/HMs:")
-    for _, tm in ipairs(bag.tmsHms and bag.tmsHms.tms or {}) do
+    for _, tm in ipairs(bag.tmhms and bag.tmhms.tms or {}) do
       table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", tm.name or "", tm.id or 0, tm.quantity or 0))
     end
-    for _, hm in ipairs(bag.tmsHms and bag.tmsHms.hms or {}) do
+    for _, hm in ipairs(bag.tmhms and bag.tmhms.hms or {}) do
       table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", hm.name or "", hm.id or 0, hm.quantity or 0))
     end
   end

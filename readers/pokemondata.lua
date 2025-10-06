@@ -199,6 +199,12 @@ function pokemonData.getTMMoveID(tmNumber)
         return nil
     end
 
+    -- Gen 3 tms are 2 bytes each
+    if gameData.gameInfo.generation == 3 then
+        local moveId = gameUtils.read16(gameUtils.hexToNumber(tmToMoveTableAddr) + ((tmNumber - 1) * 2), "ROM")
+        return moveId
+    end
+
     local moveId = gameUtils.read8(gameUtils.hexToNumber(tmToMoveTableAddr) + (tmNumber - 1), "ROM")
     return moveId
 end
@@ -210,7 +216,7 @@ function pokemonData.getMoveName(moveId)
         console.log("Game data not found for current ROM!")
         return "Unknown"
     end
-    local movesTableAddr = gameData.addresses.moveNamesTable
+    local movesTableAddr = gameUtils.hexToNumber(gameData.addresses.moveNamesTable)
 
     -- Generation 2 has variable move names that end in a null terminator 0x50
     if gameData.gameInfo.generation == 2 then

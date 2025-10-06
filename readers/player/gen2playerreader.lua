@@ -200,7 +200,7 @@ function Gen2PlayerReader:readBag()
         end
     end
 
-    bag.tmsHms = tmhms
+    bag.tmhms = tmhms
 
     self.bag = bag
     return self.bag

@@ -371,7 +371,9 @@ GamesDB.games = {
             itemTable =             "0858399E",
             naturePointersAddr =    "0861CB50",
             abilityNameTable =      "0831B6DB",
-            moveNameTable =         "0831977C"
+            moveNamesTable =         "0831977C",
+            -- 58 moves 2 bytes each
+            tmToMoveTable =         "08616040"
         },
         trainerPointers = {
             isPointer = true,
