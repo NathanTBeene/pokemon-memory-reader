@@ -334,7 +334,8 @@ GamesDB.games = {
             speciesNameTable =      "083185C8",
             itemTable =             "0858399E",
             naturePointersAddr =    "0861CB50",
-            abilityNameTable =      "0831B6DB"
+            abilityNameTable =      "0831B6DB",
+            moveNameTable =         "0831977C"
         },
         trainerPointers = {
             isPointer = true,
@@ -387,13 +388,15 @@ GamesDB.games = {
         addresses = {
             -- First 2 numbers determine domain
             -- 02 = EWRAM, 08 = ROM
-            partyAddr = "02024284",
-            enemyPartyAddr = "0202402C", 
-            gBattleMons = "02023BE4",
-            speciesDataTable = "082547A0",
-            speciesNameTable = "08245EE0",
-            itemNameTable = "083DB028",
-            naturePointersAddr = "08463E60"
+            partyAddr =             "02024284",
+            enemyPartyAddr =        "0202402C",
+            gBattleMons =           "02023BE4",
+            speciesDataTable =      "082547A0",
+            speciesNameTable =      "08245EE0",
+            itemNameTable =         "083DB028",
+            naturePointersAddr =    "08463E60",
+            abilityNameTable =      "0824FC40",
+            moveNameTable =         "08247094"
         },
         trainerPointers = {
             isPointer = true,
@@ -446,13 +449,15 @@ GamesDB.games = {
         addresses = {
             -- First 2 numbers determine domain
             -- 02 = EWRAM, 08 = ROM
-            partyAddr = "02024284",
-            enemyPartyAddr = "0202402C",
-            gBattleMons = "02023BE4",
-            speciesDataTable = "0825477C",
-            speciesNameTable = "08245EBC",
-            itemNameTable = "083DAE64",
-            naturePointersAddr = "08463880"
+            partyAddr =             "02024284",
+            enemyPartyAddr =        "0202402C",
+            gBattleMons =           "02023BE4",
+            speciesDataTable =      "0825477C",
+            speciesNameTable =      "08245EBC",
+            itemNameTable =         "083DAE64",
+            naturePointersAddr =    "08463880",
+            abilityNameTable =      "0824FC40",
+            moveNameTable =         "08247094"
         },
         trainerPointers = {
             isPointer = true,

@@ -99,18 +99,21 @@ function UserCommands.printBag()
 end
 
 -- Sets the player's money to the specified amount.
-function UserCommands.setMoney(amount)
-  if not ensureInitialized() then return end
-  MemoryReader.playerReader:setMoney(amount)
-end
+-- TODO: Implement for other games besides Emerald.
+-- function UserCommands.setMoney(amount)
+--   if not ensureInitialized() then return end
+--   MemoryReader.playerReader:setMoney(amount)
+-- end
 
 -- Adds an item to the player's bag in the first available slot.
 -- If slot is specified, adds to that slot instead or warns if
 -- the slot is occupied.
-function UserCommands.addItemPocket(id, quantity, slotOverride)
-  if not ensureInitialized() then return end
-  MemoryReader.playerReader:addItemPocket(id, quantity, slotOverride)
-end
+-- !Only works in Emerald for now.
+-- TODO: Implement for other games.
+-- function UserCommands.addItemPocket(id, quantity, slotOverride)
+--   if not ensureInitialized() then return end
+--   MemoryReader.playerReader:addItemPocket(id, quantity, slotOverride)
+-- end
 
 -- MARK: Debug
 

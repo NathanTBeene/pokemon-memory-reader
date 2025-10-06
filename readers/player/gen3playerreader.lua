@@ -37,7 +37,6 @@ function Gen3PlayerReader:updateTrainerInfo()
 
   -- For Emerald, FireRed, and LeafGreen, save block data require pointers to find the position.
   if gameData.trainerPointers.isPointer then
-    console.log("Using pointer to find Save Block addresses.")
     saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock1))
     saveBlock2Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock2))
   end
@@ -87,8 +86,6 @@ function Gen3PlayerReader:updateTrainerInfo()
 
   -- Firered and Leafgreen are a single bit and don't need fancy footwork.
   if gameData.gameInfo.versionColor == "FireRed" or gameData.gameInfo.versionColor == "LeafGreen" then
-    console.log("Using Firered/Leafgreen badge reading method.")
-    console.log("Badge address: " .. string.format("0x%X", badgeAddr))
       badgeBits = gameUtils.read8(badgeAddr, domain)
   end
 

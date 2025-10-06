@@ -67,7 +67,7 @@ function HttpServer:start()
     console.log("  GET /player - Get current player/trainer information")
     console.log("  GET /status - Get server status")
     console.log("  GET / - API documentation")
-    console.log("  POST /setMoney - Set player's money amount")
+    -- console.log("  POST /setMoney - Set player's money amount")
     
     return true
 end
