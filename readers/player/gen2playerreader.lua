@@ -1,6 +1,7 @@
 local PlayerReader = require("readers.player.playerreader")
 local gameUtils = require("utils.gameutils")
 local charmaps = require("data.charmaps")
+local pokemonData = require("readers.pokemondata")
 
 local Gen2PlayerReader = {}
 Gen2PlayerReader.__index = Gen2PlayerReader
@@ -91,6 +92,118 @@ function Gen2PlayerReader:updateTrainerInfo()
         momMoney = momMoney,
         coins = coins or 0,
     }
+end
+
+function Gen2PlayerReader:readBag()
+    self:updateTrainerInfo()
+    local gameData = MemoryReader.currentGame
+
+    if not self.trainerInfo then
+        console.log("No trainer info available, cannot read bag")
+        return
+    elseif not gameData or not gameData.trainerOffsets then
+        console.log("No game data or trainer offsets found")
+        return
+    end
+
+    local domain = "System Bus"
+
+    local itemCount = gameUtils.read8(gameData.trainerOffsets.itemCount, domain)
+    local keyItemCount = gameUtils.read8(gameData.trainerOffsets.keyItemCount, domain)
+    local ballCount = gameUtils.read8(gameData.trainerOffsets.ballCount, domain)
+    local bag = {}
+
+    -- Items are 2 bytes each (item ID and quantity) and 20 max
+    local itemStartAddr = gameData.trainerOffsets.itemsPocket
+    local items = {}
+    for i = 0, itemCount - 1 do
+        local itemAddr = itemStartAddr + (i * 2)
+        local itemData = gameUtils.readBytes(itemAddr, 2, domain)
+        local item = {
+            id = itemData[1],
+            quantity = itemData[2],
+            name = pokemonData.getItemName(itemData[1])
+        }
+        if item.id == 0 then
+            break
+        end
+        table.insert(items, item)
+    end
+    bag.items = items
+
+    -- Key Items are 2 bytes each (item ID and quantity) and 25 max
+    local keyItemStartAddr = gameData.trainerOffsets.keyItemsPocket
+    local keyItems = {}
+    for i = 0, keyItemCount - 1 do
+        local keyItemAddr = keyItemStartAddr + (i * 2)
+        local keyItemData = gameUtils.readBytes(keyItemAddr, 2, domain)
+        local keyItem = {
+            id = keyItemData[1],
+            quantity = keyItemData[2],
+            name = pokemonData.getItemName(keyItemData[1])
+        }
+        if keyItem.id == 0 then
+            break
+        end
+        table.insert(keyItems, keyItem)
+    end
+    bag.keyItems = keyItems
+
+    -- Balls are 2 bytes each (item ID and quantity) and 12 max
+    local ballStartAddr = gameData.trainerOffsets.ballsPocket
+    local balls = {}
+    for i = 0, ballCount - 1 do
+        local ballAddr = ballStartAddr + (i * 2)
+        local ballData = gameUtils.readBytes(ballAddr, 2, domain)
+        local ball = {
+            id = ballData[1],
+            quantity = ballData[2],
+            name = pokemonData.getItemName(ballData[1])
+        }
+        if ball.id == 0 then
+            break
+        end
+        table.insert(balls, ball)
+    end
+    bag.pokeballs = balls
+
+    self.bagInfo = bag
+
+    --TM's and HM's are 1 byte each with 50 tms and 8 hms max
+    -- The value at the index is the quantity owned (0-99)
+    local tmhmStartAddr = gameData.trainerOffsets.tmhmPocket
+    local tmhms = {tms = {}, hms = {}}
+
+    for i = 1, 50 do
+        local tmAddr = tmhmStartAddr + (i - 1)
+        local tmQuantity = gameUtils.read8(tmAddr, domain)
+        local tmMoveId = pokemonData.getTMMoveID(i)
+        if tmQuantity > 0 then
+            table.insert(tmhms.tms, {
+                id = i,
+                quantity = tmQuantity,
+                name = string.format("TM%02d: %s", i, pokemonData.getMoveName(tmMoveId))
+            })
+        end
+    end
+
+    for i = 1, 7 do
+        local hmAddr = tmhmStartAddr + 50 + (i - 1)
+        local hmQuantity = gameUtils.read8(hmAddr, domain)
+        local hmMoveId = pokemonData.getTMMoveID(i + 50)
+        if hmQuantity > 0 then
+            table.insert(tmhms.hms, {
+                id = i + 50,
+                quantity = hmQuantity,
+                name = string.format("HM%02d: %s", i, pokemonData.getMoveName(hmMoveId))
+            })
+        end
+    end
+
+    bag.tmsHms = tmhms
+
+    self.bag = bag
+    return self.bag
 end
 
 function Gen2PlayerReader:printTrainerInfo()

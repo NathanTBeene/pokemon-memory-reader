@@ -120,7 +120,16 @@ GamesDB.games = {
             partyNicknamesAddr = 0xDB8C,
             partyOTAddr = 0xDB4A,
             wildDVsAddr = 0xC6F0,
-            trainerID = 0xDA2A
+            trainerID = 0xDA2A,
+            tmToMoveTable = 0x11A66,
+            moveNamesTable = 0x1B1574,
+        },
+        pocketSize = {
+            pcCount = 50,
+            itemsPocket = 20,
+            keyItemsPocket = 25,
+            ballsPocket = 12,
+            tmhmPocket = 57,
         },
         trainerOffsets = {
             trainerID = 0xD1A1, -- 2 bytes
@@ -130,6 +139,15 @@ GamesDB.games = {
             coins = 0xD57A, -- 2 bytes binary
             johtoBadges = 0xD57C, -- 1 byte, 1 bit per badge
             kantoBadges = 0xD57D, -- 1 byte, 1 bit per badge
+
+            -- Bag Info
+            itemCount = 0xD5B7, -- 1 byte
+            itemsPocket = 0xD5B8, -- 2 bytes per item, up to 20 items
+            keyItemCount = 0xD5E1, -- 1 byte
+            keyItemsPocket = 0xD5E2, -- 2 bytes per item, up to 25 items
+            ballCount = 0xD5FC, -- 1 byte
+            ballsPocket = 0xD5FD, -- 2 bytes per item, up to 12 items
+            tmhmPocket = 0xD57E,
         }
     },
 
@@ -150,16 +168,34 @@ GamesDB.games = {
             partyNicknamesAddr = 0xDB8C,
             partyOTAddr = 0xDB4A,
             wildDVsAddr = 0xC6F0,
-            trainerID = 0xDA2A
+            trainerID = 0xDA2A,
+            tmToMoveTable = 0x11A66,
+            moveNamesTable = 0x1B1574,
+        },
+        pocketSize = {
+            pcCount = 50,
+            itemsPocket = 20,
+            keyItemsPocket = 25,
+            ballsPocket = 12,
+            tmhmPocket = 57,
         },
         trainerOffsets = {
             trainerID = 0xD1A1, -- 2 bytes
             name = 0xD1A3, -- 10 bytes
             money = 0xD573, -- 3 bytes
-            momMoney = 0xD576, -- 3 bytes
+            momMoney = 0xD576, -- 3 bytes 
             coins = 0xD57A, -- 2 bytes binary
             johtoBadges = 0xD57C, -- 1 byte, 1 bit per badge
             kantoBadges = 0xD57D, -- 1 byte, 1 bit per badge
+
+            -- Bag Info
+            itemCount = 0xD5B7, -- 1 byte
+            itemsPocket = 0xD5B8, -- 2 bytes per item, up to 20 items
+            keyItemCount = 0xD5E1, -- 1 byte
+            keyItemsPocket = 0xD5E2, -- 2 bytes per item, up to 25 items
+            ballCount = 0xD5FC, -- 1 byte
+            ballsPocket = 0xD5FD, -- 2 bytes per item, up to 12 items
+            tmhmPocket = 0xD57E,
         }
     },
 

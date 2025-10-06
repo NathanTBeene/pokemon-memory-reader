@@ -78,6 +78,21 @@ function ApiHandlers.handlePlayerRequest(client, memoryReader)
     httpUtils.sendResponse(client, 200, "OK", "application/json", jsonData)
 end
 
+function ApiHandlers.handleBagRequest(client, memoryReader)
+    if not memoryReader.isInitialized then
+        httpUtils.sendResponse(client, 503, "Service Unavailable", "application/json", 
+            json.encode({error = "Memory reader not initialized", message = "No Pokemon game detected"}))
+        return
+    end
+    
+    -- Get bag data
+    local bag = dataConverter.getBagData(memoryReader)
+    
+    -- Send JSON response
+    local jsonData = json.encode(bag, {indent = true})
+    httpUtils.sendResponse(client, 200, "OK", "application/json", jsonData)
+end
+
 function ApiHandlers.handleSetMoneyRequest(client, memoryReader, body)
     if not memoryReader.isInitialized then
         httpUtils.sendResponse(client, 503, "Service Unavailable", "application/json", 

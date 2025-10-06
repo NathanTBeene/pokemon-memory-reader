@@ -59,17 +59,20 @@ function PlayerFormatter.formatBagData(bag)
       table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", item.name or "", item.id or 0, item.quantity or 0))
     end
   else
-    for pocketName, items in pairs(bag or {}) do
-      items = items or {}
-      if #items > 0 then
-        table.insert(output, pocketName .. ":")
-        for _, item in ipairs(items) do
-          table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", item.name or "", item.id or 0, item.quantity or 0))
-        end
+    for _, category in ipairs({"items", "keyItems", "pokeballs"}) do
+      table.insert(output, string.upper(category) .. ":")
+      for _, item in ipairs(bag[category] or {}) do
+        table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", item.name or "", item.id or 0, item.quantity or 0))
       end
     end
+    table.insert(output, "TMs/HMs:")
+    for _, tm in ipairs(bag.tmsHms and bag.tmsHms.tms or {}) do
+      table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", tm.name or "", tm.id or 0, tm.quantity or 0))
+    end
+    for _, hm in ipairs(bag.tmsHms and bag.tmsHms.hms or {}) do
+      table.insert(output, string.format("  - %s (ID: %d, Qty: %d)", hm.name or "", hm.id or 0, hm.quantity or 0))
+    end
   end
-
   return table.concat(output, "\n")
 end
 

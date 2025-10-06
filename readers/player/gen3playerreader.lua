@@ -194,7 +194,7 @@ function Gen3PlayerReader:readBag()
     end
 
     -- TMs/HMs Pocket
-    bag.tmhms = {}
+    bag.tmhms = {tms = {}, hms = {}}
     local tmsStart = saveBlock1Addr + trainerOffsets.tmhmPocket
     for i = 0, gameData.pocketSize.tmhmPocket - 1 do
         local itemID = gameUtils.read16(tmsStart + i * 4, domain)
@@ -204,7 +204,11 @@ function Gen3PlayerReader:readBag()
         end
         local name = pokemonData.getItemName(itemID)
         if itemID ~= 0 then
-            table.insert(bag.tmhms, {id = itemID, quantity = quantity, name = name})
+            if name.find("TM", 1) then
+                table.insert(bag.tmhms.tms, {id = itemID, quantity = quantity, name = name})
+            elseif name.find("HM", 1) then
+                table.insert(bag.tmhms.hms, {id = itemID, quantity = quantity, name = name})
+            end
         end
     end
 
@@ -224,6 +228,7 @@ function Gen3PlayerReader:readBag()
     end
 
     self.bag = bag
+    return self.bag
 end
 
 

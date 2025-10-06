@@ -109,4 +109,65 @@ function DataConverter.getStatusName(statusValue)
     return statusNames[statusValue] or "Unknown"
 end
 
+function DataConverter.getBagData(memoryReader)
+    if not memoryReader.playerReader then
+        return {error = "Player reader not available"}
+    end
+
+    local playerReader = memoryReader.playerReader
+    if not playerReader.trainerInfo then
+        return {error = "Trainer info not available"}
+    end
+
+    local bag = playerReader:readBag()
+    local apiBag = {
+        items = {},
+        keyItems = {},
+        pokeballs = {},
+        tmsHms = {},
+        pcItems = {}
+    }
+    for _, item in ipairs(bag.items or {}) do
+        if item.id and item.id > 0 then
+            table.insert(apiBag.items, {id = item.id, name = item.name, quantity = item.quantity})
+        end
+    end
+    for _, keyItem in ipairs(bag.keyItems or {}) do
+        if keyItem.id and keyItem.id > 0 then
+            table.insert(apiBag.keyItems, {id = keyItem.id, name = keyItem.name, quantity = keyItem.quantity})
+        end
+    end
+    for _, pcItem in ipairs(bag.pcItems or {}) do
+        if pcItem.id and pcItem.id > 0 then
+            table.insert(apiBag.pcItems, {id = pcItem.id, name = pcItem.name, quantity = pcItem.quantity})
+        end
+    end
+    for _, ball in ipairs(bag.pokeballs or {}) do
+        if ball.id and ball.id > 0 then
+            table.insert(apiBag.pokeballs, {id = ball.id, name = ball.name, quantity = ball.quantity})
+        end
+    end
+    for _, pcItem in ipairs(bag.berries or {}) do
+        if pcItem.id and pcItem.id > 0 then
+            table.insert(apiBag.berries, {id = pcItem.id, name = pcItem.name, quantity = pcItem.quantity})
+        end
+    end
+
+    -- TM's and HM's are tms and hms arrays
+    local tms = {}
+    for _, tm in ipairs(bag.tmsHms.tms or {}) do
+        if tm.id and tm.id > 0 then
+            table.insert(tms, {id = tm.id, name = tm.name, quantity = tm.quantity})
+        end
+    end
+    local hms = {}
+    for _, hm in ipairs(bag.tmsHms.hms or {}) do
+        if hm.id and hm.id > 0 then
+            table.insert(hms, {id = hm.id, name = hm.name, quantity = hm.quantity})
+        end
+    end
+    apiBag.tmsHms = {tms = tms, hms = hms}
+    return apiBag
+end
+
 return DataConverter

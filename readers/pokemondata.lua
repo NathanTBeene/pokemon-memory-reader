@@ -186,6 +186,23 @@ function pokemonData.getHiddenPowerName(hpTypeId)
     return "Unknown"
 end
 
+function pokemonData.getTMMoveID(tmNumber)
+    local gameData = MemoryReader.currentGame
+    if not gameData then
+        console.log("Game data not found for current ROM!")
+        return nil
+    end
+
+    local tmToMoveTableAddr = gameData.addresses.tmToMoveTable
+    if not tmToMoveTableAddr then
+        console.log("No TM to Move table address for game.")
+        return nil
+    end
+
+    local moveId = gameUtils.read8(gameUtils.hexToNumber(tmToMoveTableAddr) + (tmNumber - 1), "ROM")
+    return moveId
+end
+
 -- Get move name from constants
 function pokemonData.getMoveName(moveId)
     local gameData = MemoryReader.currentGame
@@ -193,7 +210,41 @@ function pokemonData.getMoveName(moveId)
         console.log("Game data not found for current ROM!")
         return "Unknown"
     end
-    local movesTableAddr = gameData.gameInfo.moveNamesTable
+    local movesTableAddr = gameData.addresses.moveNamesTable
+
+    -- Generation 2 has variable move names that end in a null terminator 0x50
+    if gameData.gameInfo.generation == 2 then
+        console.log("Reading Gen 2 move name from ROM")
+        local currentAddr = movesTableAddr
+        local currentID = 1
+
+        -- Special Case: ID = 0 is "No Move"
+        if moveId == 0 then
+            return "No Move"
+        end
+
+        while currentID <= moveId do
+            local nameBytes = {}
+            local byteValue = 0
+
+            -- Read bytes until we hit a null terminator (0x00) or string terminator (0x50)
+            repeat
+                byteValue = gameUtils.read8(currentAddr, "ROM")
+                currentAddr = currentAddr + 1
+                
+                table.insert(nameBytes, byteValue)
+            until byteValue == 0x00 or byteValue == 0x50
+
+            if currentID == moveId then
+                table.remove(nameBytes)  -- Remove the terminator
+                return charmaps.decryptText(nameBytes, "GB")
+            end
+
+            currentID = currentID + 1
+        end
+
+        console.log("Failed to read move name from ROM.")
+    end
     
 
     -- If we have a valid moves table address

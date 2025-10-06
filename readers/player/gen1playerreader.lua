@@ -101,7 +101,7 @@ function Gen1PlayerReader:readBag()
   end
 
   self.bag.items = bag
-
+  return self.bag
 end
 
 -- MARK: Utility
