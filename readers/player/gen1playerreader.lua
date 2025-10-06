@@ -1,6 +1,7 @@
 local PlayerReader = require("readers.player.playerreader")
 local gameUtils = require("utils.gameutils")
 local pokemonData = require("readers.pokemondata")
+local charmaps = require("data.charmaps")
 
 local Gen1PlayerReader = {}
 Gen1PlayerReader.__index = Gen1PlayerReader
@@ -29,7 +30,7 @@ function Gen1PlayerReader:updateTrainerInfo()
   -- Trainer Name is 11 bytes
   local nameAddr = gameData.trainerOffsets.name
   local nameData = gameUtils.readBytes(nameAddr, 11, domain)
-  local name = decryptText(nameData, "GB")
+  local name = charmaps.decryptText(nameData, "GB")
 
   -- Badges is 1 byte, 1 bit per badge
   local badgesAddr = gameData.trainerOffsets.badges

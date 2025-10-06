@@ -35,8 +35,9 @@ function Gen3PlayerReader:updateTrainerInfo()
   local saveBlock2Addr = gameUtils.hexToNumber(trainerPointers.saveBlock2)
 
 
-  -- For Emerald, save block data require pointers to find the position.
+  -- For Emerald, FireRed, and LeafGreen, save block data require pointers to find the position.
   if gameData.trainerPointers.isPointer then
+    console.log("Using pointer to find Save Block addresses.")
     saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock1))
     saveBlock2Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock2))
   end
@@ -75,6 +76,33 @@ function Gen3PlayerReader:updateTrainerInfo()
       coins = coins ~ (encryptionKey & 0xFFFF)
   end
 
+  local flagsAddr = saveBlock1Addr + trainerOffsets.flags
+  local badgeOffset = trainerOffsets.badgeFlags
+  local badgeAddr = flagsAddr + badgeOffset
+  -- Read 2 bytes to get all 8 badges.
+  -- Badge 1 starts at bit 7 of the first byte.
+  -- Each badge is 1 bit.
+    local badgeData = gameUtils.read16(badgeAddr, domain)
+    local badgeBits = (badgeData >> 7) & 0xFF  -- Shift to get badges in lower 8 bits
+
+  -- Firered and Leafgreen are a single bit and don't need fancy footwork.
+  if gameData.gameInfo.versionColor == "FireRed" or gameData.gameInfo.versionColor == "LeafGreen" then
+    console.log("Using Firered/Leafgreen badge reading method.")
+    console.log("Badge address: " .. string.format("0x%X", badgeAddr))
+      badgeBits = gameUtils.read8(badgeAddr, domain)
+  end
+
+  local badgeList = {
+        {badgeNum = 1, name = "Boulder Badge", earned = (badgeBits & 0x01) ~= 0},
+        {badgeNum = 2, name = "Cascade Badge", earned = (badgeBits & 0x02) ~= 0},
+        {badgeNum = 3, name = "Thunder Badge", earned = (badgeBits & 0x04) ~= 0},
+        {badgeNum = 4, name = "Rainbow Badge", earned = (badgeBits & 0x08) ~= 0},
+        {badgeNum = 5, name = "Soul Badge", earned = (badgeBits & 0x10) ~= 0},
+        {badgeNum = 6, name = "Marsh Badge", earned = (badgeBits & 0x20) ~= 0},
+        {badgeNum = 7, name = "Volcano Badge", earned = (badgeBits & 0x40) ~= 0},
+        {badgeNum = 8, name = "Earth Badge", earned = (badgeBits & 0x80) ~= 0}
+  }
+
 
   self.trainerInfo = {
       name = name,
@@ -86,6 +114,7 @@ function Gen3PlayerReader:updateTrainerInfo()
           public = publicID,
           secret = secretID
       },
+    badges = badgeList,
       encryptionKey = encryptionKey or nil
   }
 end
@@ -125,7 +154,6 @@ function Gen3PlayerReader:readBag()
     -- Items Pocket
     bag.items = {}
     local itemsStart = saveBlock1Addr + trainerOffsets.itemsPocket
-    console.log("Reading items from address: " .. itemsStart)
     for i = 0, gameData.pocketSize.itemsPocket - 1 do
         local itemID = gameUtils.read16(itemsStart + i * 4, domain)
         local quantity = gameUtils.read16(itemsStart + i * 4 + 2, domain)

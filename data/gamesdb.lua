@@ -244,7 +244,13 @@ GamesDB.games = {
             keyItemsPocket = 0x5B0,
             ballsPocket = 0x600,
             tmhmPocket = 0x640,
-            berriesPocket = 0x740
+            berriesPocket = 0x740,
+            -- Flags
+            flags = 0x1220,
+            -- Badge Offset
+            -- Offset from flags address
+            -- Each badge is 1 bit
+            badgeFlags = 0x100
         }
     },
 
@@ -297,7 +303,13 @@ GamesDB.games = {
             keyItemsPocket = 0x5B0,
             ballsPocket = 0x600,
             tmhmPocket = 0x640,
-            berriesPocket = 0x740
+            berriesPocket = 0x740,
+            -- Flags
+            flags = 0x1220,
+            -- Badge Offset
+            -- Offset from flags address
+            -- Each badge is 1 bit
+            badgeFlags = 0x100
         }
     },
 
@@ -352,7 +364,12 @@ GamesDB.games = {
             keyItemsPocket = 0x5D8,
             ballsPocket = 0x650,
             tmhmPocket = 0x690,
-            berriesPocket = 0x790
+            berriesPocket = 0x790,
+            -- Flags
+            flags = 0x1270,
+            -- Badge Offset
+            -- Offset from flags address
+            badgeFlags = 0x10C
         }
     },
 
@@ -406,7 +423,12 @@ GamesDB.games = {
             keyItemsPocket = 0x3B8,
             ballsPocket = 0x430,
             tmhmPocket = 0x464,
-            berriesPocket = 0x54C
+            berriesPocket = 0x54C,
+            -- Flags
+            flags = 0x0EE0,
+            -- Badge Offset
+            -- Offset from flags address
+            badgeFlags = 0x104
         }
     },
 
@@ -460,7 +482,12 @@ GamesDB.games = {
             keyItemsPocket = 0x3B8,
             ballsPocket = 0x430,
             tmhmPocket = 0x464,
-            berriesPocket = 0x54C
+            berriesPocket = 0x54C,
+            -- Flags
+            flags = 0x0EE0,
+            -- Badge Offset
+            -- Offset from flags address
+            badgeFlags = 0x104
         }
     },
 
