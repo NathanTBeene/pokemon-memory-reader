@@ -217,7 +217,7 @@ local pokemonData = {
 		"Water Sport", "Calm Mind", "Leaf Blade", "Dragon Dance", "Rock Blast",
 		"Shock Wave", "Water Pulse", "Doom Desire", "Psycho Boost"
 	},
-	items_gen1 = {
+	itemsGen1 = {
 		"Master Ball", "Ultra Ball", "Great Ball", "Poké Ball", "Town Map",
 		"Bicycle", "?????", "Safari Ball", "Pokédex", "Moon Stone",
 		"Antidote", "Burn Heal", "Ice Heal", "Awakening", "Paralyze Heal",
@@ -249,7 +249,7 @@ local pokemonData = {
 		[246-83] = "TM46", [247-83] = "TM47", [248-83] = "TM48", [249-83] = "TM49", [250-83] = "TM50",
 		[251-83] = "TM51", [252-83] = "TM52", [253-83] = "TM53", [254-83] = "TM54", [255-83] = "TM55"
 	},
-	items_gen2 = {
+	itemsGen2 = {
 		"?", "Master Ball", "Ultra Ball", "BrightPowder", "Great Ball",
 		"Poké Ball", "Teru-sama", "Bicycle", "Moon Stone", "Antidote",
 		"Burn Heal", "Ice Heal", "Awakening", "Paralyze Heal", "Full Restore",
@@ -303,7 +303,7 @@ local pokemonData = {
 		"HM08", "HM09", "HM10", "HM11", "HM12",
 		"Cancel"
 	},
-	items_gen3 = {
+	itemsGen3 = {
 		"Nothing", "Master Ball", "Ultra Ball", "Great Ball", "Poké Ball",
 		"Safari Ball", "Net Ball", "Dive Ball", "Nest Ball", "Repeat Ball",
 		"Timer Ball", "Luxury Ball", "Premier Ball", "Potion", "Antidote",
@@ -403,15 +403,15 @@ local function getItemName(itemId, generation)
 	
 	local itemTable
 	if generation == 1 then
-		itemTable = pokemonData.items_gen1
+		itemTable = pokemonData.itemsGen1
 		-- Gen1 uses direct indexing, item ID matches array index
 		return itemTable[itemId] or "Unknown"
 	elseif generation == 2 then
-		itemTable = pokemonData.items_gen2
+		itemTable = pokemonData.itemsGen2
 		-- Gen2: item ID 0 -> index 1, item ID 1 -> index 2, etc.
 		return itemTable[itemId + 1] or "Unknown"
 	elseif generation == 3 then
-		itemTable = pokemonData.items_gen3
+		itemTable = pokemonData.itemsGen3
 		-- Gen3: item ID 0 -> index 1, item ID 1 -> index 2, etc.
 		return itemTable[itemId + 1] or "Unknown"
 	else

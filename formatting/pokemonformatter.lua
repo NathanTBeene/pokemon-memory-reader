@@ -1,4 +1,6 @@
 
+local json = require("modules.dkjson")
+
 local PokemonFormatter = {}
 
 function PokemonFormatter.formatPartyData(party)
@@ -68,8 +70,8 @@ function PokemonFormatter.formatPokemonSlot(slot, pokemon)
   return table.concat(lines, "\n")
 end
 
--- Unimplemented
-function PokemonFormatter.formatPartyAsJSON(party)
+function PokemonFormatter.formatPartyJSON(party)
+  return json.encode(party)
 end
 
 return PokemonFormatter

@@ -7,7 +7,7 @@ A BizHawk Lua script that reads live game data from Pokemon ROMs, providing real
 
 ## Features
 
-- **Live Data Reading**: Access Pokemon party data in real-time while playing
+- **Live Data Reading**: Access Party, Trainer, and Bag data live while playing the game.
 - **Multi-Generation Support**: Works with Gen 1-3 Pokemon games
 - **HTTP API**: Built-in REST API server for external tool integration
 - **Comprehensive Data**: Full stats including IVs, EVs, moves, abilities, and more
@@ -56,6 +56,12 @@ After loading the script, you can use these commands in the Lua Console:
 -- Show current party information
 showParty()
 
+-- Get the information for the currently loaded rom.
+showGameInfo()
+
+-- Show Trainer Information, including Bag
+showTrainer()
+
 -- Show available commands
 help()
 ```
@@ -82,8 +88,10 @@ toggleServer()
 
 When the server is running, you can access:
 
-- `GET http://localhost:8080/party` - Get party data in JSON format
 - `GET http://localhost:8080/status` - Get server and game status
+- `GET http://localhost:8080/party` - Get party data in JSON format
+- `GET http://localhost:8080/player` - Get information on the player in JSON
+- `GET http://localhost:8080/bag` - Get bag contents in JSON
 - `GET http://localhost:8080/` - Get API documentation
 
 ### Front End
@@ -107,10 +115,13 @@ The project is organized into several modules:
 
 - **`main.lua`**: Main script entry point and command interface
 - **`core/`**: Core functionality (game detection, memory reading)
-- **`readers/`**: Generation-specific party readers
+- **`readers/party/`**: Generation-specific player readers
+- **`readers/player/`**: Generation-specific party readers
 - **`data/`**: Game data constants and character mappings
 - **`utils/`**: Utility functions (config loading, game utilities)
+- **`commands/`**: User command definitions
 - **`network/`**: HTTP server implementation
+- **`modules/`**: Third party modules
 - **`debug/`**: Debugging tools and utilities
 
 ## Requirements
@@ -150,6 +161,57 @@ The `/party` endpoint returns an array of Pokemon objects. Each Pokemon object c
 | `hiddenPower` | string | Hidden Power type based on IVs | "Psychic" |
 | `isShiny` | boolean | Whether the Pokemon is shiny | false |
 | `types` | array | Pokemon's types (1 or 2 strings) | `["Grass", "Poison"]` or `["Fire"]` |
+
+### Player Data Fields
+
+The `/player` endpoint returns trainer/player information:
+
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `name` | string | Player's trainer name | "DEF" |
+| `money` | number | Current money/cash amount | 3000 |
+| `coins` | number | Game corner coins (Gen 1-3) | 0 |
+| `momMoney` | number | Money saved with Mom (Gen 2+) | 0 |
+| `badges` | array | Array of badge objects with name and earned status | See below |
+
+Each badge object in the `badges` array contains:
+
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `name` | string | Name of the badge | "Zephyr Badge" |
+| `earned` | boolean | Whether the badge has been earned | false |
+
+**Note:** Gen 2 games (Gold/Silver/Crystal) include both Johto and Kanto badges (16 total).
+
+### Bag Data Fields
+
+The `/bag` endpoint returns the player's inventory organized by pocket/category:
+
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `items` | array | Regular items pocket | Array of item objects |
+| `pokeballs` | array | Poké Balls pocket (Gen 3) | Array of item objects |
+| `keyItems` | array | Key items pocket | Array of item objects |
+| `berries` | array | Berries pocket (Gen 3) | Array of item objects |
+| `tmhms` | object | TMs and HMs pocket (Gen 3) | Object with `tms` and `hms` arrays |
+| `pcItems` | array | Items stored in PC | Array of item objects |
+
+Each item object contains:
+
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `id` | number | Item ID number | 13 |
+| `quantity` | number | Number of items held | 1 |
+| `name` | string | Item name | "Potion" |
+
+For Gen 3 games, the `tmhms` object structure:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `tms` | array | Array of TM item objects |
+| `hms` | array | Array of HM item objects |
+
+**Note:** Bag structure varies by generation. Gen 1-2 games have a simpler structure without separate pockets for Poké Balls and berries.
 
 ### Status Endpoint Fields
 
