@@ -1,1 +1,0 @@
-Bizhawk\EmuHawk.exe --lua=main.lua
