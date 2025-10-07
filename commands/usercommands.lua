@@ -31,7 +31,7 @@ function UserCommands.help()
   console.log("=====================================")
 end
 
-function UserCommands.getGameInfo()
+function UserCommands.showGameInfo()
   if not ensureInitialized() then return end
   if not MemoryReader.currentGame then
     console.log("No game loaded.")
@@ -80,8 +80,8 @@ end
 
 -- MARK: Player
 
--- Prints the Trainer information to console.
-function UserCommands.showTrainer()
+-- Prints the Player information to console.
+function UserCommands.showPlayer()
   if not ensureInitialized() then return end
   local playerReader = MemoryReader.playerReader
   playerReader:updateTrainerInfo()
@@ -90,12 +90,6 @@ function UserCommands.showTrainer()
   local trainerInfo = playerReader.trainerInfo
   local bag = playerReader.bag
   console.log(formatter.formatPlayerData(trainerInfo, bag))
-end
-
--- Prints the Bag contents to console.
-function UserCommands.printBag()
-  if not ensureInitialized() then return end
-  MemoryReader.playerReader:printBag()
 end
 
 -- Sets the player's money to the specified amount.
@@ -136,15 +130,6 @@ function UserCommands.encodeMisc2(hp, atk, def, spd, spatk, spdef, isEgg, abilit
   if not ensureInitialized() then return end
 
   debugTools.encodeMisc2(hp, atk, def, spd, spatk, spdef, isEgg, ability)
-end
-
-function UserCommands.formatPartyJSON()
-  if not ensureInitialized() then return end
-
-  local party = MemoryReader.getPartyData()
-  if party then
-    console.log(formatter.formatPartyJSON(party))
-  end
 end
 
 return UserCommands
