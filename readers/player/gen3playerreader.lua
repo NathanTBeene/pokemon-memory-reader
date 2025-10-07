@@ -334,49 +334,6 @@ end
 
 -- MARK: - UTILITY
 
-function Gen3PlayerReader:printTrainerInfo()
-    self:updateTrainerInfo()
-
-    if self.trainerInfo then
-        console.log("Trainer Info:")
-        console.log("Name: " .. self.trainerInfo.name)
-        console.log("Gender: " .. (self.trainerInfo.gender == 0 and "Male" or "Female"))
-        console.log("Money: " .. self.trainerInfo.money)
-        console.log("Coins: " .. self.trainerInfo.coins)
-        console.log("Trainer ID: " .. self.trainerInfo.trainerID.id)
-        console.log("Public ID: " .. self.trainerInfo.trainerID.public)
-        console.log("Secret ID: " .. self.trainerInfo.trainerID.secret)
-    end
-end
-
--- function Gen3PlayerReader:printBag()
---   self:readBag()
---   local bag = self.bag
---   if bag then
---     console.log("Bag Contents:")
---     console.log("Items:")
---     for _, item in ipairs(bag.items) do
---       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
---     end
---     console.log("Key Items:")
---     for _, item in ipairs(bag.keyItems) do
---       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
---     end
---     console.log("Pokeballs:")
---     for _, item in ipairs(bag.pokeballs) do
---       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
---     end
---     console.log("TMs/HMs:")
---     for _, item in ipairs(bag.tms) do
---       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
---     end
---     console.log("Berries:")
---     for _, item in ipairs(bag.berries) do
---       console.log(string.format("  ID: %d, Name: %s, Quantity: %d", item.id, item.name or "", item.quantity))
---     end
---   end
--- end
-
 function Gen3PlayerReader:getItemAt(address)
     return {
         id = gameUtils.read16(address, "EWRAM"),

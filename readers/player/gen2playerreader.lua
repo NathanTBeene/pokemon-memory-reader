@@ -206,20 +206,4 @@ function Gen2PlayerReader:readBag()
     return self.bag
 end
 
-function Gen2PlayerReader:printTrainerInfo()
-    self:updateTrainerInfo()
-    if self.trainerInfo then
-        console.log("Trainer Name: " .. self.trainerInfo.name)
-        console.log("Money: " .. self.trainerInfo.money)
-        console.log("Mom's Money: " .. self.trainerInfo.momMoney)
-        console.log("Coins: " .. self.trainerInfo.coins)
-        console.log("Badges:")
-        for _, badge in ipairs(self.trainerInfo.badges) do
-            console.log("  " .. badge.name .. ": " .. (badge.earned and "Earned" or "Not Earned"))
-        end
-    else
-        console.log("No trainer info available")
-    end
-end
-
 return Gen2PlayerReader

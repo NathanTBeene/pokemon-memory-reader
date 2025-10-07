@@ -103,38 +103,4 @@ function Gen1PlayerReader:readBag()
   self.bag.items = bag
   return self.bag
 end
-
--- MARK: Utility
-
-function Gen1PlayerReader:printTrainerInfo()
-  self:updateTrainerInfo()
-
-  if self.trainerInfo then
-    console.log("Trainer Info:")
-    console.log("Name: " .. (self.trainerInfo.name or "N/A"))
-    console.log("Money: " .. (self.trainerInfo.money or 0) .. " Pokedollars")
-    console.log("Coins: " .. (self.trainerInfo.coins or 0) .. " Coins")
-    console.log("Badges:")
-    for _, badge in ipairs(self.trainerInfo.badges) do
-      local status = badge.earned and "Earned" or "Not Earned"
-      console.log(" - " .. badge.name .. ": " .. status)
-    end
-  else
-    console.log("No trainer info available")
-  end
-end
-
--- function Gen1PlayerReader:printBag()
---   self:readBag()
-
---   if self.bag then
---     console.log("Bag Contents:")
---     for _, item in ipairs(self.bag) do
---       console.log("Item ID: " .. item.id .. ", Quantity: " .. item.quantity .. ", Name: " .. item.name)
---     end
---   else
---     console.log("No bag info available")
---   end
--- end
-
 return Gen1PlayerReader
