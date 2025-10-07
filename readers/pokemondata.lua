@@ -209,6 +209,32 @@ function pokemonData.getTMMoveID(tmNumber)
     return moveId
 end
 
+-- Read variable length string from ROM
+function pokemonData.getVariableLengthString(startingAddr, ID)
+    local currentAddr = startingAddr
+    local currentID = 1
+
+    while currentID <= ID do
+        local nameBytes = {}
+        local byteValue = 0
+
+        -- Read bytes until we hit a null terminator (0x00) or string terminator (0x50)
+        repeat
+            byteValue = gameUtils.read8(currentAddr, "ROM")
+            currentAddr = currentAddr + 1
+            
+            table.insert(nameBytes, byteValue)
+        until byteValue == 0x00 or byteValue == 0x50
+
+        if currentID == ID then
+            table.remove(nameBytes)  -- Remove the terminator
+            return charmaps.decryptText(nameBytes, "GB")
+        end
+
+        currentID = currentID + 1
+    end
+end
+
 -- Get move name from constants
 function pokemonData.getMoveName(moveId)
     local gameData = MemoryReader.currentGame
@@ -220,36 +246,10 @@ function pokemonData.getMoveName(moveId)
 
     -- Generation 2 has variable move names that end in a null terminator 0x50
     if gameData.gameInfo.generation == 2 then
-        console.log("Reading Gen 2 move name from ROM")
-        local currentAddr = movesTableAddr
-        local currentID = 1
-
-        -- Special Case: ID = 0 is "No Move"
-        if moveId == 0 then
-            return "No Move"
+        local name = pokemonData.getVariableLengthString(movesTableAddr, moveId)
+        if name and name ~= "" then
+            return name
         end
-
-        while currentID <= moveId do
-            local nameBytes = {}
-            local byteValue = 0
-
-            -- Read bytes until we hit a null terminator (0x00) or string terminator (0x50)
-            repeat
-                byteValue = gameUtils.read8(currentAddr, "ROM")
-                currentAddr = currentAddr + 1
-                
-                table.insert(nameBytes, byteValue)
-            until byteValue == 0x00 or byteValue == 0x50
-
-            if currentID == moveId then
-                table.remove(nameBytes)  -- Remove the terminator
-                return charmaps.decryptText(nameBytes, "GB")
-            end
-
-            currentID = currentID + 1
-        end
-
-        console.log("Failed to read move name from ROM.")
     end
     
 
@@ -322,33 +322,7 @@ function pokemonData.getItemFromROM(itemID, gameData)
 
     -- Generation 1 names are variable length with a null terminator.
     if generation == 1 then
-        local currentAddr = tableAddr
-        local currentID = 1
-
-        -- Special Case: ID = 0 is "No Item"
-        if itemID == 0 then
-            return {}
-        end
-
-        while currentID <= itemID do
-            local nameBytes = {}
-            local byteValue = 0
-
-            -- Read bytes until we hit a null terminator (0x00) or string terminator (0x50)
-            repeat
-                byteValue = gameUtils.read8(currentAddr, "ROM")
-                currentAddr = currentAddr + 1
-                
-                table.insert(nameBytes, byteValue)
-            until byteValue == 0x00 or byteValue == 0x50
-
-            if currentID == itemID then
-                table.remove(nameBytes)  -- Remove the terminator
-                return charmaps.decryptText(nameBytes, "GB")
-            end
-
-            currentID = currentID + 1
-        end
+        return pokemonData.getVariableLengthString(tableAddr, itemID)
     end
     -- Gen 3 items are stored as the entire item structure.
     -- Each item is 44 bytes in total, and the name is the first 14 bytes.
