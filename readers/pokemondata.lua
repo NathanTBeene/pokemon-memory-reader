@@ -218,13 +218,13 @@ function pokemonData.getVariableLengthString(startingAddr, ID)
         local nameBytes = {}
         local byteValue = 0
 
-        -- Read bytes until we hit a null terminator (0x00) or string terminator (0x50)
+        -- Read bytes until we hit a string terminator (0x50)
         repeat
             byteValue = gameUtils.read8(currentAddr, "ROM")
             currentAddr = currentAddr + 1
             
             table.insert(nameBytes, byteValue)
-        until byteValue == 0x00 or byteValue == 0x50
+        until byteValue == 0x50
 
         if currentID == ID then
             table.remove(nameBytes)  -- Remove the terminator
@@ -284,7 +284,7 @@ function pokemonData.getItemName(itemID)
         if name and name ~= "" then
             return name
         end
-            console.log("Failed to read item name from ROM.")
+            console.log("Failed to read item with id " .. itemID .. " from ROM.")
     end
 
     -- Fallback to constants if no ROM table is available.
@@ -320,8 +320,8 @@ function pokemonData.getItemFromROM(itemID, gameData)
         return nil
     end
 
-    -- Generation 1 names are variable length with a null terminator.
-    if generation == 1 then
+    -- Generation 1 & 2 names are variable length with a null terminator.
+    if generation == 1 or generation == 2 then
         return pokemonData.getVariableLengthString(tableAddr, itemID)
     end
     -- Gen 3 items are stored as the entire item structure.

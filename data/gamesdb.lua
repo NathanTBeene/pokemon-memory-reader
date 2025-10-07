@@ -217,10 +217,17 @@ GamesDB.games = {
             partyOTAddr = 0xDDFF,
             wildDVsAddr = 0xC6F0,
             trainerID = 0xDCDF,
-            speciesNameTable = 0x7384,-- 11 bytes per name
-            itemNameTable = 0x4000, -- Variable with 0x50 terminator
-            moveNamesTable = 0x5F29, -- Variable with 0x50 terminator
-            tmToMoveTable = 0x567A, -- 1 byte per TM/hm, 60 entries total.
+            speciesNameTable = 0x53384,-- 11 bytes per name
+            itemNameTable = 0x1C8000, -- Variable with 0x50 terminator
+            moveNamesTable = 0x1C9F29, -- Variable with 0x50 terminator
+            tmToMoveTable = 0x1167A, -- 1 byte per TM/hm, 60 entries total.
+        },
+        pocketSize = {
+            pcCount = 50,
+            itemsPocket = 20,
+            keyItemsPocket = 25,
+            ballsPocket = 12,
+            tmhmPocket = 57,
         },
         trainerOffsets = {
             trainerID = 0xD47B, -- 2 bytes
@@ -230,6 +237,18 @@ GamesDB.games = {
             coins = 0xD855, -- 2 bytes binary
             johtoBadges = 0xD857, -- 1 byte, 1 bit per badge
             kantoBadges = 0xD858, -- 1 byte, 1 bit per badge
+
+            -- Bag Info
+            itemCount = 0xD893,
+            keyItemCount = 0xD8BC,
+            ballCount = 0xD8D7,
+            pcCount = 0xD8F1,
+
+            itemsPocket = 0xD893, -- 2 bytes per item, up to 20 items
+            keyItemsPocket = 0xD8BD, -- 2 bytes per item, up to 25 items
+            ballsPocket = 0xD8D8, -- 2 bytes per item, up to 12 items
+            tmhmPocket = 0xD859,
+            pcItems = 0xD8F2, -- 2 bytes per item, up to 50 items
         }
     },
     

@@ -212,9 +212,7 @@ function Gen3PlayerReader:readBag()
         -- Check Name
         if name and name:match("^TM") then
             local moveID = pokemonData.getTMMoveID(number)
-            console.log("TM Move ID: " .. tostring(moveID) .. " for TM" .. tostring(number))
             local moveName = pokemonData.getMoveName(moveID)
-            console.log("TM Move Name: " .. tostring(moveName))
             table.insert(bag.tmhms.tms, {id = itemID, quantity = quantity, name = string.format("%s: %s", name, moveName or "Unknown Move")})
         elseif name and name:match("^HM") then
             local moveID = pokemonData.getTMMoveID(number + 50)

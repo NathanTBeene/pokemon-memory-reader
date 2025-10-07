@@ -119,14 +119,15 @@ function Gen2PlayerReader:readBag()
     for i = 0, itemCount - 1 do
         local itemAddr = itemStartAddr + (i * 2)
         local itemData = gameUtils.readBytes(itemAddr, 2, domain)
+        -- Stop if we hit an empty slot (0 or 255)
+        if itemData[1] == 0 or itemData[1] == 255 then
+            break
+        end
         local item = {
             id = itemData[1],
             quantity = itemData[2],
             name = pokemonData.getItemName(itemData[1])
         }
-        if item.id == 0 then
-            break
-        end
         table.insert(items, item)
     end
     bag.items = items
@@ -137,14 +138,15 @@ function Gen2PlayerReader:readBag()
     for i = 0, keyItemCount - 1 do
         local keyItemAddr = keyItemStartAddr + (i * 2)
         local keyItemData = gameUtils.readBytes(keyItemAddr, 2, domain)
+        -- Stop if we hit an empty slot (0 or 255)
+        if keyItemData[1] == 0 or keyItemData[1] == 255 then
+            break
+        end
         local keyItem = {
             id = keyItemData[1],
             quantity = keyItemData[2],
             name = pokemonData.getItemName(keyItemData[1])
         }
-        if keyItem.id == 0 then
-            break
-        end
         table.insert(keyItems, keyItem)
     end
     bag.keyItems = keyItems
@@ -155,14 +157,15 @@ function Gen2PlayerReader:readBag()
     for i = 0, ballCount - 1 do
         local ballAddr = ballStartAddr + (i * 2)
         local ballData = gameUtils.readBytes(ballAddr, 2, domain)
+        -- Stop if we hit an empty slot (0 or 255)
+        if ballData[1] == 0 or ballData[1] == 255 then
+            break
+        end
         local ball = {
             id = ballData[1],
             quantity = ballData[2],
             name = pokemonData.getItemName(ballData[1])
         }
-        if ball.id == 0 then
-            break
-        end
         table.insert(balls, ball)
     end
     bag.pokeballs = balls
