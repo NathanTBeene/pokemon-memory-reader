@@ -216,7 +216,11 @@ GamesDB.games = {
             partyNicknamesAddr = 0xDE41,
             partyOTAddr = 0xDDFF,
             wildDVsAddr = 0xC6F0,
-            trainerID = 0xDCDF
+            trainerID = 0xDCDF,
+            speciesNameTable = 0x7384,-- 11 bytes per name
+            itemNameTable = 0x4000, -- Variable with 0x50 terminator
+            moveNamesTable = 0x5F29, -- Variable with 0x50 terminator
+            tmToMoveTable = 0x567A, -- 1 byte per TM/hm, 60 entries total.
         },
         trainerOffsets = {
             trainerID = 0xD47B, -- 2 bytes

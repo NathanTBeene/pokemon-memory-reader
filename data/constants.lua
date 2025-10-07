@@ -403,15 +403,15 @@ local function getItemName(itemId, generation)
 	
 	local itemTable
 	if generation == 1 then
-		itemTable = pokemonData.items_gen1
+		itemTable = pokemonData.itemsGen1
 		-- Gen1 uses direct indexing, item ID matches array index
 		return itemTable[itemId] or "Unknown"
 	elseif generation == 2 then
-		itemTable = pokemonData.items_gen2
+		itemTable = pokemonData.itemsGen2
 		-- Gen2: item ID 0 -> index 1, item ID 1 -> index 2, etc.
 		return itemTable[itemId + 1] or "Unknown"
 	elseif generation == 3 then
-		itemTable = pokemonData.items_gen3
+		itemTable = pokemonData.itemsGen3
 		-- Gen3: item ID 0 -> index 1, item ID 1 -> index 2, etc.
 		return itemTable[itemId + 1] or "Unknown"
 	else
