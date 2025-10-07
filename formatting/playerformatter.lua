@@ -12,6 +12,8 @@ function PlayerFormatter.formatPlayerData(trainerInfo, bag)
   trainerInfo.money = trainerInfo.money or 0
   trainerInfo.coins = trainerInfo.coins or 0
   trainerInfo.badges = trainerInfo.badges or {}
+  trainerInfo.encryptionKey = trainerInfo.encryptionKey or nil
+  trainerInfo.momMoney = trainerInfo.momMoney or nil
 
   local output = {}
   table.insert(output, "=== TRAINER INFORMATION ===")

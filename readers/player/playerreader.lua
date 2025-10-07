@@ -54,27 +54,4 @@ function PlayerReader:printBag()
     end
 end
 
-function PlayerReader:printTrainerInfo()
-    self:updateTrainerInfo()
-    if self.trainerInfo then
-        console.log("Trainer Name: " .. self.trainerInfo.name)
-        console.log("Money: " .. self.trainerInfo.money)
-        if self.trainerINfo.momMoney then
-            console.log("Mom's Money: " .. self.trainerInfo.momMoney)
-        end
-        console.log("Coins: " .. self.trainerInfo.coins)
-        console.log("Badges:")
-        for _, badge in ipairs(self.trainerInfo.badges) do
-            console.log("  - " .. badge.name .. (badge.earned and " (Earned)" or " (Not Earned)"))
-        end
-        if self.trainerInfo.trainerID then
-            console.log("Trainer ID: " .. self.trainerInfo.trainerID.id)
-            console.log("Public ID: " .. self.trainerInfo.trainerID.public)
-            console.log("Secret ID: " .. self.trainerInfo.trainerID.secret)
-        end
-    else
-        console.log("No trainer info available.")
-    end
-end
-
 return PlayerReader
