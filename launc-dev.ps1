@@ -76,3 +76,7 @@ Unregister-Event -SourceIdentifier "DevWatcher.Renamed" -ErrorAction SilentlyCon
 $fsw.EnableRaisingEvents = $false
 $fsw.Dispose()
 Write-Host "Watcher stopped."
+
+# Kill EmuHawk instances on exit
+Kill-Emu
+Write-Host "EmuHawk instances closed."
