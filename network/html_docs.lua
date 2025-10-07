@@ -24,23 +24,35 @@ function HtmlDocs.getDocumentationHtml(port, host)
     <h2>Available Endpoints:</h2>
     
     <div class="endpoint">
-        <span class="method">GET</span> <code>/party</code><br>
-        Returns the current Pokemon party data in JSON format.
-    </div>
-    
-    <div class="endpoint">
         <span class="method">GET</span> <code>/status</code><br>
         Returns server and game status information.
     </div>
-    
+
+    <div class="endpoint">
+        <span class="method">GET</span> <code>/party</code><br>
+        Returns the current Pokemon party data in JSON format.
+    </div>
+
+    <div class="endpoint">
+        <span class="method">GET</span> <code>/player</code><br>
+        Returns player/trainer information including name, money, badges, etc.
+    </div>
+
+    <div class="endpoint">
+        <span class="method">GET</span> <code>/bag</code><br>
+        Returns the player's bag/inventory contents organized by pocket.
+    </div>
+
     <div class="endpoint">
         <span class="method">POST</span> <code>/setMoney</code><br>
         Sets the player's money to the specified amount. Requires JSON body with "amount" field.
     </div>
     
     <h2>Example Usage:</h2>
-    <pre>curl http://localhost:]] .. port .. [[/party</pre>
     <pre>curl http://localhost:]] .. port .. [[/status</pre>
+    <pre>curl http://localhost:]] .. port .. [[/party</pre>
+    <pre>curl http://localhost:]] .. port .. [[/player</pre>
+    <pre>curl http://localhost:]] .. port .. [[/bag</pre>
     <pre>curl -X POST -H "Content-Type: application/json" -d '{"amount": 500000}' http://localhost:]] .. port .. [[/setMoney</pre>
     
     <h2>Response Formats:</h2>
@@ -210,7 +222,96 @@ function HtmlDocs.getDocumentationHtml(port, host)
             <td>["Grass", "Poison"] or ["Fire"]</td>
         </tr>
     </table>
-    
+
+    <h3>GET /player - Player Data Fields:</h3>
+    <p>Returns trainer/player information:</p>
+    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+        <tr style="background-color: #f0f0f0;">
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Example</th>
+        </tr>
+        <tr>
+            <td><code>name</code></td>
+            <td>string</td>
+            <td>Player's trainer name</td>
+            <td>"DEF"</td>
+        </tr>
+        <tr>
+            <td><code>money</code></td>
+            <td>number</td>
+            <td>Current money/cash amount</td>
+            <td>3000</td>
+        </tr>
+        <tr>
+            <td><code>coins</code></td>
+            <td>number</td>
+            <td>Game corner coins (Gen 1-3)</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td><code>momMoney</code></td>
+            <td>number</td>
+            <td>Money saved with Mom (Gen 2+)</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td><code>badges</code></td>
+            <td>array</td>
+            <td>Array of badge objects with "name" and "earned" fields. Gen 2 includes both Johto and Kanto badges (16 total).</td>
+            <td>[{"name": "Zephyr Badge", "earned": false}, ...]</td>
+        </tr>
+    </table>
+
+    <h3>GET /bag - Bag Data Fields:</h3>
+    <p>Returns the player's inventory organized by pocket/category:</p>
+    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+        <tr style="background-color: #f0f0f0;">
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Example</th>
+        </tr>
+        <tr>
+            <td><code>items</code></td>
+            <td>array</td>
+            <td>Regular items pocket - array of item objects</td>
+            <td>[{"id": 13, "quantity": 1, "name": "Potion"}]</td>
+        </tr>
+        <tr>
+            <td><code>pokeballs</code></td>
+            <td>array</td>
+            <td>Poké Balls pocket (Gen 3) - array of item objects</td>
+            <td>[{"id": 4, "quantity": 5, "name": "Poké Ball"}]</td>
+        </tr>
+        <tr>
+            <td><code>keyItems</code></td>
+            <td>array</td>
+            <td>Key items pocket - array of item objects</td>
+            <td>[{"id": 271, "quantity": 1, "name": "Basement Key"}]</td>
+        </tr>
+        <tr>
+            <td><code>berries</code></td>
+            <td>array</td>
+            <td>Berries pocket (Gen 3) - array of item objects</td>
+            <td>[{"id": 159, "quantity": 5, "name": "Cornn Berry"}]</td>
+        </tr>
+        <tr>
+            <td><code>tmhms</code></td>
+            <td>object</td>
+            <td>TMs and HMs pocket (Gen 3) - object with "tms" and "hms" arrays of item objects</td>
+            <td>{"tms": [...], "hms": [...]}</td>
+        </tr>
+        <tr>
+            <td><code>pcItems</code></td>
+            <td>array</td>
+            <td>Items stored in PC - array of item objects</td>
+            <td>[]</td>
+        </tr>
+    </table>
+    <p><strong>Note:</strong> Bag structure varies by generation. Gen 1-2 games have a simpler structure without separate pockets for Poké Balls and berries.</p>
+
     <h3>GET /status - Server Status Fields:</h3>
     <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
         <tr style="background-color: #f0f0f0;">
@@ -276,6 +377,9 @@ function HtmlDocs.getDocumentationHtml(port, host)
         <li>IVs range from 0-31, EVs range from 0-252</li>
         <li>Status "Normal" indicates no status condition</li>
         <li>If no nickname is set, the nickname field will contain the species name</li>
+        <li>Badge structure and availability varies by generation - Gen 2 includes 16 badges (Johto + Kanto)</li>
+        <li>Bag pockets vary by generation - Gen 3 has separate pockets for items, Poké Balls, key items, berries, and TM/HMs</li>
+        <li>Each item object contains: id (number), quantity (number), and name (string)</li>
     </ul>
 </body>
 </html>]]
