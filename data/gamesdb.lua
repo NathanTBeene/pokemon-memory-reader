@@ -611,6 +611,71 @@ GamesDB.games = {
             pcItems = 0x298,
         }
     },
+
+    -- ===== GENERATION 4 GAMES =====
+
+    -- MARK: Diamond (USA) (Rev 5)
+    ["F7437EFF015FAC1F8076246D0FB58102"] = {
+        gameInfo = {
+            gameCode = "ADAE",
+            gameName = "Pokemon Diamond (USA)",
+            versionName = "Pokemon Diamond",
+            versionColor = "Diamond",
+            generation = 4,
+            platform = "NDS",
+            isRomhack = false
+        },
+        addresses = {
+            -- First 2 numbers determine domain
+            -- 02 = EWRAM, 03 = IWRAM, 08 = ROM
+            partyAddr =             "020244EC",
+            enemyPartyAddr =        "02024744",
+            gBattleMons =           "02024084", 
+            speciesDataTable =      "083203CC",
+            speciesNameTable =      "083185C8",
+            itemTable =             "0858399E",
+            naturePointersAddr =    "0861CB50",
+            abilityNameTable =      "0831B6DB",
+            moveNamesTable =         "0831977C",
+            -- 58 moves 2 bytes each
+            tmToMoveTable =         "08616040"
+        },
+        trainerPointers = {
+            isPointer = true,
+            saveBlock1 = "03005D8C",
+            saveBlock2 = "03005D90",
+        },
+        pocketSize = {
+            pcCount = 50,
+            itemsPocket = 20,
+            keyItemsPocket = 30,
+            ballsPocket = 16,
+            tmhmPocket = 64,
+            berriesPocket = 46
+        },
+        trainerOffsets = {
+            -- Info
+            name = 0x00,
+            gender = 0x08,
+            trainerID = 0x0A,
+            encryptionKey = 0xAC,
+            -- Currency
+            money = 0x490,
+            coins = 0x494,
+            -- Bags
+            pcItems = 0x498,
+            itemsPocket = 0x560,
+            keyItemsPocket = 0x5D8,
+            ballsPocket = 0x650,
+            tmhmPocket = 0x690,
+            berriesPocket = 0x790,
+            -- Flags
+            flags = 0x1270,
+            -- Badge Offset
+            -- Offset from flags address
+            badgeFlags = 0x10C
+        }
+    },
 }
 
 -- Helper function to get game data by hash

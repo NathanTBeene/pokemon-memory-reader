@@ -209,6 +209,35 @@ function gameUtils.readVariableLength(startAddr, maxLength, memOverride)
     return {bytes, #bytes}
 end
 
+-- Functions to Read from a byte array
+function gameUtils.read8FromBytes(byteArray, offset)
+    if offset < 0 or offset >= #byteArray then
+        return nil
+    end
+    return byteArray[offset + 1]
+end
+
+function gameUtils.read16FromBytes(byteArray, offset)
+    if offset < 0 or offset + 1 >= #byteArray then
+        return nil
+    end
+    return byteArray[offset + 1] | (byteArray[offset + 2] << 8)
+end
+
+function gameUtils.read24FromBytes(byteArray, offset)
+    if offset < 0 or offset + 2 >= #byteArray then
+        return nil
+    end
+    return byteArray[offset + 1] | (byteArray[offset + 2] << 8) | (byteArray[offset + 3] << 16)
+end
+
+function gameUtils.read32FromBytes(byteArray, offset)
+    if offset < 0 or offset + 3 >= #byteArray then
+        return nil
+    end
+    return byteArray[offset + 1] | (byteArray[offset + 2] << 8) | (byteArray[offset + 3] << 16) | (byteArray[offset + 4] << 24)
+end
+
 
 -- MARK: Write
 function gameUtils.writeMemory(startAddr, value, size, memOverride)
