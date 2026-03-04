@@ -1,8 +1,10 @@
 
 local UserCommands = {}
 local formatter = require("formatting.formatter")
-local debugTools = require("debug.debugtools")
+local debugTools = require("utils.debugutils")
+local gameUtils = require("utils.gameutils")
 local GamesDB = require("data.gamesdb")
+local charmaps = require("data.charmaps")
 
 -- MARK: Basic Utility
 
@@ -119,6 +121,8 @@ function UserCommands.debugParty()
 end
 
 -- Dumps a section of the ROM to a file for debugging purposes.
+---@param address integer
+---@param length integer
 function UserCommands.dumpROM(address, length)
   if not ensureInitialized() then return end
 
@@ -126,10 +130,25 @@ function UserCommands.dumpROM(address, length)
 end
 
 -- Encodes a Pokemon's Misc2 data and prints the result.
+---@param hp integer
+---@param atk integer
+---@param def integer
+---@param spd integer
+---@param spatk integer
+---@param spdef integer
+---@param isEgg integer
+---@param ability integer
 function UserCommands.encodeMisc2(hp, atk, def, spd, spatk, spdef, isEgg, ability)
   if not ensureInitialized() then return end
 
   debugTools.encodeMisc2(hp, atk, def, spd, spatk, spdef, isEgg, ability)
+end
+
+---@param input string
+function UserCommands.encryptText(input)
+  if not ensureInitialized() then return end
+  local encrypted = charmaps.encryptText(input)
+  console.log(gameUtils.printHexBytes(encrypted))
 end
 
 return UserCommands
