@@ -27,5 +27,11 @@
     "tastudio",
     "userdata"
   ],
-  "editor.colorDecorators": false
+  "editor.colorDecorators": false,
+  "files.exclude": {
+    "**/.git": true,
+    "**/Thumbs.db": true,
+    "**/LICENSE": true,
+    "**/Bizhawk": true
+  }
 }

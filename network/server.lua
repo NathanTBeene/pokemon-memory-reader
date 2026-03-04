@@ -7,19 +7,27 @@ package.cpath = package.cpath .. ";./modules/LuaSocket/socket/?.dll;./modules/Lu
 
 local HttpServer = require("network.http_server")
 
+---@class Server
+---@field httpServer table
 local Server = {}
 Server.__index = Server
 
+---@param memoryReader MemoryReader
+---@param port? integer
+---@param host? string
+---@return Server
 function Server:new(memoryReader, port, host)
     local obj = setmetatable({}, Server)
     obj.httpServer = HttpServer:new(memoryReader, port, host)
     return obj
 end
 
+---@return boolean
 function Server:start()
     return self.httpServer:start()
 end
 
+---@return boolean
 function Server:stop()
     return self.httpServer:stop()
 end

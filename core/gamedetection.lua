@@ -5,7 +5,7 @@ local gameDetection = {}
 local GamesDB = require("data.gamesdb")
 local gameUtils = require("utils.gameutils")
 
--- Main detection function
+---@return GameEntry|nil
 function gameDetection.detectGame()
     console.log("Detecting game...")
 
@@ -50,28 +50,34 @@ function gameDetection.detectGame()
 end
 
 -- Function to read game code from a default memory address.
+-- GB games store the game code at 0x13C
+-- GBA games store the game code at 0x0AC
+-- NDS games store the game code at 0x00C
 -- Typically doesn't need to be used.
+---@return string|nil
 function gameDetection.findGameCode()
-    local code = memory.read_u16_le(0x00013C)
-    if not code then
+    local system = gameUtils.getSystem()
+    local code = nil
+    if system == "NULL" then
         return nil
     end
+
+    if system == "GB" or system == "GBC" then
+        code = gameUtils.read16(0x013C, "ROM")
+    elseif system == "GBA" then
+        code = gameUtils.read16(0x0AC, "ROM")
+    elseif system == "NDS" then
+        code = gameUtils.read32(0x00C, "ROM")
+    else
+        return nil
+    end
+
     return gameUtils.gameCodeToString(code)
 end
 
--- Get supported games list
+---@return string[]
 function gameDetection.getSupportedGames()
     return GamesDB.getSupportedGamesList()
-end
-
--- Validate if current game is supported
-function gameDetection.isGameSupported()
-    local romHash = gameUtils.getROMHash()
-    if not romHash then
-        return false
-    end
-    
-    return GamesDB.isGameSupported(romHash)
 end
 
 return gameDetection

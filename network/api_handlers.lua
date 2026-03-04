@@ -8,6 +8,8 @@ local htmlDocs = require("network.html_docs")
 
 local ApiHandlers = {}
 
+---@param client table
+---@param memoryReader MemoryReader
 function ApiHandlers.handlePartyRequest(client, memoryReader)
     if not memoryReader.isInitialized then
         httpUtils.sendResponse(client, 503, "Service Unavailable", "application/json", 
@@ -29,6 +31,11 @@ function ApiHandlers.handlePartyRequest(client, memoryReader)
     httpUtils.sendResponse(client, 200, "OK", "application/json", jsonData)
 end
 
+---@param client table
+---@param memoryReader MemoryReader
+---@param port integer
+---@param host string
+---@param isRunning boolean
 function ApiHandlers.handleStatusRequest(client, memoryReader, port, host, isRunning)
     local status = {
         server = {
@@ -49,11 +56,16 @@ function ApiHandlers.handleStatusRequest(client, memoryReader, port, host, isRun
     httpUtils.sendResponse(client, 200, "OK", "application/json", jsonData)
 end
 
+---@param client table
+---@param port integer
+---@param host string
 function ApiHandlers.handleRootRequest(client, port, host)
     local html = htmlDocs.getDocumentationHtml(port, host)
     httpUtils.sendResponse(client, 200, "OK", "text/html", html)
 end
 
+---@param client table
+---@param memoryReader MemoryReader
 function ApiHandlers.handlePlayerRequest(client, memoryReader)
     if not memoryReader.isInitialized then
         httpUtils.sendResponse(client, 503, "Service Unavailable", "application/json", 
@@ -78,6 +90,8 @@ function ApiHandlers.handlePlayerRequest(client, memoryReader)
     httpUtils.sendResponse(client, 200, "OK", "application/json", jsonData)
 end
 
+---@param client table
+---@param memoryReader MemoryReader
 function ApiHandlers.handleBagRequest(client, memoryReader)
     if not memoryReader.isInitialized then
         httpUtils.sendResponse(client, 503, "Service Unavailable", "application/json", 
@@ -93,6 +107,9 @@ function ApiHandlers.handleBagRequest(client, memoryReader)
     httpUtils.sendResponse(client, 200, "OK", "application/json", jsonData)
 end
 
+---@param client table
+---@param memoryReader MemoryReader
+---@param body string
 function ApiHandlers.handleSetMoneyRequest(client, memoryReader, body)
     if not memoryReader.isInitialized then
         httpUtils.sendResponse(client, 503, "Service Unavailable", "application/json", 

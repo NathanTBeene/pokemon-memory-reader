@@ -6,7 +6,9 @@ local gameUtils = require("utils.gameutils")
 local constants = require("data.constants")
 local charmaps = require("data.charmaps")
 
--- Read species name from ROM
+--- Read species name from ROM
+---@param speciesId integer
+---@return string
 function pokemonData.readSpeciesName(speciesId)
     -- Get game data
     local gameData = MemoryReader.currentGame
@@ -20,22 +22,13 @@ function pokemonData.readSpeciesName(speciesId)
     if speciesNameTableAddr then
         local nameAddr = gameUtils.hexToNumber(speciesNameTableAddr) + (speciesId * 11)
         local nameBytes = gameUtils.readBytes(nameAddr, 10, "ROM")
-        local name = charmaps.decryptText(nameBytes, "GBA")
+        local name = charmaps.decryptText(nameBytes)
         return name
-    end
-
-    -- A fallback for romhacks and unknown games.
-    -- Checks in the constants.
-    if gameData.gameInfo.isRomhack then
-        if speciesId > 0 and speciesId <= #constants.pokemonData.species then
-            return constants.pokemonData.species[speciesId + 1]
-        end
-        return "Unknown"
     end
 
     -- Normal gen 3 games have an odd offset for the species ID's
     -- Anything after the first two gens is offset by 24.
-    if speciesId > 0 and speciesId <= #constants.pokemonData.species then
+    if speciesId > 0 and speciesId <= #constants.pokemonData.species and gameData.gameInfo.generation == 3 then
         -- If ID is greater than 177, we need to account for the offset.
         if speciesId > 177 then
             return constants.pokemonData.species[speciesId - 24]
@@ -43,11 +36,20 @@ function pokemonData.readSpeciesName(speciesId)
 
         return constants.pokemonData.species[speciesId + 1]
     end
-    
+
+    -- A fallback for romhacks and unknown games.
+    -- Checks in the constants.
+    if speciesId > 0 and speciesId <= #constants.pokemonData.species then
+        return constants.pokemonData.species[speciesId + 1]
+    end
+
     return "Unknown"
 end
 
--- Read nature name from ROM
+
+--- Read nature name from ROM
+---@param natureID integer
+---@return string
 function pokemonData.readNatureName(natureID)
     if not natureID then
         return "Unknown"
@@ -72,11 +74,14 @@ function pokemonData.readNatureName(natureID)
     end
 
     local nameBytes = gameUtils.readBytes(natureAddr, 8, "ROM")
-    local name = charmaps.decryptText(nameBytes, "GBA")
+    local name = charmaps.decryptText(nameBytes)
     return name
 end
 
--- Read species base stats and abilities from ROM
+
+--- Read species base stats and abilities from ROM
+---@param speciesId integer
+---@return table | nil
 function pokemonData.readSpeciesData(speciesId)
     -- Get game data from database
     local gameData = MemoryReader.currentGame
@@ -88,17 +93,17 @@ function pokemonData.readSpeciesData(speciesId)
     -- Get species data table address
     local speciesDataAddr = gameData.addresses.speciesDataTable
     if not speciesDataAddr then
-        console.log("Unknown species data address for game: " .. gameData.gameInfo.name)
+        console.log("Unknown species data address for game: " .. gameData.gameInfo.gameName)
         return nil
     end
-    
+
     -- Convert hex string to number and calculate species offset
     local tableAddr = gameUtils.hexToNumber(speciesDataAddr)
     local speciesDataSize = 28  -- Standard GBA species data size
     local speciesAddr = tableAddr + ((speciesId) * speciesDataSize)
 
     local domain = "ROM"
-    
+
     return {
         baseHP = gameUtils.read8(speciesAddr + 0, domain),
         baseAttack = gameUtils.read8(speciesAddr + 1, domain),
@@ -148,7 +153,9 @@ function pokemonData.readSpeciesData(speciesId)
     }
 end
 
--- Read ability name from ROM and fallback to constants.
+--- Read ability name from ROM and fallback to constants.
+---@param abilityId integer
+---@return string
 function pokemonData.getAbilityName(abilityId)
     local gameData = MemoryReader.currentGame
     if not gameData then
@@ -170,7 +177,10 @@ function pokemonData.getAbilityName(abilityId)
     return charmaps.decryptText(nameBytes) or "Unknown"
 end
 
--- Get type name from constants
+
+--- Get type name from constants
+---@param typeId integer
+---@return string
 function pokemonData.getTypeName(typeId)
     if typeId >= 0 and typeId < #constants.pokemonData.type then
         return constants.pokemonData.type[typeId + 1]
@@ -178,7 +188,10 @@ function pokemonData.getTypeName(typeId)
     return "Unknown"
 end
 
--- Get hidden power type name from constants
+
+--- Get hidden power type name from constants
+---@param hpTypeId integer
+---@return string
 function pokemonData.getHiddenPowerName(hpTypeId)
     if hpTypeId >= 0 and hpTypeId < #constants.pokemonData.hiddenPowerType then
         return constants.pokemonData.hiddenPowerType[hpTypeId + 1]
@@ -186,6 +199,10 @@ function pokemonData.getHiddenPowerName(hpTypeId)
     return "Unknown"
 end
 
+
+--- Get TM move ID from ROM
+---@param tmNumber integer
+---@return integer | nil
 function pokemonData.getTMMoveID(tmNumber)
     local gameData = MemoryReader.currentGame
     if not gameData then
@@ -209,7 +226,10 @@ function pokemonData.getTMMoveID(tmNumber)
     return moveId
 end
 
--- Read variable length string from ROM
+
+--- Read variable length string from ROM
+---@param startingAddr integer
+---@param ID integer
 function pokemonData.getVariableLengthString(startingAddr, ID)
     local currentAddr = startingAddr
     local currentID = 1
@@ -222,20 +242,22 @@ function pokemonData.getVariableLengthString(startingAddr, ID)
         repeat
             byteValue = gameUtils.read8(currentAddr, "ROM")
             currentAddr = currentAddr + 1
-            
+
             table.insert(nameBytes, byteValue)
         until byteValue == 0x50
 
         if currentID == ID then
             table.remove(nameBytes)  -- Remove the terminator
-            return charmaps.decryptText(nameBytes, "GB")
+            return charmaps.decryptText(nameBytes)
         end
 
         currentID = currentID + 1
     end
 end
 
--- Get move name from constants
+--- Get move name from constants
+---@param moveId integer
+---@return string
 function pokemonData.getMoveName(moveId)
     local gameData = MemoryReader.currentGame
     if not gameData then
@@ -251,7 +273,7 @@ function pokemonData.getMoveName(moveId)
             return name
         end
     end
-    
+
 
     -- If we have a valid moves table address
     -- Moves are 13 bytes each
@@ -267,6 +289,10 @@ function pokemonData.getMoveName(moveId)
     return "Unknown"
 end
 
+
+--- Get item name from ROM or constants
+---@param itemID integer
+---@return string
 function pokemonData.getItemName(itemID)
     if not MemoryReader.isInitialized or not MemoryReader.currentGame or itemID <= 0 then
         return "Unknown"
@@ -303,10 +329,13 @@ function pokemonData.getItemName(itemID)
             return constants.pokemonData.itemsGen3[itemID + 1]
         end
     end
-
+    return "Unknown"
 end
 
--- Item
+
+--- Get item name from ROM
+---@param itemID integer
+---@param gameData table
 function pokemonData.getItemFromROM(itemID, gameData)
     local tableAddr = gameData.addresses.itemNameTable
     local generation = gameData.gameInfo.generation
@@ -329,7 +358,7 @@ function pokemonData.getItemFromROM(itemID, gameData)
     if generation == 3 then
         local itemAddr = tableAddr + ((itemID) * 44)
         local nameBytes = gameUtils.readBytes(itemAddr, 14, "ROM")
-        return charmaps.decryptText(nameBytes, "GBA")
+        return charmaps.decryptText(nameBytes)
     end
 end
 

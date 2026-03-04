@@ -120,13 +120,29 @@
 
 ---@class GameTrainerOffsets
 ---@field name integer
----@field badges integer
+---@field badges? integer           -- Gen 1/2 only
 ---@field money integer
 ---@field coins? integer
----@field bagCount? integer
----@field bagItems? integer
+---@field bagCount? integer         -- Gen 1 only
+---@field bagItems? integer         -- Gen 1 only
 ---@field pcCount? integer
 ---@field pcItems? integer
+---@field gender? integer           -- Gen 3+
+---@field trainerID? integer        -- Gen 3+
+---@field encryptionKey? integer    -- Gen 3: Emerald/FR/LG only
+---@field flags? integer            -- Gen 3+
+---@field badgeFlags? integer       -- Gen 3+
+---@field itemsPocket? integer      -- Gen 3+
+---@field keyItemsPocket? integer   -- Gen 3+
+---@field ballsPocket? integer      -- Gen 3+
+---@field tmhmPocket? integer       -- Gen 2/3+
+---@field berriesPocket? integer    -- Gen 3+
+---@field johtoBadges? integer      -- Gen 2 only
+---@field kantoBadges? integer      -- Gen 2 only
+---@field momMoney? integer         -- Gen 2 only
+---@field itemCount? integer        -- Gen 2 only
+---@field keyItemCount? integer     -- Gen 2 only
+---@field ballCount? integer        -- Gen 2 only
 
 ---@class GamePointers
 ---@field saveBlock1? string       -- Gen 3: save block 1 pointer address
@@ -138,20 +154,21 @@
 ---@field partyOffset? string
 
 ---@class PocketSizes
----@field items integer
----@field keyItems integer
----@field balls integer
----@field tmhm integer
----@field berries integer
+---@field pcCount? integer
+---@field itemsPocket? integer
+---@field keyItemsPocket? integer
+---@field ballsPocket? integer
+---@field tmhmPocket? integer
+---@field berriesPocket? integer
 
 ---@class GameEntry
 ---@field gameInfo GameInfo
 ---@field addresses GameAddresses
----@field trainerOffsets? GameTrainerOffsets   -- Gen 1/2
----@field trainerPointers? GamePointers        -- Gen 3 (named trainerPointers in DB)
----@field pointers? GamePointers               -- Gen 3 alias / Gen 4
----@field offsets? GameOffsets                 -- Gen 4 address offsets
----@field pocketSizes? PocketSizes
+---@field trainerOffsets? GameTrainerOffsets   -- Gen 1/2/3
+---@field trainerPointers? GamePointers        -- Gen 3
+---@field pointers? GamePointers               -- Gen 4
+---@field offsets? GameOffsets                 -- Gen 4
+---@field pocketSize? PocketSizes
 
 -- ============================================================
 -- READER / GENERATION TYPES

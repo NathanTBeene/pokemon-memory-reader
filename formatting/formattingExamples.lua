@@ -1,7 +1,7 @@
 local pokemonFormat = {
-  nickname = "Bulby",
-  species = "Bulbasaur",
   speciesId = 1,
+  species = "Bulbasaur",
+  nickname = "Bulby",
   level = 5,
   nature = "Hardy",
   currentHP = 45,
