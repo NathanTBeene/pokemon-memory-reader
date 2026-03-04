@@ -1,43 +1,47 @@
 -- Pokemon Games Database
 -- Consolidated database containing all game information and memory addresses
 
+local charmaps = require("data.charmaps")
+
 local GamesDB = {}
 
 GamesDB.games = {
-    
+
     -- ===== GENERATION 1 GAMES =====
-    
+
     -- MARK: Red (USA)
     ["EA9BCAE617FDF159B045185467AE58B2E4A48B9A"] = {
-        gameInfo = {
-            gameCode = 0x5245,
-            gameName = "Pokemon Red (USA)",
-            versionName = "Pokemon Red",
-            versionColor = "Red",
-            generation = 1,
-            platform = "GB",
-            isRomhack = false
-        },
-        addresses = {
-            partyAddr = 0xD16B,
-            partySlotsCounterAddr = 0xD163,
-            partyNicknamesAddr = 0xD2B5,
-            wildDVsAddr = 0xCFF1,
-            trainerID = 0xD359,
-            itemNameTable = 0x472B
-        },
-        trainerOffsets = {
-            name = 0xD158, -- 11 bytes,
-            badges = 0xD356, -- 1 byte, 1 bit per badge
-            money = 0xD347, -- 3 bytes, BCD encoded
-            coins = 0xD5A4, -- 2 bytes, binary encoded
-            bagCount = 0xD31D, -- 1 byte,
-            bagItems = 0xD31E, -- 2 bytes per item, up to 40 items
-            pcCount = 0xD53A, -- 1 byte,
-            pcItems = 0xD53B  -- 2 bytes per item, up to 50 items
-        }
+      ---@type GameInfo
+      gameInfo = {
+          gameCode = 0x5245,
+          gameName = "Pokemon Red (USA)",
+          versionName = "Pokemon Red",
+          versionColor = "Red",
+          generation = 1,
+          platform = "GB",
+          charmap = charmaps.GBCharmap,
+          isRomHack = false
+      },
+      addresses = {
+          partyAddr = 0xD16B,
+          partySlotsCounterAddr = 0xD163,
+          partyNicknamesAddr = 0xD2B5,
+          wildDVsAddr = 0xCFF1,
+          trainerID = 0xD359,
+          itemNameTable = 0x472B
+      },
+      trainerOffsets = {
+          name = 0xD158, -- 11 bytes,
+          badges = 0xD356, -- 1 byte, 1 bit per badge
+          money = 0xD347, -- 3 bytes, BCD encoded
+          coins = 0xD5A4, -- 2 bytes, binary encoded
+          bagCount = 0xD31D, -- 1 byte,
+          bagItems = 0xD31E, -- 2 bytes per item, up to 40 items
+          pcCount = 0xD53A, -- 1 byte,
+          pcItems = 0xD53B  -- 2 bytes per item, up to 50 items
+      }
     },
-    
+
 
     --MARK: Blue (USA)
     ["D7037C83E1AE5B39BDE3C30787637BA1D4C48CE2"] = {
@@ -48,7 +52,8 @@ GamesDB.games = {
             versionColor = "Blue",
             generation = 1,
             platform = "GB",
-            isRomhack = false
+            charmap = charmaps.GBCharmap,
+            isRomHack = false
         },
         addresses = {
             partyAddr = 0xD16B,
@@ -69,7 +74,7 @@ GamesDB.games = {
             pcItems = 0xD53B  -- 2 bytes per item, up to 50 items
         }
     },
-    
+
     --MARK: Yellow (USA)
     ["CC7D03262EBFAF2F06772C1A480C7D9D5F4A38E1"] = {
         gameInfo = {
@@ -79,7 +84,8 @@ GamesDB.games = {
             versionColor = "Yellow",
             generation = 1,
             platform = "GB",
-            isRomhack = false
+            charmap = charmaps.GBCharmap,
+            isRomHack = false
         },
         addresses = {
             partyAddr = 0xD16A,
@@ -100,7 +106,7 @@ GamesDB.games = {
             pcItems = 0xD53A  -- 2 bytes per item, up to 50 items
         }
     },
-    
+
     -- ===== GENERATION 2 GAMES =====
 
     -- MARK: Gold (USA)
@@ -112,7 +118,8 @@ GamesDB.games = {
             versionColor = "Gold",
             generation = 2,
             platform = "GBC",
-            isRomhack = false
+            charmap = charmaps.GBCharmap,
+            isRomHack = false
         },
         addresses = {
             partyAddr = 0xDA2A,
@@ -135,7 +142,7 @@ GamesDB.games = {
             trainerID = 0xD1A1, -- 2 bytes
             name = 0xD1A3, -- 10 bytes
             money = 0xD573, -- 3 bytes
-            momMoney = 0xD576, -- 3 bytes 
+            momMoney = 0xD576, -- 3 bytes
             coins = 0xD57A, -- 2 bytes binary
             johtoBadges = 0xD57C, -- 1 byte, 1 bit per badge
             kantoBadges = 0xD57D, -- 1 byte, 1 bit per badge
@@ -160,7 +167,8 @@ GamesDB.games = {
             versionColor = "Silver",
             generation = 2,
             platform = "GBC",
-            isRomhack = false
+            charmap = charmaps.GBCharmap,
+            isRomHack = false
         },
         addresses = {
             partyAddr = 0xDA2A,
@@ -183,7 +191,7 @@ GamesDB.games = {
             trainerID = 0xD1A1, -- 2 bytes
             name = 0xD1A3, -- 10 bytes
             money = 0xD573, -- 3 bytes
-            momMoney = 0xD576, -- 3 bytes 
+            momMoney = 0xD576, -- 3 bytes
             coins = 0xD57A, -- 2 bytes binary
             johtoBadges = 0xD57C, -- 1 byte, 1 bit per badge
             kantoBadges = 0xD57D, -- 1 byte, 1 bit per badge
@@ -208,7 +216,8 @@ GamesDB.games = {
             versionColor = "Crystal",
             generation = 2,
             platform = "GBC",
-            isRomhack = false
+            charmap = charmaps.GBCharmap,
+            isRomHack = false
         },
         addresses = {
             partyAddr = 0xDCDF,
@@ -251,7 +260,7 @@ GamesDB.games = {
             pcItems = 0xD8F2, -- 2 bytes per item, up to 50 items
         }
     },
-    
+
     -- ===== GENERATION 3 GAMES =====
 
     -- MARK: Ruby (USA)
@@ -263,7 +272,8 @@ GamesDB.games = {
             versionColor = "Ruby",
             generation = 3,
             platform = "GBA",
-            isRomhack = false
+            charmap = charmaps.GBACharmap,
+            isRomHack = false
         },
         addresses = {
             -- First 2 numbers determine domain
@@ -322,7 +332,8 @@ GamesDB.games = {
             versionColor = "Sapphire",
             generation = 3,
             platform = "GBA",
-            isRomhack = false
+            charmap = charmaps.GBACharmap,
+            isRomHack = false
         },
         addresses = {
             -- First 2 numbers determine domain
@@ -381,14 +392,15 @@ GamesDB.games = {
             versionColor = "Emerald",
             generation = 3,
             platform = "GBA",
-            isRomhack = false
+            charmap = charmaps.GBACharmap,
+            isRomHack = false
         },
         addresses = {
             -- First 2 numbers determine domain
             -- 02 = EWRAM, 03 = IWRAM, 08 = ROM
             partyAddr =             "020244EC",
             enemyPartyAddr =        "02024744",
-            gBattleMons =           "02024084", 
+            gBattleMons =           "02024084",
             speciesDataTable =      "083203CC",
             speciesNameTable =      "083185C8",
             itemTable =             "0858399E",
@@ -444,7 +456,8 @@ GamesDB.games = {
             versionColor = "FireRed",
             generation = 3,
             platform = "GBA",
-            isRomhack = false
+            charmap = charmaps.GBACharmap,
+            isRomHack = false
         },
         addresses = {
             -- First 2 numbers determine domain
@@ -505,7 +518,8 @@ GamesDB.games = {
             versionColor = "LeafGreen",
             generation = 3,
             platform = "GBA",
-            isRomhack = false
+            charmap = charmaps.GBACharmap,
+            isRomHack = false
         },
         addresses = {
             -- First 2 numbers determine domain
@@ -564,15 +578,17 @@ GamesDB.games = {
             gameName = "Pokemon Radical Red",
             versionName = "Pokemon Radical Red",
             versionColor = "RadicalRed",
-            generation = "CFRU",
+            generation = 3,
+            romHackType = "CFRU",
             platform = "GBA",
-            isRomhack = true
+            charmap = charmaps.GBACharmap,
+            isRomHack = true
         },
         addresses = {
             -- First 2 numbers determine domain
             -- 02 = EWRAM, 08 = ROM
             partyAddr = "02024284",
-            enemyPartyAddr = "0202402C", 
+            enemyPartyAddr = "0202402C",
             gBattleMons = "02023BE4",
             speciesDataTable = "0817B9908",
             speciesNameTable = "0814042D7",
@@ -623,27 +639,15 @@ GamesDB.games = {
             versionColor = "Diamond",
             generation = 4,
             platform = "NDS",
-            isRomhack = false
+            charmap = charmaps.NDSCharmap,
+            isRomHack = false
         },
         addresses = {
             -- First 2 numbers determine domain
             -- 02 = EWRAM, 03 = IWRAM, 08 = ROM
-            partyAddr =             "020244EC",
-            enemyPartyAddr =        "02024744",
-            gBattleMons =           "02024084", 
-            speciesDataTable =      "083203CC",
-            speciesNameTable =      "083185C8",
-            itemTable =             "0858399E",
-            naturePointersAddr =    "0861CB50",
-            abilityNameTable =      "0831B6DB",
-            moveNamesTable =         "0831977C",
-            -- 58 moves 2 bytes each
-            tmToMoveTable =         "08616040"
         },
-        trainerPointers = {
-            isPointer = true,
-            saveBlock1 = "03005D8C",
-            saveBlock2 = "03005D90",
+        pointers = {
+            partyPointer = "02106FAC",
         },
         pocketSize = {
             pcCount = 50,
@@ -653,36 +657,24 @@ GamesDB.games = {
             tmhmPocket = 64,
             berriesPocket = 46
         },
-        trainerOffsets = {
-            -- Info
-            name = 0x00,
-            gender = 0x08,
-            trainerID = 0x0A,
-            encryptionKey = 0xAC,
-            -- Currency
-            money = 0x490,
-            coins = 0x494,
-            -- Bags
-            pcItems = 0x498,
-            itemsPocket = 0x560,
-            keyItemsPocket = 0x5D8,
-            ballsPocket = 0x650,
-            tmhmPocket = 0x690,
-            berriesPocket = 0x790,
-            -- Flags
-            flags = 0x1270,
-            -- Badge Offset
-            -- Offset from flags address
-            badgeFlags = 0x10C
+        offsets = {
+            partyOffset = 0xD2AC,
+            -- Current Party count is 4 bytes before partyOffset
+            partyCurrentCount = 0xD2A8,
+            -- Max count is 8 bytes before partyOffset
+            partyMaxCount = 0xD2A4,
         }
     },
 }
 
--- Helper function to get game data by hash
+---@param romHash string
+---@return GameEntry|nil
 function GamesDB.getGameByHash(romHash)
     return GamesDB.games[romHash]
 end
 
+---@param gameCode string|integer
+---@return GameEntry|nil
 function GamesDB.getGameByCode(gameCode)
     for code, game in pairs(GamesDB.games) do
         if game.gameInfo.gameCode == gameCode then
@@ -692,7 +684,8 @@ function GamesDB.getGameByCode(gameCode)
     return nil
 end
 
--- Helper function to get all games by generation
+---@param generation integer
+---@return table<string, GameEntry>
 function GamesDB.getGamesByGeneration(generation)
     local result = {}
     for code, game in pairs(GamesDB.games) do
@@ -703,7 +696,8 @@ function GamesDB.getGamesByGeneration(generation)
     return result
 end
 
--- Helper function to get all games by platform
+---@param platform string
+---@return table<string, GameEntry>
 function GamesDB.getGamesByPlatform(platform)
     local result = {}
     for code, game in pairs(GamesDB.games) do
@@ -714,7 +708,7 @@ function GamesDB.getGamesByPlatform(platform)
     return result
 end
 
--- Helper function to get supported games list
+---@return string[]
 function GamesDB.getSupportedGamesList()
     local games = {}
     for code, game in pairs(GamesDB.games) do
@@ -723,7 +717,8 @@ function GamesDB.getSupportedGamesList()
     return games
 end
 
--- Helper function to check if a game is supported
+---@param romHash string
+---@return boolean
 function GamesDB.isGameSupported(romHash)
     return GamesDB.games[romHash] ~= nil
 end
