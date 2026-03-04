@@ -1,31 +1,44 @@
-local PartyReader = require("readers.party.partyreader")
+local PartyReader = require("readers.base.partyreader")
 local gameUtils = require("utils.gameutils")
 local pokemonData = require("readers.pokemondata")
 local constants = require("data.constants")
 local charmaps = require("data.charmaps")
 
+---@class Gen3DataOrderTable
+---@field growth integer[]
+---@field attack integer[]
+---@field effort integer[]
+---@field misc integer[]
+
+---@class Gen3PartyReader : PartyReader
+---@field dataOrderTable Gen3DataOrderTable
 local Gen3PartyReader = {}
 Gen3PartyReader.__index = Gen3PartyReader
 setmetatable(Gen3PartyReader, {__index = PartyReader})
 
-function Gen3PartyReader:new()
-    local obj = PartyReader:new()
-    setmetatable(obj, Gen3PartyReader)
-    
+---@param gameEntry GameEntry
+---@return Gen3PartyReader
+function Gen3PartyReader:new(gameEntry)
+    local obj = PartyReader.new(Gen3PartyReader, gameEntry)
     obj.dataOrderTable = {
         growth = {1,1,1,1,1,1, 2,2,3,4,3,4, 2,2,3,4,3,4, 2,2,3,4,3,4},
         attack = {2,2,3,4,3,4, 1,1,1,1,1,1, 3,4,2,2,4,3, 3,4,2,2,4,3},
         effort = {3,4,2,2,4,3, 3,4,2,2,4,3, 1,1,1,1,1,1, 4,3,4,3,2,2},
         misc   = {4,3,4,3,2,2, 4,3,4,3,2,2, 4,3,4,3,2,2, 1,1,1,1,1,1}
     }
-    
     return obj
 end
 
-function Gen3PartyReader:readParty(addresses)
+---@return (Pokemon?)[]
+function Gen3PartyReader:readParty()
+    local partyAddr = gameUtils.hexToNumber(self.gameEntry.addresses.partyAddr)
+    if not partyAddr then
+        console.log("Gen3: could not resolve party address")
+        return {}
+    end
     local party = {}
     for i = 1, 6 do
-        party[i] = self:readPokemon(addresses.partyAddr, i)
+        party[i] = self:readPokemon(partyAddr, i)
     end
     return party
 end
@@ -41,8 +54,6 @@ end
 function Gen3PartyReader:readPokemon(startAddress, slot)
     local pokemonStart = startAddress + 100 * (slot - 1)
 
-    local gameData = MemoryReader.currentGame
-    
     -- Personality Value is 4 bytes at offset 0x00
     local personality = gameUtils.read32(pokemonStart)
     -- If we can't find a personality value, then there isn't a pokemon.
@@ -80,13 +91,9 @@ function Gen3PartyReader:readPokemon(startAddress, slot)
     local misc2 = (gameUtils.read32(pokemonStart + 32 + miscOffset + 4) ~ magicword)
     local misc3 = (gameUtils.read32(pokemonStart + 32 + miscOffset + 8) ~ magicword)
 
-    -- Debug for radical red species
-    -- Stores directly at offset 32, unencrypted 16 bit little endian
-    local speciesDebug = gameUtils.read8(pokemonStart + 32) + (gameUtils.read8(pokemonStart + 33) * 256)
-
     -- Read nickname (10 bytes starting at offset 8)
     local bytes = gameUtils.readBytes(pokemonStart + 8, 10)
-    local nickname = charmaps.decryptText(bytes, "GBA")
+    local nickname = charmaps.decryptText(bytes)
 
     -- Read status condition (1 byte at offset 0x50)
     -- 0 = None, 1 = Sleep, 2 = Bad Sleep, 3 = Poison,
@@ -117,7 +124,7 @@ function Gen3PartyReader:readPokemon(startAddress, slot)
     local heldItemID = self:getBits(growth1, 16, 16)
 
     -- Attempt to search for the species data based on the id.
-    local speciesData = gameData and pokemonData.readSpeciesData(speciesID) or nil
+    local speciesData = pokemonData.readSpeciesData(speciesID)
 
     -- Ability Slot index is 1 bit at offset 31 of the misc2 substructure.
     local abilitySlot = self:getBits(misc2, 31, 1)

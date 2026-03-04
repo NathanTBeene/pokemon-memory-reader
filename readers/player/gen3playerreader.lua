@@ -1,25 +1,23 @@
-local PlayerReader = require("readers.player.playerreader")
+---@diagnostic disable: need-check-nil
+local PlayerReader = require("readers.base.playerreader")
 local gameUtils = require("utils.gameutils")
 local charmaps = require("data.charmaps")
 local pokemonData = require("readers.pokemondata")
 
+---@class Gen3PlayerReader : PlayerReader
 local Gen3PlayerReader = {}
 Gen3PlayerReader.__index = Gen3PlayerReader
 setmetatable(Gen3PlayerReader, {__index = PlayerReader})
 
-function Gen3PlayerReader:new()
-    local obj = PlayerReader:new()
-    setmetatable(obj, Gen3PlayerReader)
+---@param gameEntry GameEntry
+---@return Gen3PlayerReader
+function Gen3PlayerReader:new(gameEntry)
+    local obj = PlayerReader.new(Gen3PlayerReader, gameEntry)
     return obj
 end
 
 function Gen3PlayerReader:updateTrainerInfo()
-  if not MemoryReader.isInitialized or not MemoryReader.currentGame then
-      console.log("MemoryReader is not initialized or no game detected.")
-      return false
-  end
-
-  local gameData = MemoryReader.currentGame
+  local gameData = self.gameEntry
 
   if not gameData or not gameData.trainerPointers then
       console.log("No trainer pointer data available for this game.")
@@ -31,14 +29,14 @@ function Gen3PlayerReader:updateTrainerInfo()
   local trainerPointers = gameData.trainerPointers
   local trainerOffsets = gameData.trainerOffsets
 
-  local saveBlock1Addr = gameUtils.hexToNumber(trainerPointers.saveBlock1)
-  local saveBlock2Addr = gameUtils.hexToNumber(trainerPointers.saveBlock2)
+  local saveBlock1Addr = gameUtils.hexToNumber(trainerPointers.saveBlock1 or "")
+  local saveBlock2Addr = gameUtils.hexToNumber(trainerPointers.saveBlock2 or "")
 
 
   -- For Emerald, FireRed, and LeafGreen, save block data require pointers to find the position.
   if gameData.trainerPointers.isPointer then
-    saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock1))
-    saveBlock2Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock2))
+    saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock1 or "") or 0)
+    saveBlock2Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock2 or "") or 0)
   end
 
 
@@ -124,15 +122,15 @@ function Gen3PlayerReader:readBag()
         return false
     end
 
-    local gameData = MemoryReader.currentGame
+    local gameData = self.gameEntry
     local domain = "EWRAM"
     local bag = {}
 
     -- Emerald uses a pointer to find the SaveBlock1 location.
     -- Ruby/Sapphire, Firered, Leafgreen have fixed locations.
-    local saveBlock1Addr = gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1)
+    local saveBlock1Addr = gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1 or "")
     if gameData.trainerPointers.isPointer then
-        saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1))
+        saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1 or "") or 0)
     end
     local trainerOffsets = gameData.trainerOffsets
 
@@ -204,7 +202,7 @@ function Gen3PlayerReader:readBag()
         end
         local name = pokemonData.getItemName(itemID)
         --Number is last two chars of name
-        local number = name and tonumber(name:match("%d+"))
+        local number = (name and tonumber(name:match("%d+"))) or 0
         if itemID == 0 then
             goto continue
         end
@@ -254,15 +252,15 @@ function Gen3PlayerReader:setMoney(amount)
 
     local money = gameUtils.clamp(amount, 0, 999999)  -- Clamp money to valid range
 
-    local gameData = MemoryReader.currentGame
+    local gameData = self.gameEntry
     local domain = "EWRAM"
 
     local trainerPointers = gameData.trainerPointers
     local trainerOffsets = gameData.trainerOffsets
 
-    local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock1))
+    local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(trainerPointers.saveBlock1 or "") or 0)
 
-    
+
     -- Encrypt the new money amount using the encryption key
     if gameData.trainerOffsets.encryptionKey then
         local encryptionKey = self.trainerInfo.encryptionKey
@@ -292,9 +290,9 @@ function Gen3PlayerReader:addItemPocket(id, quantity, slotOverride)
 
     quantity = gameUtils.clamp(quantity, 1, 99)
 
-    local gameData = MemoryReader.currentGame
+    local gameData = self.gameEntry
     local domain = "EWRAM"
-    local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1))
+    local saveBlock1Addr = gameUtils.read32(gameUtils.hexToNumber(gameData.trainerPointers.saveBlock1 or "") or 0)
     local trainerOffsets = gameData.trainerOffsets
 
     local slotAddr = self:findFreeSlot(saveBlock1Addr + trainerOffsets.itemsPocket, 30)

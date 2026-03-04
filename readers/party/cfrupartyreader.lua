@@ -1,4 +1,4 @@
-local PartyReader = require("readers.party.partyreader")
+local PartyReader = require("readers.base.partyreader")
 local charmaps = require("data.charmaps")
 local gameUtils = require("utils.gameutils")
 local gamesdb = require("data.gamesdb")
@@ -10,20 +10,25 @@ local constants = require("data.constants")
 -- This is also most likely going to be combined
 -- with the Dynamic Pokemon Expansion
 
+---@class CFRUPartyReader : PartyReader
 local CFRUPartyReader = {}
 CFRUPartyReader.__index = CFRUPartyReader
 setmetatable(CFRUPartyReader, {__index = PartyReader})
 
-function CFRUPartyReader:new()
-    local obj = PartyReader:new()
-    setmetatable(obj, CFRUPartyReader)
+---@param gameEntry GameEntry
+---@return CFRUPartyReader
+function CFRUPartyReader:new(gameEntry)
+    local obj = PartyReader.new(CFRUPartyReader, gameEntry)
     return obj
 end
 
-function CFRUPartyReader:readParty(addresses)
+---@return (Pokemon?)[]
+function CFRUPartyReader:readParty()
+    local partyAddr = gameUtils.hexToNumber(self.gameEntry.addresses.partyAddr)
+    if not partyAddr then return {} end
     local party = {}
     for i = 1, 6 do
-        party[i] = self:readPokemon(addresses.partyAddr, i)
+        party[i] = self:readPokemon(partyAddr, i)
     end
     return party
 end
@@ -242,29 +247,22 @@ function CFRUPartyReader:isShiny(personality, otid)
 end
 
 function CFRUPartyReader:getSpeciesName(id)
-  local gameData = MemoryReader.currentGame
-
-  local speciesNameTableAddr = gameData.addresses.speciesNameTable
-
-  local number = gameUtils.hexToNumber(speciesNameTableAddr)
-
-  -- Calculate the name address: base_address + ((id - 1) * 11)
-  local pointer = number + ((id - 1) * 11)
+  local speciesNameTableAddr = self.gameEntry.addresses.speciesNameTable
+  if not speciesNameTableAddr then return "Unknown" end
+  local base = gameUtils.hexToNumber(speciesNameTableAddr)
+  if not base then return "Unknown" end
+  local pointer = base + ((id - 1) * 11)
   local bytes = gameUtils.readBytesCFRU(pointer, 11)
-
   return charmaps.decryptText(bytes)
 end
 
-
 function CFRUPartyReader:getSpeciesData(speciesID)
-  local gameData = MemoryReader.currentGame
-
-  local speciesDataTableAddr = gameData.addresses.speciesDataTable
-
-  local number = gameUtils.hexToNumber(speciesDataTableAddr)
-
+  local speciesDataTableAddr = self.gameEntry.addresses.speciesDataTable
+  if not speciesDataTableAddr then return nil end
+  local base = gameUtils.hexToNumber(speciesDataTableAddr)
+  if not base then return nil end
   -- Species data is 28 bytes long
-  local speciesAddr = number + ((speciesID - 1) * 28)
+  local speciesAddr = base + ((speciesID - 1) * 28)
 
   local speciesData = gameUtils.readBytesCFRU(speciesAddr, 28)
 

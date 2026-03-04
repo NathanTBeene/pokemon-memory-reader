@@ -1,27 +1,24 @@
-local PlayerReader = require("readers.player.playerreader")
+local PlayerReader = require("readers.base.playerreader")
 local gameUtils = require("utils.gameutils")
 local pokemonData = require("readers.pokemondata")
 local charmaps = require("data.charmaps")
 
+---@class Gen1PlayerReader : PlayerReader
 local Gen1PlayerReader = {}
 Gen1PlayerReader.__index = Gen1PlayerReader
 setmetatable(Gen1PlayerReader, {__index = PlayerReader})
 
-function Gen1PlayerReader:new()
-  local obj = PlayerReader:new()
-  setmetatable(obj, Gen1PlayerReader)
+---@param gameEntry GameEntry
+---@return Gen1PlayerReader
+function Gen1PlayerReader:new(gameEntry)
+  local obj = PlayerReader.new(Gen1PlayerReader, gameEntry)
   return obj
 end
 
 function Gen1PlayerReader:updateTrainerInfo()
-  if not MemoryReader.isInitialized or not MemoryReader.currentGame then
-    console.log("MemoryReader not initialized or no game loaded")
-    return
-  end
-
-  local gameData = MemoryReader.currentGame
-  if not gameData or not gameData.trainerOffsets then
-    console.log("No game data or trainer offsets found")
+  local gameData = self.gameEntry
+  if not gameData.trainerOffsets then
+    console.log("No trainer offsets found for this game")
     return
   end
 
@@ -30,7 +27,7 @@ function Gen1PlayerReader:updateTrainerInfo()
   -- Trainer Name is 11 bytes
   local nameAddr = gameData.trainerOffsets.name
   local nameData = gameUtils.readBytes(nameAddr, 11, domain)
-  local name = charmaps.decryptText(nameData, "GB")
+  local name = charmaps.decryptText(nameData)
 
   -- Badges is 1 byte, 1 bit per badge
   local badgesAddr = gameData.trainerOffsets.badges
@@ -68,7 +65,7 @@ end
 
 function Gen1PlayerReader:readBag()
   self:updateTrainerInfo()
-  local gameData = MemoryReader.currentGame
+  local gameData = self.gameEntry
 
   if not self.trainerInfo then
     console.log("No trainer info available, cannot read bag")

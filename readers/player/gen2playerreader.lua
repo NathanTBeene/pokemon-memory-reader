@@ -1,25 +1,22 @@
-local PlayerReader = require("readers.player.playerreader")
+local PlayerReader = require("readers.base.playerreader")
 local gameUtils = require("utils.gameutils")
 local charmaps = require("data.charmaps")
 local pokemonData = require("readers.pokemondata")
 
+---@class Gen2PlayerReader : PlayerReader
 local Gen2PlayerReader = {}
 Gen2PlayerReader.__index = Gen2PlayerReader
 setmetatable(Gen2PlayerReader, {__index = PlayerReader})
 
-function Gen2PlayerReader:new()
-    local obj = PlayerReader:new()
-    setmetatable(obj, Gen2PlayerReader)
+---@param gameEntry GameEntry
+---@return Gen2PlayerReader
+function Gen2PlayerReader:new(gameEntry)
+    local obj = PlayerReader.new(Gen2PlayerReader, gameEntry)
     return obj
 end
 
 function Gen2PlayerReader:updateTrainerInfo()
-    if not MemoryReader.isInitialized or not MemoryReader.currentGame then
-        console.log("MemoryReader not initialized or no game loaded")
-        return
-    end
-
-    local gameData = MemoryReader.currentGame
+    local gameData = self.gameEntry
     if not gameData or not gameData.trainerOffsets then
         console.log("No game data or trainer offsets found")
         return
@@ -30,7 +27,7 @@ function Gen2PlayerReader:updateTrainerInfo()
     -- Trainer Name is 11 bytes
     local nameAddr = gameData.trainerOffsets.name
     local nameData = gameUtils.readBytes(nameAddr, 11, domain)
-    local name = charmaps.decryptText(nameData, "GB")
+    local name = charmaps.decryptText(nameData)
 
 
     -- Johto Badges is 1 byte, 1 bit per badge
@@ -96,7 +93,7 @@ end
 
 function Gen2PlayerReader:readBag()
     self:updateTrainerInfo()
-    local gameData = MemoryReader.currentGame
+    local gameData = self.gameEntry
 
     if not self.trainerInfo then
         console.log("No trainer info available, cannot read bag")

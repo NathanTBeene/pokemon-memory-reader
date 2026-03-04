@@ -1,49 +1,56 @@
-local PartyReader = require("readers.party.partyreader")
+local PartyReader = require("readers.base.partyreader")
 local gameUtils = require("utils.gameutils")
 local charmaps = require("data.charmaps")
 local constants = require("data.constants")
+local pokemonData = require("readers.pokemondata")
+
+
+---@class Gen2PartyReader : PartyReader
 
 local Gen2PartyReader = {}
 Gen2PartyReader.__index = Gen2PartyReader
 setmetatable(Gen2PartyReader, {__index = PartyReader})
 
 
-function Gen2PartyReader:new()
-    local obj = PartyReader:new()
-    setmetatable(obj, Gen2PartyReader)
+---@param gameEntry GameEntry
+---@return Gen2PartyReader
+function Gen2PartyReader:new(gameEntry)
+    local obj = PartyReader.new(Gen2PartyReader, gameEntry)
     return obj
 end
 
-function Gen2PartyReader:readParty(addresses)
+---@return (Pokemon?)[]
+function Gen2PartyReader:readParty()
+    local addresses = self.gameEntry.addresses
     if not addresses.partyAddr or not addresses.partySlotsCounterAddr then
         return {}
     end
-    
-    -- Use addresses directly as they're already numbers in the game detection
-    local partyAddr = addresses.partyAddr
-    local partySlotsCounterAddr = addresses.partySlotsCounterAddr
-    local partyNicknamesAddr = addresses.partyNicknamesAddr
-    
-    local partySlotsCounter = memory.readbyte(partySlotsCounterAddr)
+
+    local partySlotsCounter = memory.readbyte(addresses.partySlotsCounterAddr)
     local party = {}
-    
+
     for i = 0, math.min(partySlotsCounter - 1, 5) do
-        party[i + 1] = self:readPokemon(partyAddr, i, partyNicknamesAddr)
+        party[i + 1] = self:readPokemon(i)
     end
-    
+
     return party
 end
 
-function Gen2PartyReader:readPokemon(partyAddr, slot, partyNicknamesAddr)
+---@param slot integer  0-based slot index
+---@return Pokemon?
+function Gen2PartyReader:readPokemon(slot)
+    local addresses = self.gameEntry.addresses
+    local partyAddr = addresses.partyAddr
+    local partyNicknamesAddr = addresses.partyNicknamesAddr
     -- Gen2 party structure: each Pokemon is 0x30 (48) bytes
     local pokemonStart = partyAddr + (slot * 0x30)
-    
+
     -- Read species ID
     local speciesId = memory.readbyte(pokemonStart)
     if speciesId == 0 then
         return {speciesID = 0}
     end
-    
+
     -- Read basic data
     local heldItem = memory.readbyte(pokemonStart + 0x1)
     local move1 = memory.readbyte(pokemonStart + 0x2)
@@ -51,46 +58,46 @@ function Gen2PartyReader:readPokemon(partyAddr, slot, partyNicknamesAddr)
     local move3 = memory.readbyte(pokemonStart + 0x4)
     local move4 = memory.readbyte(pokemonStart + 0x5)
     local otid = memory.read_u16_be(pokemonStart + 0x6)
-    
+
     -- Experience (3 bytes, big endian)
     local expAddr = pokemonStart + 0x8
-    local experience = (0x10000 * memory.readbyte(expAddr)) + 
-                      (0x100 * memory.readbyte(expAddr + 0x1)) + 
+    local experience = (0x10000 * memory.readbyte(expAddr)) +
+                      (0x100 * memory.readbyte(expAddr + 0x1)) +
                       memory.readbyte(expAddr + 0x2)
-    
+
     -- HP EVs (called Stat Experience in Gen2) - 2 bytes each
     local hpEV = memory.read_u16_be(pokemonStart + 0xB)
     local attackEV = memory.read_u16_be(pokemonStart + 0xD)
     local defenseEV = memory.read_u16_be(pokemonStart + 0xF)
     local speedEV = memory.read_u16_be(pokemonStart + 0x11)
     local specialEV = memory.read_u16_be(pokemonStart + 0x13)
-    
+
     -- DVs (Determinant Values) - 2 bytes
     local dvsAddr = pokemonStart + 0x15
     local atkDV, defDV, speDV, spcDV = self:getDVs(dvsAddr)
     local hpDV = self:calculateHPDV(atkDV, defDV, speDV, spcDV)
-    
+
     -- PP (4 bytes)
     local pp1 = memory.readbyte(pokemonStart + 0x17)
     local pp2 = memory.readbyte(pokemonStart + 0x18)
     local pp3 = memory.readbyte(pokemonStart + 0x19)
     local pp4 = memory.readbyte(pokemonStart + 0x1A)
-    
+
     -- Friendship (Gen2 introduced this)
     local friendship = memory.readbyte(pokemonStart + 0x1B)
-    
+
     -- Pokerus
     local pokerus = memory.readbyte(pokemonStart + 0x1C)
-    
+
     -- Caught data (2 bytes)
     local caughtData = memory.read_u16_be(pokemonStart + 0x1D)
-    
+
     -- Level
     local level = memory.readbyte(pokemonStart + 0x1F)
-    
+
     -- Status condition
     local status = memory.readbyte(pokemonStart + 0x20)
-    
+
     -- Current HP
     local curHP = memory.read_u16_be(pokemonStart + 0x22)
     local maxHP = memory.read_u16_be(pokemonStart + 0x24)
@@ -98,13 +105,13 @@ function Gen2PartyReader:readPokemon(partyAddr, slot, partyNicknamesAddr)
     local defense = memory.read_u16_be(pokemonStart + 0x28)
     local speed = memory.read_u16_be(pokemonStart + 0x2A)
     local special = memory.read_u16_be(pokemonStart + 0x2C)
-    
-    -- Get species name  
+
+    -- Get species name
     local speciesName = constants.pokemonData.species[speciesId + 1] or "Unknown"
-    
+
     -- Get types from species lookup (since ROM addresses aren't easily accessible)
     local type1, type2 = self:getSpeciesTypes(speciesId)
-    
+
     -- Read nickname from separate nickname area
     local nickname = ""
     if partyNicknamesAddr then
@@ -119,71 +126,63 @@ function Gen2PartyReader:readPokemon(partyAddr, slot, partyNicknamesAddr)
             end
         end
     end
-    
+
     -- Use species name as fallback if nickname is empty
     if nickname == "" then
         nickname = speciesName
     end
-    
+
     -- Calculate nature from experience (for compatibility with Gen3+ display)
     local nature = experience % 25
     local natureName = constants.pokemonData.nature[nature + 1] or "Hardy"
-    
+
     -- Check if shiny (Gen2 shiny determination - same as Gen1)
     local isShiny = self:isShinyGen2(atkDV, defDV, speDV, spcDV)
-    
+
+    ---@type Pokemon
     return {
-        speciesID = speciesId,
+        speciesId = speciesId,
         speciesName = speciesName,
         nickname = nickname,
         level = level,
-        curHP = curHP,
+        currentHP = curHP,
         maxHP = maxHP,
-        attack = attack,
-        defense = defense,
-        speed = speed,
-        spAttack = special,
-        spDefense = special, -- Gen2 still uses same stat for SpAtk and SpDef
-        type1 = type1,
-        type2 = type2,
-        type1Name = self:getTypeName(type1),
-        type2Name = self:getTypeName(type2),
-        status = status,
-        experience = experience,
-        nature = 0,          -- Gen2 doesn't have natures,
-        natureName = "None", -- Gen2 doesn't have natures
-        move1 = move1,
-        move2 = move2,
-        move3 = move3,
-        move4 = move4,
-        pp1 = pp1,
-        pp2 = pp2,
-        pp3 = pp3,
-        pp4 = pp4,
-        evHP = hpEV,
-        evAttack = attackEV,
-        evDefense = defenseEV,
-        evSpeed = speedEV,
-        evSpAttack = specialEV,
-        evSpDefense = specialEV,
-        ivHP = hpDV,
-        ivAttack = atkDV,
-        ivDefense = defDV,
-        ivSpeed = speDV,
-        ivSpAttack = spcDV,
-        ivSpDefense = spcDV,
-        tid = otid,
-        sid = 0, -- Gen2 doesn't have SID
-        isShiny = isShiny,
-        heldItem = constants.getItemName(heldItem, 2),
+
+        IVs = {
+          hp = hpDV,
+          attack = atkDV,
+          defense = defDV,
+          speed = speDV,
+          specialAttack = spcDV,
+          specialDefense = spcDV -- Gen2 still uses same stat for SpAtk and SpDef
+        },
+        EVs = {
+          hp = hpEV,
+          attack = attackEV,
+          defense = defenseEV,
+          speed = speedEV,
+          specialAttack = specialEV,
+          specialDefense = specialEV
+        },
+
+        moveIds = {move1, move2, move3, move4},
+        moves = {
+          pokemonData.getMoveName(move1),
+          pokemonData.getMoveName(move2),
+          pokemonData.getMoveName(move3),
+          pokemonData.getMoveName(move4)
+        },
+        movePP = {pp1, pp2, pp3, pp4},
         heldItemId = heldItem,
+        heldItem = constants.getItemName(heldItem, 2),
+        status = status,
         friendship = friendship,
-        ability = 0, -- Gen2 doesn't have abilities
-        abilityName = "None",
-        abilityID = 0,
-        hiddenPower = 0, -- Gen2 doesn't have hidden power
-        hiddenPowerName = "None",
-        pokerus = pokerus
+
+        typeIds = {type1, type2},
+        types = {self:getTypeName(type1), self:getTypeName(type2)},
+        experience = experience,
+        otid = otid,
+        isShiny = isShiny,
     }
 end
 
@@ -191,12 +190,12 @@ function Gen2PartyReader:getDVs(dvsAddr)
     -- Read the 2-byte DV value (same structure as Gen1)
     local atkDefDVs = memory.readbyte(dvsAddr)
     local speSpcDVs = memory.readbyte(dvsAddr + 0x1)
-    
+
     local atkDV = atkDefDVs >> 4
     local defDV = atkDefDVs & 0xF
     local speDV = speSpcDVs >> 4
     local spcDV = speSpcDVs & 0xF
-    
+
     return atkDV, defDV, speDV, spcDV
 end
 
@@ -272,7 +271,7 @@ function Gen2PartyReader:getSpeciesTypes(speciesId)
         [242] = {0, 0}, [243] = {13, 13}, [244] = {10, 10}, [245] = {11, 11}, [246] = {5, 4},
         [247] = {5, 4}, [248] = {5, 17}, [249] = {14, 2}, [250] = {10, 2}, [251] = {14, 12}
     }
-    
+
     local types = speciesTypes[speciesId]
     if types then
         return types[1], types[2]
