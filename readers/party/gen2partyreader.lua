@@ -141,11 +141,11 @@ function Gen2PartyReader:readPokemon(slot)
 
     ---@type Pokemon
     return {
-        speciesId = speciesId,
+        speciesID = speciesId,
         speciesName = speciesName,
         nickname = nickname,
         level = level,
-        currentHP = curHP,
+        curHP = curHP,
         maxHP = maxHP,
 
         IVs = {

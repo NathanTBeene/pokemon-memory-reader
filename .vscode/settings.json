@@ -33,5 +33,9 @@
     "**/Thumbs.db": true,
     "**/LICENSE": true,
     "**/Bizhawk": true
-  }
+  },
+  "Lua.workspace.ignoreDir": [
+    ".vscode",
+    "modules"
+  ]
 }
